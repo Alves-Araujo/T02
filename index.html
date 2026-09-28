@@ -85,8 +85,8 @@ pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1
 .fb .v-ok{color:var(--ok)} .fb .v-bad{color:var(--bad)}
 .foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:18px}
 .btn{font:600 14px var(--sans);border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff}
-:root[data-theme="dark"] .btn{color:#06201C}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#06201C}}
+:root[data-theme="dark"] .btn:not(.ghost){color:#06201C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost){color:#06201C}}
 .btn.ghost{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);transition:background .15s,color .15s}
 .btn.ghost:hover{background:var(--accent);color:#fff}
 :root[data-theme="dark"] .btn.ghost:hover{color:#06201C}
