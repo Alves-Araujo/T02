@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulado de Redes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,600;112,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EEF2F1; --surface:#FFFFFF; --surface-2:#F6F8F8; --ink:#14201E; --muted:#5A6A67; --line:#D5DEDC;
+  --accent:#0B6E62; --accent-soft:#DDEFEB; --ok:#16794A; --ok-soft:#E1F3E8; --bad:#B8361F; --bad-soft:#FBE7E2;
+  --warn:#8A5A00; --warn-soft:#FBF0D6; --code-bg:#0F1A18; --code-ink:#CFE7E1;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --display:"Archivo","IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0E1513; --surface:#16201E; --surface-2:#1B2725; --ink:#E4ECEA; --muted:#93A5A1; --line:#2A3A37;
+  --accent:#4FC2AF; --accent-soft:#16332E; --ok:#5BD08F; --ok-soft:#133022; --bad:#F08A73; --bad-soft:#3A1C16;
+  --warn:#E8B85A; --warn-soft:#33280F; --code-bg:#08100E; --code-ink:#BFE0D8;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1513; --surface:#16201E; --surface-2:#1B2725; --ink:#E4ECEA; --muted:#93A5A1; --line:#2A3A37;
+  --accent:#4FC2AF; --accent-soft:#16332E; --ok:#5BD08F; --ok-soft:#133022; --bad:#F08A73; --bad-soft:#3A1C16;
+  --warn:#E8B85A; --warn-soft:#33280F; --code-bg:#08100E; --code-ink:#BFE0D8;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);padding-inline:16px;padding-block:0 64px;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:760px;margin:0 auto}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
+.top-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.row1{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:22px;letter-spacing:-.01em;margin:0;line-height:1.1}
+h1 small{display:block;font-family:var(--mono);font-weight:400;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.score{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);text-align:right}
+.score b{font-size:20px;color:var(--ink);font-weight:600}
+.mode{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.mode button{font:500 13px var(--sans);border:0;background:transparent;color:var(--muted);padding:6px 12px;cursor:pointer}
+.mode button[aria-pressed="true"]{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .mode button[aria-pressed="true"]{color:#06201C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mode button[aria-pressed="true"]{color:#06201C}}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer;font:500 13px var(--sans);text-align:left}
+.tab .layer{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tab .prog{font:500 11px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.tab[aria-selected="true"] .layer{color:var(--accent)}
+button:focus-visible,.opt:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:22px 0 12px}
+.sec-head h2{font-family:var(--display);font-stretch:112%;font-weight:600;font-size:19px;margin:0;text-wrap:balance}
+.sec-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:500 12.5px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 11px;cursor:pointer}
+.chip[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+
+.list{display:flex;flex-direction:column;gap:12px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.q.ok{border-left:4px solid var(--ok)} .q.bad{border-left:4px solid var(--bad)}
+.q-top{display:flex;gap:12px;align-items:flex-start}
+.num{font:600 12px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:3px 7px;flex:0 0 auto;font-variant-numeric:tabular-nums;margin-top:1px}
+.stem{margin:0;font-weight:500;max-width:65ch}
+.flag{display:inline-block;margin-top:6px;font:500 11.5px var(--mono);color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:2px 7px;letter-spacing:.02em}
+pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1.55 var(--mono);padding:12px 14px;border-radius:8px;overflow-x:auto}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;background:var(--surface-2);transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--muted)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--muted);flex:0 0 auto;margin-top:3px;display:grid;place-items:center}
+.opt.sel .dot{border-color:var(--accent)} .opt.sel .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.opt.sel{border-color:var(--accent)}
+.opt .l{font:500 12px var(--mono);color:var(--muted);margin-top:2px;width:1.1em;flex:0 0 auto}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)} .opt.right .dot{border-color:var(--ok)} .opt.right .dot::after{background:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)} .opt.wrong .dot{border-color:var(--bad)} .opt.wrong .dot::after{background:var(--bad)}
+.locked .opt{cursor:default} .locked .opt:hover{border-color:var(--line)} .locked .opt.right:hover{border-color:var(--ok)} .locked .opt.wrong:hover{border-color:var(--bad)}
+.fb{border-top:1px dashed var(--line);padding-top:10px;font-size:14px;max-width:70ch}
+.fb strong{font-weight:600}
+.fb .v-ok{color:var(--ok)} .fb .v-bad{color:var(--bad)}
+.foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:18px}
+.btn{font:600 14px var(--sans);border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn{color:#06201C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#06201C}}
+.btn.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+.btn.danger{color:var(--bad);border-color:var(--bad);background:transparent}
+.reset-btn{display:inline-flex;align-items:center;gap:7px;font:500 13px var(--sans);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+.reset-btn svg{width:15px;height:15px;flex:0 0 auto;transition:transform .35s ease}
+.reset-btn:hover{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+.reset-btn:hover svg{transform:rotate(-200deg)}
+.confirm{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;background:var(--bad-soft);border:1px solid var(--bad);border-radius:10px;padding:10px 12px 10px 14px;animation:pop .18s ease-out}
+.confirm p{flex:1 1 280px;margin:0;font-size:13.5px;color:var(--ink)}
+.confirm p strong{color:var(--bad);font-weight:600}
+.confirm .acts{display:flex;gap:8px}
+.confirm button{font:600 13px var(--sans);border-radius:7px;padding:7px 13px;cursor:pointer}
+.c-cancel{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.c-ok{background:var(--bad);color:#fff;border:1px solid var(--bad)}
+:root[data-theme="dark"] .c-ok{color:#2A0E08}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .c-ok{color:#2A0E08}}
+@keyframes pop{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.foot-confirm{margin-top:12px}
+.empty{color:var(--muted);text-align:center;padding:30px 0}
+.note{font-size:13px;color:var(--muted);margin:14px 0 0}
+@media (max-width:600px){header.top{position:static}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="row1">
+      <h1>Simulado de Redes<small>70 questões · 6 partes</small></h1>
+      <div class="score" id="score"></div>
+    </div>
+    <div class="row1">
+      <div class="mode" role="group" aria-label="Modo">
+        <button id="m-estudo" type="button">Correção imediata</button>
+        <button id="m-prova" type="button">Modo prova</button>
+      </div>
+      <button class="reset-btn" type="button" id="reset-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Recomeçar tudo</button>
+    </div>
+    <div class="confirm" id="confirm-all" role="alertdialog" aria-label="Recomeçar tudo" hidden>
+      <p><strong>Apagar todas as respostas?</strong> As 6 partes voltam a ficar em branco.</p>
+      <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset-all">Apagar e recomeçar</button></div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Partes"></nav>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<script>
+const PARTS = [
+{ t:"Endereçamento IP", layer:"Camada 3", pts:5, qs:[
+ {q:"Como é representado um endereço IPv6?", o:["4 dígitos no formato decimal","128 dígitos no formato hexadecimal","32 dígitos no formato decimal","Nenhuma das anteriores"], a:3,
+  e:"O IPv6 tem 128 bits, escritos como 32 dígitos hexadecimais (8 grupos de 4, separados por “:”). Nenhuma alternativa diz isso: 128 é o número de bits, não de dígitos."},
+ {q:"As faixas reservadas para endereçamento privado são: 10.0.0.0/8, 172.16.0.0/16 e 192.168.0.0/24.", o:["Verdade","Falso"], a:1,
+  e:"As faixas da RFC 1918 são 10.0.0.0/8, 172.16.0.0/12 e 192.168.0.0/16. Os prefixos /16 e /24 da afirmação estão errados."},
+ {q:"Uma máscara IP é constituída de duas partes, uma que identifica a rede (Net_Id), formada por bits 1, e outra que identifica os hosts (Host_Id), formada por bits 0.", o:["Verdade","Falso"], a:0,
+  e:"Na máscara, os bits 1 marcam a porção de rede e os bits 0 marcam a porção de host."},
+ {q:"O endereço MAC (endereço físico) é o endereço utilizado por dispositivos atuando em qual camada OSI?", o:["Camada 1","Camada 2","Camada 3","Camada 4"], a:1,
+  e:"O MAC é o endereço da camada de enlace (camada 2), usado por switches e placas de rede."},
+ {q:"Quantos bits existem em um endereço IP versão 6 (IPv6)?", o:["24","32","48","128"], a:3,
+  e:"IPv6 = 128 bits. (IPv4 = 32 bits; MAC = 48 bits.)"},
+ {q:"Um roteador ao receber um pacote com IP origem 192.168.10.24, e fazendo uso da máscara /24, irá encaminhar este pacote por uma saída, em sua tabela de rotas, referente a rede destino 192.168.10.0/24.", o:["Verdade","Falso"], a:1,
+  e:"O IP de origem é quem <b>mandou</b> o pacote; o de destino é para quem ele <b>vai</b>. Como um carteiro que olha o destinatário, e não o remetente, o roteador escolhe a saída pelo IP de <b>destino</b>. A conta está certa (192.168.10.24/24 é da rede 192.168.10.0/24), mas a afirmação usa o endereço errado para decidir a rota."},
+ {q:"O endereço MAC, também chamado endereço físico, constituído de 48 bits, é o endereço utilizado pelo switch para o encaminhamento de quadros; já o endereço IP, também chamado endereço lógico, constituído de 32 bits (versão 4 do IP), é utilizado pelos roteadores para o encaminhamento de pacotes.", o:["Verdade","Falso"], a:0,
+  e:"Tudo correto: MAC com 48 bits na camada 2 (switch, quadros) e IPv4 com 32 bits na camada 3 (roteador, pacotes)."},
+ {q:"Qual o endereço de broadcast da rede a qual pertence o endereço 10.0.40.200 /16?", o:["10.0.40.0","10.0.0.0","10.0.40.255","10.0.255.255"], a:3,
+  e:"Com /16, os dois primeiros octetos são rede (10.0) e os dois últimos são host. Broadcast = todos os bits de host em 1: 10.0.255.255."},
+ {q:"Quantos bits existem em um endereço IP versão 4 (IPv4)?", o:["24","32","48","128"], a:1,
+  e:"IPv4 = 32 bits, em 4 octetos de 8 bits."},
+ {q:"Qual o endereço de rede a qual pertence o endereço 10.0.40.200 /16?", o:["10.0.40.0","10.0.0.0","10.0.40.255","10.0.255.255"], a:1,
+  e:"Com /16, zera-se a parte de host (dois últimos octetos): 10.0.0.0."},
+ {q:"Qual máscara de rede é representada pela notação /20?", o:["255.255.224.0","255.255.248.0","255.255.220.0","255.255.240.0"], a:3,
+  e:"/20 = 8 + 8 + 4 bits. Quatro bits 1 no terceiro octeto: 11110000 = 240. Máscara 255.255.240.0."},
+ {q:"Qual máscara de rede é representada pela notação /24?", o:["255.0.0.0","255.255.0.0","255.255.255.0","Nenhuma das anteriores"], a:2,
+  e:"/24 = três octetos cheios de 1: 255.255.255.0."},
+ {q:"A máscara de rede tem como papel principal permitir ao roteador descobrir o endereço IP do host destino a qual o pacote será encaminhado.", o:["Verdade","Falso"], a:1,
+  e:"O IP do destino já vem no pacote. A máscara serve para descobrir a qual <b>rede</b> o endereço pertence (fazendo um AND entre IP e máscara)."},
+ {q:"Qual máscara de rede é representada pela notação /27?", o:["255.255.255.0","255.255.255.128","255.255.255.192","255.255.255.224"], a:3,
+  e:"/27 = 24 + 3 bits. Três bits 1 no último octeto: 11100000 = 224."},
+ {q:"Como é representado um endereço MAC?", o:["Quatro dígitos no formato decimal","Doze dígitos no formato hexadecimal","Seis dígitos no formato decimal","Nenhuma das anteriores"], a:1,
+  e:"48 bits ÷ 4 bits por dígito hexa = 12 dígitos hexadecimais (ex.: 00:1A:2B:3C:4D:5E)."},
+ {q:"Como é representado um endereço IPv4?", o:["4 dígitos no formato decimal","128 dígitos no formato hexadecimal","32 dígitos no formato decimal","Nenhuma das anteriores"], a:0, flag:"Confira com o professor",
+  e:"O IPv4 é escrito como 4 números decimais (de 0 a 255) separados por ponto. A alternativa diz “4 dígitos”, mas no sentido de 4 números, que é o que o professor provavelmente espera. Se ele for rigoroso com a palavra “dígitos”, a resposta seria “Nenhuma das anteriores”."},
+ {q:"Qual máscara de rede é representada pela notação /16?", o:["255.0.0.0","255.255.0.0","255.255.255.0","Nenhuma das anteriores"], a:1,
+  e:"/16 = dois octetos cheios de 1: 255.255.0.0."},
+ {q:"O endereço IPv4 (endereço lógico) é o endereço utilizado por dispositivos atuando em qual camada OSI?", o:["Camada 1","Camada 2","Camada 3","Camada 4"], a:2, flag:"Foto cortada: a opção “Camada 4” foi deduzida",
+  e:"O IP é o endereço da camada de rede (camada 3), usado pelos roteadores."},
+ {q:"Quantos bits existem em um endereço MAC?", o:["24","32","48","128"], a:2,
+  e:"MAC = 48 bits (24 do fabricante, o OUI, e 24 da placa)."},
+ {q:"O endereço IP binário 11001101.11111111.10101010.11001101, em notação decimal equivale a:", o:["109.127.200.109","205.255.170.109","109.255.170.205","205.255.170.205"], a:3,
+  e:"11001101 = 128+64+8+4+1 = 205; 11111111 = 255; 10101010 = 128+32+8+2 = 170. Resultado: 205.255.170.205."},
+]},
+{ t:"Roteamento", layer:"Camada 3", pts:10, qs:[
+ {q:"Considerando ainda a tabela de roteamento mostrada na figura, o que o roteador fará com um pacote que possui um endereço IP destino igual a 192.168.11.200?", code:"TD", o:["Descartar o pacote.","Encaminhar o pacote pela interface Serial0/0/0.","Encaminhar o pacote pela interface GigabitEthernet0/0.","Encaminhar o pacote pela interface GigabitEthernet0/1."], a:3,
+  e:"192.168.11.200 pertence à rede 192.168.11.0/24, que está diretamente conectada (C) à GigabitEthernet0/1. A rota mais específica ganha da rota padrão."},
+ {q:"Qual das afirmativas é verdadeira sobre protocolos de roteamento link-state (estado de enlace)?", o:["Eles oferecem uma convergência mais rápida em grandes redes, se comparados ao Vetor de Distância.","Eles oferecem maior risco de ocorrência de loops de roteamento, se comparados ao Vetor de Distância.","Eles dependem de contagens de saltos maiores para determinar o melhor caminho.","Nenhuma das anteriores"], a:0,
+  e:"No estado de enlace (ex.: OSPF), cada roteador conhece a topologia inteira e calcula as rotas com Dijkstra. Por isso converge mais rápido e tem menos risco de loops que o vetor de distância (ex.: RIP)."},
+ {q:"Qual das seguintes alternativas é verdadeira com relação aos protocolos roteados?", o:["Permitem que os roteadores compartilhem informações sobre as redes e rotas conhecidas.","São usados pelos roteadores para manter suas tabelas de roteamento.","Transportam dados de usuário entre as redes.","Nenhuma das anteriores"], a:2,
+  e:"Protocolo <b>roteado</b> (ex.: IP) é o que carrega os dados do usuário. As outras duas alternativas descrevem protocolos de <b>roteamento</b> (ex.: OSPF, RIP)."},
+ {q:"Considerando a tabela de roteamento mostrada na figura, o que o roteador fará com um pacote que possui um endereço IP destino igual a 200.10.20.20?", code:"TD", o:["Descartar o pacote","Encaminhar o pacote para o roteador 209.165.200.226","Encaminhar o pacote pela interface GigabitEthernet0/0.","Encaminhar o pacote pela interface GigabitEthernet0/1."], a:1,
+  e:"Nenhuma rede da tabela contém 200.10.20.20, mas existe a rota padrão (S* 0.0.0.0/0 via 209.165.200.226). O pacote é enviado para esse próximo salto."},
+ {q:"Qual afirmativa descreve uma rota que foi aprendida dinamicamente?", o:["Classificada como rota padrão.","Classificada como rota estática.","Não é afetada por mudanças na topologia da rede.","Nenhuma das anteriores"], a:3,
+  e:"Rota dinâmica é aprendida por um protocolo de roteamento e se ajusta automaticamente às mudanças de topologia. Ela não é estática, e “rota padrão” é outra classificação. Sobra “Nenhuma das anteriores”."},
+ {q:"Considerando a tabela de roteamento mostrada na figura, o que o roteador fará com um pacote que possui um endereço IP destino igual a 200.10.20.20?", code:"SEM", o:["Descartar o pacote","Encaminhar o pacote pela interface Serial0/0/0.","Encaminhar o pacote pela interface GigabitEthernet0/0.","Encaminhar o pacote pela interface GigabitEthernet0/1."], a:0,
+  e:"Esta tabela <b>não tem rota padrão</b> e nenhuma rede contém 200.10.20.20. Sem rota, o roteador descarta o pacote. Compare com a questão 4."},
+ {q:"Que tipo de rota permite que um roteador envie pacotes mesmo que sua tabela de roteamento não contenha nenhuma rota para a rede de destino do pacote?", o:["Rota dinâmica","Rota genérica","Rota padrão","Nenhuma das anteriores"], a:2,
+  e:"A rota padrão (0.0.0.0/0, “gateway of last resort”) é usada quando nenhuma outra rota combina com o destino."},
+ {q:"Protocolo de roteamento classificados como IGP são aqueles que podem ser configurados somente em dispositivos que se encontram dentro de uma rede local. Os classificados como EGP podem ser configurados em dispositivos que se encontram em redes locais distintas.", o:["Verdade","Falso"], a:1,
+  e:"A divisão é por <b>sistema autônomo</b>, não por rede local. IGP (OSPF, RIP) roteia dentro de um mesmo sistema autônomo, que pode ter muitas redes. EGP (BGP) roteia entre sistemas autônomos diferentes."},
+ {q:"Uma diferença entre os protocolos “Vetor de distância” e “Estado de enlace”, é que os protocolos “Vetor de distância” possibilitam uma convergência mais rápida, uma vez que fazem uso do Algoritmo de Dijkstra.", o:["Verdade","Falso"], a:1,
+  e:"É o contrário: quem usa Dijkstra e converge mais rápido é o <b>estado de enlace</b>. O vetor de distância usa Bellman-Ford."},
+ {q:"Qual das seguintes é uma função básica de um roteador?", o:["Encaminhar pacotes com base no endereço MAC destino do pacote","Determinar o melhor caminho para enviar pacotes.","Controlar o fluxo de dados por meio do uso de endereços da Camada 2.","Nenhuma das anteriores"], a:1,
+  e:"O roteador trabalha na camada 3: escolhe o melhor caminho com base no IP de destino. Encaminhar por MAC é função do switch."},
+]},
+{ t:"Modelos OSI e TCP/IP", layer:"Camadas 1–7", pts:null, qs:[
+ {q:"Que modelo de referência divide as comunicações de rede em sete camadas distintas e foi criado para prover a interoperabilidade entre dispositivos e protocolos?", o:["IEEE","IETF","OSI","TCP/IP"], a:2,
+  e:"O modelo OSI (da ISO) tem 7 camadas. O TCP/IP tem 4 (ou 5, dependendo do autor)."},
+ {q:"A arquitetura TCP/IP define um conjunto de protocolos que têm por função implementar diferentes funções definidas no Modelo OSI.", o:["Verdade","Falso"], a:0, flag:"Confira com o professor",
+  e:"Na prática, os protocolos TCP/IP cumprem as funções descritas pelas camadas do OSI, e é assim que a maioria dos materiais apresenta. A ressalva é histórica: o TCP/IP foi criado antes e de forma independente do OSI."},
+ {q:"Quais três protocolos operam na camada de aplicação no modelo TCP/IP?", o:["IP, TCP e UDP","IP, HTTP e ICMP","HTTP, TCP e SMTP","HTTP, SMTP e FTP"], a:3,
+  e:"HTTP, SMTP e FTP são de aplicação. TCP e UDP são de transporte; IP e ICMP são de rede."},
+ {q:"No modelo OSI, qual camada é responsável pelos padrões de interfaceamento com os meios de transmissão?", o:["Aplicação","Enlace","Física","Rede"], a:2,
+  e:"A camada física trata do meio: cabos, conectores, sinais elétricos/ópticos e transmissão de bits."},
+ {q:"Um cliente cria um pacote para enviar a um servidor. O cliente está solicitando serviço HTTP. Qual número será usado como o número da porta de destino (padrão) no envio desse pacote?", o:["20","21","23","80"], a:3,
+  e:"HTTP usa a porta 80. (20/21 = FTP, 23 = Telnet.)"},
+ {q:"Aplicações multimídia em tempo real necessitam de rapidez no envio de suas informações. Assim, é mais indicado se faça uso dos serviços TCP.", o:["Verdade","Falso"], a:1,
+  e:"Para tempo real, o indicado é o UDP: sem conexão e sem retransmissão, tem menos atraso. Perder um pacote é melhor que esperar por ele."},
+ {q:"Aplicações Web, em que o controle de erros é importante. Assim, é mais indicado se faça uso dos serviços UDP.", o:["Verdade","Falso"], a:1,
+  e:"Quando o controle de erros importa, o indicado é o TCP, que confirma a entrega e retransmite o que se perdeu."},
+ {q:"A troca de informações entre as camadas de Aplicação e Transporte ocorrem por meio dos chamados “sockets”.", o:["Verdade","Falso"], a:0,
+  e:"O socket é a interface entre o processo da aplicação e a camada de transporte."},
+ {q:"Uma conexão lógica, entre duas aplicações (processos) finais, necessita para sua identificação de um único identificador de porta.", o:["Verdade","Falso"], a:1, flag:"Possível pegadinha",
+  e:"Uma conexão é identificada por dois sockets: IP e porta de origem mais IP e porta de destino. Uma única porta não basta. A pegadinha está na palavra “único”."},
+ {q:"As portas identificadas como “bem conhecidas” são aquelas já reservadas para serviços e aplicações específicas. Já as portas identificadas como “dinâmicas” são aquelas escolhidas pelo sistema operacional do cliente para identificar sua aplicação.", o:["Verdade","Falso"], a:0,
+  e:"Bem conhecidas (0–1023) são reservadas a serviços como HTTP (80) e DNS (53). Dinâmicas/efêmeras (49152–65535) são sorteadas pelo sistema do cliente."},
+]},
+{ t:"Ethernet e VLAN", layer:"Camadas 1–2", pts:10, qs:[
+ {q:"O padrão Ethernet está relacionado a quais camadas do modelo OSI?", o:["Aplicação e Rede","Transporte e Rede","Física e Enlace","Rede e Enlace","Nenhuma das anteriores"], a:2,
+  e:"O Ethernet (IEEE 802.3) define o meio físico e o quadro de enlace: camadas 1 e 2."},
+ {q:"Quais das seguintes alternativas são especificadas pelos padrões IEEE como subcamadas da camada de enlace de dados do modelo OSI?", o:["Media Access Control e Logical Link Communication","Logical Layer Control e Media Access Control","Logical Link Control e Media Access Control","Media Access Communication e Physical Access Communication","Nenhuma das anteriores"], a:2,
+  e:"As subcamadas são LLC (Logical Link Control, IEEE 802.2) e MAC (Media Access Control). As outras alternativas trocam uma palavra do nome."},
+ {q:"Qual das abaixo não é uma característica do padrão Ethernet?", o:["Facilidade de manutenção","Tecnologia livre de colisões","Baixo custo de instalação","Escalabilidade","Nenhuma das anteriores"], a:1,
+  e:"O Ethernet original é um meio compartilhado com CSMA/CD, feito justamente para lidar com colisões. Ele não é “livre de colisões” por definição."},
+ {q:"Qual é o propósito do preâmbulo em um quadro Ethernet?", o:["Identificar o endereço origem","Identificar o endereço destino","Marca o final das informações","Utilizado para a sincronização (1s e 0s alternados)","Nenhuma das anteriores"], a:3,
+  e:"O preâmbulo (7 bytes de 10101010) sincroniza o relógio do receptor antes do quadro começar."},
+ {q:"Qual das seguintes alternativas descreve os endereços padrão Ethernet?", o:["Endereço de 32 bits no formato decimal","Endereço de 128 bits no formato hexadecimal","Denominado endereço lógico","Denominado endereço físico","Nenhuma das anteriores"], a:3,
+  e:"O endereço Ethernet é o MAC: 48 bits em hexadecimal, chamado endereço físico. “Lógico” é o IP."},
+ {q:"Qual afirmativa é verdadeira sobre a implementação de VLAN?", o:["Aumenta o custo da infraestrutura da rede uma vez que necessitará de um número maior de switches.","Agrupam hosts logicamente, independentemente da localização física destes.","A carga da rede aumenta significativamente devido a informações de entroncamento adicionadas.","Dispositivos de VLANs diferentes nunca poderão se comunicar, uma vez que os mesmos estão isolados logicamente.","Nenhuma das anteriores"], a:1,
+  e:"VLAN agrupa hosts por função, não por lugar. Ela não exige mais switches, a tag 802.1Q é pequena, e VLANs diferentes se comunicam por roteamento."},
+ {q:"Um administrador de redes está determinando o melhor posicionamento de links de trunk (conexões tronco) de VLAN. Qual tipo de conexão ponto-a-ponto utiliza o trunking de VLAN?", o:["Entre dois switches que utilizam várias VLANs.","Entre um switch e um PC cliente.","Entre um switch e uma impressora de rede","Entre dois switches que compartilham uma VLAN padrão.","Nenhuma das anteriores"], a:0,
+  e:"O trunk carrega várias VLANs num mesmo enlace, geralmente entre switches. PCs e impressoras usam porta de acesso (uma VLAN só)."},
+ {q:"Em uma empresa há uma LAN subdividida em muitas VLANs. Deseja-se implementar o roteamento entre essas VLANs. Uma solução é adicionar qual dispositivo para essa funcionalidade?", o:["Switch de camada 2 (Layer 2).","Ponto de acesso sem fio (AP).","Conversor de mídias.","Roteador.","Nenhuma das anteriores"], a:3,
+  e:"Roteamento entre VLANs precisa de um dispositivo de camada 3: roteador (ou switch L3)."},
+ {q:"Uma pequena empresa usa a VLAN 10 para a rede da linha de montagem e a VLAN 20 para a rede do escritório. O que é necessário para permitir a comunicação entre essas duas VLANs?", o:["São necessários dois grupos de switches, cada um com portas configuradas para uma VLAN diferente.","É necessário um roteador para cada VLAN e links seriais entre os roteadores.","É necessário um switch camada 2 adicional com uma porta configurada como trunk para se conectar as duas VLANs.","É necessário um dispositivo de camada 3 (roteador ou switch layer 3) que permita o roteamento entre as VLANs.","Nenhuma das anteriores"], a:3,
+  e:"VLANs diferentes são redes diferentes. Para ligá-las é preciso roteamento, feito por um dispositivo de camada 3. Um só roteador basta (ex.: router-on-a-stick)."},
+ {q:"Em um ambiente Ethernet, usando switches, foram criadas quatro VLANs, uma para cada departamento dessa empresa. Desejando-se que os dispositivos das diferentes VLANs possam se comunicar, entre outros, qual dos procedimentos abaixo deve ser realizado?", o:["A cada switch deve ser atribuído um endereço de sub-rede diferente.","As portas de conexão entre os switches devem ser configuradas como portas de acesso","Pode ser conectado em um dos switches um roteador que implemente o roteamento.","Em cada switch, deve ser conectado um roteador que implemente roteamento","Nenhuma das anteriores"], a:2,
+  e:"Um único roteador ligado a um dos switches (por trunk) já roteia todas as VLANs. A sub-rede é por VLAN, não por switch, e os links entre switches devem ser trunk, não acesso."},
+]},
+{ t:"Camada de aplicação", layer:"Camada 7", pts:10, qs:[
+ {q:"Qual das afirmativas abaixo não é característica do HTTP?", o:["Utiliza como porta padrão o valor 80","Permite a troca de hipertextos entra aplicações","Opera no modo cliente/servidor","Trabalha no modo não orientado a conexão"], a:3, flag:"Confira com o professor",
+  e:"O HTTP roda sobre TCP, que é orientado a conexão, então essa não é característica dele. Cuidado para não confundir com “sem estado” (stateless): isso o HTTP é, mas é outra ideia. As outras três alternativas são características do HTTP."},
+ {q:"Após um navegador de internet efetuar uma requisição a um servidor web que está ouvindo a porta padrão, qual será o provável número de porta origem no cabeçalho TCP da resposta do servidor?", o:["80","21","22","1883"], a:0,
+  e:"Na resposta, as portas se invertem: a origem é a porta do servidor (80) e o destino é a porta efêmera do cliente."},
+ {q:"Que dispositivo em uma rede gerencia nomes de domínio e responde solicitações dos clientes para converter um nome de domínio no endereço IP associado?", o:["Hypertext Markup Language","Uniform Resource Locator","Servidor de nomes de domínio","Redirecionador de rede"], a:2,
+  e:"É o servidor DNS (Domain Name System), que traduz nomes em endereços IP. HTML e URL não são dispositivos."},
+ {q:"Qual dos seguintes serviços é usado para resolver um endereço web em endereço IP?", o:["DNS","SNMP","SMTP","NAT"], a:0,
+  e:"DNS resolve nomes. SNMP é gerência de rede, SMTP é e-mail e NAT traduz endereços privados para públicos."},
+ {q:"O modelo de comunicação utilizado pelo MQTT é:", o:["Cliente-servidor direto","Ponto a ponto (peer-to-peer)","Broadcast puro","Publicação/assinatura (publish/subscribe)"], a:3,
+  e:"No MQTT, clientes publicam e assinam tópicos por meio de um broker (intermediário)."},
+ {q:"Qual das características abaixo é uma vantagem do MQTT?", o:["Alto consumo de banda","Dependência de conexões cabeadas","Comunicação direta entre clientes","Leveza e eficiência para IoT"], a:3,
+  e:"O MQTT tem cabeçalho mínimo e pouco consumo de banda e energia, por isso é tão usado em IoT."},
+ {q:"O protocolo MQTT é classificado como:", o:["Protocolo de transporte","Protocolo de rede","Protocolo de aplicação","Protocolo de enlace"], a:2,
+  e:"MQTT é de aplicação e roda sobre TCP (porta 1883, que aparece como distrator na questão 2)."},
+ {q:"Um servidor TLD é responsável por enviar:", o:["O endereço IP de um servidor raiz responsável pelo domínio buscado","O endereço IP do domínio buscado","O endereço de um servidor autoritativo responsável pelo domínio buscado","O domínio correspondente a um endereço IP buscado"], a:2,
+  e:"A consulta segue a ordem raiz → TLD (.com, .br) → autoritativo. O TLD indica qual servidor autoritativo tem a resposta, e é o autoritativo que devolve o IP."},
+ {q:"O protocolo HTTP tem como objetivo permitir a troca de mensagens entre um servidor e um cliente Web, definindo como essas páginas são requisitadas pelos clientes e enviadas pelos servidores.", o:["Verdade","Falso"], a:0,
+  e:"Essa é a definição do HTTP: um protocolo de requisição e resposta entre cliente e servidor web."},
+ {q:"De modo geral, ambos os protocolos DNS e HTTP fazem uso do UDP como protocolo de transporte", o:["Verdade","Falso"], a:1,
+  e:"O DNS usa UDP (porta 53), mas o HTTP usa TCP (porta 80). Como a afirmação diz “ambos”, é falsa."},
+]},
+{ t:"TCP e UDP", layer:"Camada 4", pts:10, qs:[
+ {q:"Qual é a principal vantagem do protocolo UDP em relação ao TCP?", o:["Garantia de entrega de pacotes","Estabelecimento de conexão antes da transmissão","Oferece controle de congestionamento","Maior rapidez e menor overhead","Nenhuma das anteriores"], a:3,
+  e:"O UDP não tem handshake, confirmações nem retransmissão, e seu cabeçalho tem só 8 bytes. As outras alternativas são características do TCP."},
+ {q:"Qual das seguintes aplicações normalmente utiliza o protocolo TCP?", o:["Streaming de vídeo ao vivo","Jogos online","Transmissão de voz sobre IP (VoIP)","Transferência de arquivos (FTP)","Nenhuma das anteriores"], a:3,
+  e:"Um arquivo precisa chegar inteiro e correto, então o FTP usa TCP. As demais são de tempo real e costumam usar UDP."},
+ {q:"Quais os números de porta padrão usadas para conexões TCP e UDP, respectivamente, para os protocolos HTTP e DNS?", o:["80 e 53","80 e 23","53 e 23","23 e 80","Nenhuma das anteriores"], a:0,
+  e:"HTTP usa TCP na porta 80; DNS usa UDP na porta 53. (23 = Telnet.)"},
+ {q:"Qual das seguintes é uma característica do UDP?", o:["Garante a ordem dos pacotes na entrega","Opera no modo orientado à conexão","Mais adequado para aplicações que exigem baixa latência (menor atraso)","É mais confiável que o TCP","Nenhuma das anteriores"], a:2,
+  e:"O UDP tem menos atraso, por isso serve para aplicações sensíveis à latência. As outras alternativas descrevem o TCP."},
+ {q:"Em uma comunicação usando o protocolo UDP, se um pacote for corrompido durante a transmissão, o que acontece?", o:["O pacote é automaticamente retransmitido pelo UDP","O UDP receptor solicita um novo pacote","O pacote é simplesmente descartado no receptor e não há retransmissão pelo UDP","O UDP destino descarta o pacote e solicita uma retransmissão do pacote","Nenhuma das anteriores"], a:2,
+  e:"O checksum do UDP detecta o erro e o segmento é descartado. O UDP não tem retransmissão; se ela for necessária, quem cuida é a aplicação."},
+ {q:"Qual das seguintes é uma característica do TCP?", o:["Não verifica se os pacotes chegaram ao destino","Viabiliza a entrega dos pacotes na ordem correta","Não estabelece conexão antes de transmitir dados","Opera no modo “não confiável”","Nenhuma das anteriores"], a:1,
+  e:"Com números de sequência, o TCP reordena os segmentos e entrega os dados na ordem certa. As outras alternativas descrevem o UDP."},
+ {q:"O que acontece se um segmento TCP for perdido durante a transmissão?", o:["O segmento é retransmitido","A conexão é encerrada imediatamente","O segmento é substituído por outro","O segmento é ignorado e a transmissão continua","Nenhuma das anteriores"], a:0,
+  e:"Se a confirmação (ACK) não chega a tempo, ou chegam ACKs duplicados, o emissor retransmite o segmento."},
+ {q:"Qual dos seguintes serviços de rede utiliza o protocolo UDP por padrão?", o:["HTTP","FTP","SSH","DNS","Nenhuma das anteriores"], a:3,
+  e:"As consultas DNS usam UDP 53 por padrão. HTTP, FTP e SSH usam TCP."},
+ {q:"Em qual das seguintes situações o protocolo UDP seria mais apropriado que o TCP?", o:["Envio de e-mails","Streaming de vídeo","Acesso remoto via SSH","Download de arquivos grandes","Nenhuma das anteriores"], a:1,
+  e:"Em streaming (principalmente ao vivo), perder um quadro é melhor que atrasar. E-mail, SSH e downloads precisam de integridade, então usam TCP."},
+ {q:"Qual das seguintes características é verdadeira para o protocolo TCP?", o:["Não garante a entrega dos pacotes","Oferece um serviço não orientado à conexão","É mais rápido que o UDP","Oferece retransmissão de pacotes perdidos","Nenhuma das anteriores"], a:3,
+  e:"Retransmitir o que se perdeu é o que torna o TCP confiável. As outras alternativas estão erradas ou descrevem o UDP."},
+]},
+];
+
+const TABLE_HEAD = "S*    0.0.0.0/0 [1/0] via 209.165.200.226\n";
+const TABLE_BODY =
+"      192.168.10.0/24 is variably subnetted, 2 subnets, 2 masks\n"+
+"C        192.168.10.0/24 is directly connected, GigabitEthernet0/0\n"+
+"L        192.168.10.1/32 is directly connected, GigabitEthernet0/0\n"+
+"      192.168.11.0/24 is variably subnetted, 2 subnets, 2 masks\n"+
+"C        192.168.11.0/24 is directly connected, GigabitEthernet0/1\n"+
+"L        192.168.11.1/32 is directly connected, GigabitEthernet0/1\n"+
+"      209.165.200.0/24 is variably subnetted, 2 subnets, 2 masks\n"+
+"C        209.165.200.224/30 is directly connected, Serial0/0/0\n"+
+"L        209.165.200.225/32 is directly connected, Serial0/0/0";
+const TABLES = { TD: TABLE_HEAD + TABLE_BODY, SEM: TABLE_BODY };
+
+const KEY = "simulado-redes-v1";
+let S = { part:0, mode:"estudo", ans:{}, checked:{}, filter:"todas" };
+try { const saved = JSON.parse(localStorage.getItem(KEY)); if (saved) S = Object.assign(S, saved); } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+let confirming = null;
+const L = "abcde";
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function revealed(p,i){ return S.mode==="estudo" ? (p+"-"+i) in S.ans : !!S.checked[p]; }
+function status(p,i){
+  const k=p+"-"+i; if(!(k in S.ans)) return "none";
+  if(!revealed(p,i)) return "pending";
+  return S.ans[k]===PARTS[p].qs[i].a ? "ok" : "bad";
+}
+function partStats(p){
+  let ok=0, done=0, ans=0;
+  PARTS[p].qs.forEach((_,i)=>{ const s=status(p,i); if(s!=="none") ans++; if(s==="ok"||s==="bad") done++; if(s==="ok") ok++; });
+  return {ok,done,ans,n:PARTS[p].qs.length};
+}
+
+function renderTop(){
+  let ok=0, done=0, n=0;
+  PARTS.forEach((_,p)=>{ const s=partStats(p); ok+=s.ok; done+=s.done; n+=s.n; });
+  $("#score").innerHTML = `<b>${ok}</b> / ${done} corrigidas<br>de ${n} questões`;
+  $("#m-estudo").setAttribute("aria-pressed", S.mode==="estudo");
+  $("#m-prova").setAttribute("aria-pressed", S.mode==="prova");
+  $("#tabs").innerHTML = PARTS.map((P,p)=>{
+    const s=partStats(p);
+    const prog = s.done ? `${s.ok}/${s.n} acertos` : `${s.ans}/${s.n} respondidas`;
+    return `<button class="tab" role="tab" type="button" data-p="${p}" aria-selected="${p===S.part}">
+      <span class="layer">${P.layer}</span>${P.t}<span class="prog">${prog}</span></button>`;
+  }).join("");
+}
+
+function renderMain(){
+  const p=S.part, P=PARTS[p], st=partStats(p);
+  const flt = S.filter;
+  const items = P.qs.map((Q,i)=>({Q,i,s:status(p,i)})).filter(x=>
+    flt==="todas" || (flt==="erradas" && x.s==="bad") || (flt==="pendentes" && x.s==="none"));
+  let h = `<div class="sec-head"><div><h2>Parte ${p+1} · ${P.t}</h2>
+    <p>${P.qs.length} questões${P.pts?` · ${P.pts} pontos cada na prova original`:""}</p></div>
+    <div class="filters" role="group" aria-label="Filtro">
+      ${[["todas","Todas"],["pendentes","Sem resposta"],["erradas","Erradas"]].map(([k,t])=>
+        `<button class="chip" type="button" data-f="${k}" aria-pressed="${flt===k}">${t}</button>`).join("")}
+    </div></div><div class="list">`;
+  if(!items.length) h += `<p class="empty">${flt==="erradas"?"Nenhuma questão errada aqui.":"Todas as questões desta parte foram respondidas."}</p>`;
+  items.forEach(({Q,i,s})=>{
+    const k=p+"-"+i, chosen=S.ans[k], rev=revealed(p,i) && chosen!==undefined;
+    const locked = S.mode==="estudo" ? chosen!==undefined : !!S.checked[p];
+    h += `<article class="q ${rev?s:""} ${locked?"locked":""}" id="q${p}-${i}">
+      <div class="q-top"><span class="num">${String(i+1).padStart(2,"0")}</span><div>
+      <p class="stem">${esc(Q.q)}</p>${Q.flag?`<span class="flag">${Q.flag}</span>`:""}</div></div>
+      ${Q.code?`<pre class="table">${esc(TABLES[Q.code])}</pre>`:""}
+      <div class="opts" role="radiogroup">`;
+    Q.o.forEach((o,j)=>{
+      let c="opt";
+      if(chosen===j) c+=" sel";
+      if(rev && j===Q.a) c+=" right";
+      else if(rev && chosen===j) c+=" wrong";
+      h += `<label class="${c}"><input type="radio" name="r${k}" id="r${k}-${j}" value="${j}" ${chosen===j?"checked":""} ${locked?"disabled":""} data-k="${k}">
+        <span class="dot"></span><span class="l">${L[j]}</span><span>${esc(o)}</span></label>`;
+    });
+    h += `</div>`;
+    if(rev){
+      h += `<div class="fb"><strong class="${s==="ok"?"v-ok":"v-bad"}">${s==="ok"?"Correto.":"Resposta: "+L[Q.a]+") "+esc(Q.o[Q.a])}</strong> ${Q.e}</div>`;
+    }
+    h += `</article>`;
+  });
+  h += `</div><div class="foot">`;
+  if(S.mode==="prova" && !S.checked[p]) h += `<button class="btn" type="button" id="corrigir">Corrigir parte ${p+1} (${st.ans}/${st.n} respondidas)</button>`;
+  else if(st.done) h += `<span class="score"><b>${st.ok}</b> / ${st.n} nesta parte</span>`;
+  else h += `<span></span>`;
+  h += `<div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${p<PARTS.length-1?`<button class="btn ghost" type="button" id="next">Próxima parte →</button>`:""}
+    <button class="reset-btn" type="button" id="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Refazer esta parte</button></div></div>
+    <div class="confirm foot-confirm" id="confirm-part" role="alertdialog" aria-label="Refazer parte" ${confirming==="part"?"":"hidden"}>
+      <p><strong>Apagar as respostas da Parte ${p+1}?</strong> As outras partes não mudam.</p>
+      <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset">Apagar parte</button></div>
+    </div>
+    <p class="note">Questões marcadas em amarelo têm redação ambígua ou dependem de como o professor encara o assunto. A explicação diz qual é a resposta mais provável.</p>`;
+  $("#main").innerHTML = h;
+}
+
+function render(){ renderTop(); renderMain(); $("#confirm-all").hidden = confirming!=="all"; }
+
+document.addEventListener("change", e=>{
+  const t=e.target; if(!t.dataset || !t.dataset.k) return;
+  S.ans[t.dataset.k] = +t.value; save();
+  const y = window.scrollY; render(); window.scrollTo(0,y);
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && confirming){ confirming=null; render(); } });
+document.addEventListener("click", e=>{
+  const tab=e.target.closest(".tab");
+  if(tab){ confirming=null; S.part=+tab.dataset.p; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
+  const f=e.target.closest("[data-f]");
+  if(f){ S.filter=f.dataset.f; save(); render(); return; }
+  if(e.target.id==="m-estudo"||e.target.id==="m-prova"){ S.mode=e.target.id.slice(2); save(); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
+  if(e.target.id==="corrigir"){ S.checked[S.part]=true; save(); render(); return; }
+  if(e.target.id==="next"){ confirming=null; S.part++; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
+  const id = e.target.closest("button")?.id;
+  if(id==="reset-all"){ confirming = confirming==="all" ? null : "all"; render(); if(confirming) $("#do-reset-all").focus(); return; }
+  if(id==="reset"){ confirming = confirming==="part" ? null : "part"; render(); if(confirming){ const c=$("#confirm-part"); c.scrollIntoView({block:"nearest"}); $("#do-reset").focus(); } return; }
+  if(e.target.closest("[data-cancel]")){ confirming=null; render(); return; }
+  if(id==="do-reset-all"){ confirming=null; S.ans={}; S.checked={}; S.part=0; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
+  if(id==="do-reset"){ confirming=null; PARTS[S.part].qs.forEach((_,i)=>delete S.ans[S.part+"-"+i]); delete S.checked[S.part]; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
+});
+render();
+</script>
+</body>
+</html>
