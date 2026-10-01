@@ -73,7 +73,7 @@ com o pacote em cada caso.
 | **⬇️&nbsp;Próxima&nbsp;sem&nbsp;resposta** | Botão flutuante que desce até a próxima questão em branco. |
 | **↺&nbsp;Recomeçar** | **Refazer esta aba** ou **Recomeçar tudo**, sempre com confirmação antes de apagar. `Esc` cancela. |
 
-Acertar dá um brilho verde no card, e errar faz a alternativa tremer. As abas entram
+No fundo, uma rede animada: nós, links e pacotes trafegando nas laterais, bem fraca atrás do conteúdo. Ela reage às respostas: acertar solta pacotes verdes dos dois lados do card, e errar solta pacotes vermelhos. O card também brilha no acerto, e a alternativa treme no erro. As abas entram
 com uma animação curta, e tudo isso é desligado se o sistema estiver com
 `prefers-reduced-motion`. O tema claro/escuro acompanha o sistema, e o layout funciona no celular.
 
