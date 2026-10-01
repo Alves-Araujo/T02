@@ -11,106 +11,249 @@
 :root{
   --bg:#EEF2F1; --surface:#FFFFFF; --surface-2:#F6F8F8; --ink:#14201E; --muted:#5A6A67; --line:#D5DEDC;
   --accent:#0B6E62; --accent-soft:#DDEFEB; --ok:#16794A; --ok-soft:#E1F3E8; --bad:#B8361F; --bad-soft:#FBE7E2;
-  --warn:#8A5A00; --warn-soft:#FBF0D6; --code-bg:#0F1A18; --code-ink:#CFE7E1;
+  --warn:#8A5A00; --warn-soft:#FBF0D6; --hot:#A3195B; --hot-soft:#FBE4EE; --code-bg:#0F1A18; --code-ink:#CFE7E1;
+  --on-accent:#fff; --shadow:0 1px 2px rgba(20,32,30,.05),0 6px 18px -8px rgba(20,32,30,.12);
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
   --display:"Archivo","IBM Plex Sans",system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   color-scheme:dark;
   --bg:#0E1513; --surface:#16201E; --surface-2:#1B2725; --ink:#E4ECEA; --muted:#93A5A1; --line:#2A3A37;
   --accent:#4FC2AF; --accent-soft:#16332E; --ok:#5BD08F; --ok-soft:#133022; --bad:#F08A73; --bad-soft:#3A1C16;
-  --warn:#E8B85A; --warn-soft:#33280F; --code-bg:#08100E; --code-ink:#BFE0D8;
+  --warn:#E8B85A; --warn-soft:#33280F; --hot:#FF8CC2; --hot-soft:#3A1527; --code-bg:#08100E; --code-ink:#BFE0D8;
+  --on-accent:#06201C; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px -10px rgba(0,0,0,.5);
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
   --bg:#0E1513; --surface:#16201E; --surface-2:#1B2725; --ink:#E4ECEA; --muted:#93A5A1; --line:#2A3A37;
   --accent:#4FC2AF; --accent-soft:#16332E; --ok:#5BD08F; --ok-soft:#133022; --bad:#F08A73; --bad-soft:#3A1C16;
-  --warn:#E8B85A; --warn-soft:#33280F; --code-bg:#08100E; --code-ink:#BFE0D8;
+  --warn:#E8B85A; --warn-soft:#33280F; --hot:#FF8CC2; --hot-soft:#3A1527; --code-bg:#08100E; --code-ink:#BFE0D8;
+  --on-accent:#06201C; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px -10px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
 html{color-scheme:light}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);padding-inline:16px;padding-block:0 64px;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);padding-inline:16px;padding-block:0 96px;-webkit-font-smoothing:antialiased}
 [hidden]{display:none!important}
-.wrap{max-width:760px;margin:0 auto}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
-.top-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.row1{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+code{font:500 .92em var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.wrap{max-width:780px;margin:0 auto}
+
+/* ---------- cabeçalho ---------- */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding-block:14px 10px;border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
+.top-inner{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.row1{display:flex;align-items:center;justify-content:space-between;gap:10px 12px;flex-wrap:wrap}
+.row-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 h1{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:22px;letter-spacing:-.01em;margin:0;line-height:1.1}
-h1 small{display:block;font-family:var(--mono);font-weight:400;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
-.score{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);text-align:right}
-.score b{font-size:20px;color:var(--ink);font-weight:600}
+.brand small{display:block;font-family:var(--mono);font-weight:400;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+.stat{display:flex;align-items:center;gap:10px;text-align:right}
+.ring-w{position:relative;width:46px;height:46px;flex:0 0 auto}
+.ring{width:46px;height:46px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:5;transition:stroke-dasharray .7s var(--ease),stroke-dashoffset .7s var(--ease)}
+.rg-track{stroke:var(--line)} .rg-ok{stroke:var(--ok)} .rg-bad{stroke:var(--bad)} .rg-warn{stroke:var(--warn)} .rg-acc{stroke:var(--accent)}
+.ring-w span{position:absolute;inset:0;display:grid;place-items:center;font:600 11px var(--mono);font-variant-numeric:tabular-nums}
+.stat-t{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--muted);line-height:1.35}
+.stat-t b{font-size:19px;color:var(--ink);font-weight:600}
+.stat-t .tn{display:block;font-family:var(--sans);font-size:11.5px;color:var(--muted);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:auto}
+
+.groups{display:inline-flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+.grp{display:inline-flex;align-items:center;gap:7px;font:600 13.5px var(--sans);border:0;background:transparent;color:var(--muted);padding:7px 13px;border-radius:8px;cursor:pointer;transition:background .2s,color .2s}
+.grp:hover{color:var(--ink)}
+.grp[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.grp .gn{font:500 11px var(--mono);opacity:.75}
+.new{font:600 10px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--hot);background:var(--hot-soft);border-radius:999px;padding:1px 7px}
+.grp[aria-pressed="true"] .new{background:var(--hot);color:var(--surface)}
+
 .mode{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
-.mode button{font:500 13px var(--sans);border:0;background:transparent;color:var(--muted);padding:6px 12px;cursor:pointer}
-.mode button[aria-pressed="true"]{background:var(--accent);color:#fff}
-:root[data-theme="dark"] .mode button[aria-pressed="true"]{color:#06201C}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mode button[aria-pressed="true"]{color:#06201C}}
-.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.mode button{font:500 13px var(--sans);border:0;background:transparent;color:var(--muted);padding:6px 12px;cursor:pointer;transition:background .2s,color .2s}
+.mode button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px;margin:-2px}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer;font:500 13px var(--sans);text-align:left}
+.tab{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:118px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:6px 10px 7px;cursor:pointer;font:500 13px var(--sans);text-align:left;transition:border-color .2s,background .2s,transform .2s var(--ease)}
+.tab:hover{transform:translateY(-1px);border-color:var(--muted)}
 .tab .layer{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .tab .prog{font:500 11px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.tab .bar{display:flex;width:100%;height:3px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:4px}
+.tab .bar i{display:block;height:100%;transition:width .5s var(--ease)}
+.bar .b-ok{background:var(--ok)} .bar .b-bad{background:var(--bad)} .bar .b-warn{background:var(--warn)} .bar .b-acc{background:var(--accent)}
 .tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
 .tab[aria-selected="true"] .layer{color:var(--accent)}
-button:focus-visible,.opt:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+button:focus-visible,.opt:focus-within,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+/* ---------- seção ---------- */
 .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:22px 0 12px}
 .sec-head h2{font-family:var(--display);font-stretch:112%;font-weight:600;font-size:19px;margin:0;text-wrap:balance}
 .sec-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.intro{margin:-4px 0 14px;font-size:14px;color:var(--muted);max-width:68ch}
+.intro b{color:var(--ink);font-weight:600}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
-.chip{font:500 12.5px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 11px;cursor:pointer}
+.chip{font:500 12.5px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 11px;cursor:pointer;transition:color .15s,border-color .15s}
+.chip:hover{color:var(--ink)}
 .chip[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
 
+/* ---------- questões ---------- */
 .list{display:flex;flex-direction:column;gap:12px}
-.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
-.q.ok{border-left:4px solid var(--ok)} .q.bad{border-left:4px solid var(--bad)}
+.q{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);transition:border-color .3s}
+.q.ok{border-left-color:var(--ok)} .q.bad{border-left-color:var(--bad)} .q.pending{border-left-color:var(--warn)}
 .q-top{display:flex;gap:12px;align-items:flex-start}
 .num{font:600 12px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:3px 7px;flex:0 0 auto;font-variant-numeric:tabular-nums;margin-top:1px}
-.stem{margin:0;font-weight:500;max-width:65ch}
-.flag{display:inline-block;margin-top:6px;font:500 11.5px var(--mono);color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:2px 7px;letter-spacing:.02em}
+.stem{margin:0;font-weight:500;max-width:68ch;white-space:pre-line}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.tags:empty{display:none}
+.flag{display:inline-block;font:500 11.5px var(--mono);color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:2px 7px;letter-spacing:.02em}
+.hot{display:inline-flex;align-items:center;gap:5px;font:600 11.5px var(--mono);color:var(--hot);background:var(--hot-soft);border-radius:4px;padding:2px 7px}
+.hot.alt{background:transparent;box-shadow:inset 0 0 0 1px var(--hot)}
+.qnote{margin:6px 0 0;font-size:12.5px;color:var(--muted);font-style:italic}
 pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1.55 var(--mono);padding:12px 14px;border-radius:8px;overflow-x:auto}
 .opts{display:flex;flex-direction:column;gap:6px}
-.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;background:var(--surface-2);transition:border-color .12s,background .12s}
-.opt:hover{border-color:var(--muted)}
+.opt{position:relative;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;background:var(--surface-2);transition:border-color .15s,background .2s,transform .15s var(--ease)}
+.opt:hover{border-color:var(--muted);transform:translateX(2px)}
 .opt input{position:absolute;opacity:0;pointer-events:none}
-.dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--muted);flex:0 0 auto;margin-top:3px;display:grid;place-items:center}
-.opt.sel .dot{border-color:var(--accent)} .opt.sel .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.dot{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--muted);flex:0 0 auto;margin-top:2px;display:grid;place-items:center;transition:border-color .15s,background .2s}
+.dot svg{width:10px;height:10px;fill:none;stroke:var(--surface);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.opt.sel .dot{border-color:var(--accent)} .opt.sel:not(.right):not(.wrong) .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .opt.sel{border-color:var(--accent)}
 .opt .l{font:500 12px var(--mono);color:var(--muted);margin-top:2px;width:1.1em;flex:0 0 auto}
-.opt.right{background:var(--ok-soft);border-color:var(--ok)} .opt.right .dot{border-color:var(--ok)} .opt.right .dot::after{background:var(--ok)}
-.opt.wrong{background:var(--bad-soft);border-color:var(--bad)} .opt.wrong .dot{border-color:var(--bad)} .opt.wrong .dot::after{background:var(--bad)}
-.locked .opt{cursor:default} .locked .opt:hover{border-color:var(--line)} .locked .opt.right:hover{border-color:var(--ok)} .locked .opt.wrong:hover{border-color:var(--bad)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)} .opt.right .dot{border-color:var(--ok);background:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)} .opt.wrong .dot{border-color:var(--bad);background:var(--bad)}
+.locked .opt{cursor:default} .locked .opt:hover{border-color:var(--line);transform:none} .locked .opt.right:hover{border-color:var(--ok)} .locked .opt.wrong:hover{border-color:var(--bad)}
 .fb{border-top:1px dashed var(--line);padding-top:10px;font-size:14px;max-width:70ch}
 .fb strong{font-weight:600}
 .fb .v-ok{color:var(--ok)} .fb .v-bad{color:var(--bad)}
+
+/* figuras */
+.fig{margin:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;margin:0 auto}
+.dg-l{stroke:var(--muted);stroke-width:1.6;fill:none;stroke-linejoin:round}
+.dg-n{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
+.dg-i{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dg-t{fill:var(--ink);font:600 11.5px var(--mono)}
+.dg-s{fill:var(--muted);font:500 10.5px var(--mono)}
+.dg-t,.dg-s{paint-order:stroke;stroke:var(--surface-2);stroke-width:4px;stroke-linejoin:round}
+.dg-v20 .dg-n,.dg-v20 .dg-i{stroke:var(--hot)}
+.dg-hl .dg-n{fill:var(--accent-soft)}
+.hdr{min-width:320px;font-size:12px}
+.hdr-row{display:grid;grid-template-columns:repeat(32,1fr)}
+.hdr-ruler{display:grid;grid-template-columns:repeat(32,1fr);font:500 10px var(--mono);color:var(--muted);margin-bottom:3px}
+.hdr-ruler span:nth-child(2n){text-align:right}
+.hdr-ruler span:nth-child(2){padding-right:6px} .hdr-ruler span:nth-child(3){padding-left:6px;border-left:1px dashed var(--line)}
+.hdr-cell{border:1px solid var(--accent);margin:0 -1px -1px 0;background:var(--surface);padding:6px 4px;text-align:center;line-height:1.3;min-width:0}
+.hdr-cell small{display:block;font:500 10px var(--mono);color:var(--muted)}
+.hdr-cell b{display:block;font:600 13px var(--mono);color:var(--accent);overflow-wrap:anywhere}
+.hdr-cap{margin-top:8px;font:500 11px var(--mono);color:var(--muted)}
+
+/* rodapé da aba */
 .foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:18px}
-.btn{font:600 14px var(--sans);border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff}
-:root[data-theme="dark"] .btn:not(.ghost){color:#06201C}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.ghost){color:#06201C}}
-.btn.ghost{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);transition:background .15s,color .15s}
-.btn.ghost:hover{background:var(--accent);color:#fff}
-:root[data-theme="dark"] .btn.ghost:hover{color:#06201C}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.ghost:hover{color:#06201C}}
-.btn.danger{color:var(--bad);border-color:var(--bad);background:transparent}
+.foot .score{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}
+.foot .score b{font-size:20px;color:var(--ink);font-weight:600}
+.btn{font:600 14px var(--sans);border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);transition:transform .15s var(--ease),background .15s,color .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn.ghost{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.btn.ghost:hover{background:var(--accent);color:var(--on-accent)}
 .reset-btn{display:inline-flex;align-items:center;gap:7px;font:500 13px var(--sans);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;transition:color .15s,border-color .15s,background .15s}
 .reset-btn svg{width:15px;height:15px;flex:0 0 auto;transition:transform .35s ease}
 .reset-btn:hover{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
 .reset-btn:hover svg{transform:rotate(-200deg)}
-.confirm{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;background:var(--bad-soft);border:1px solid var(--bad);border-radius:10px;padding:10px 12px 10px 14px;animation:pop .18s ease-out}
+.confirm{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;background:var(--bad-soft);border:1px solid var(--bad);border-radius:10px;padding:10px 12px 10px 14px;animation:drop .18s ease-out}
 .confirm p{flex:1 1 280px;margin:0;font-size:13.5px;color:var(--ink)}
 .confirm p strong{color:var(--bad);font-weight:600}
 .confirm .acts{display:flex;gap:8px}
 .confirm button{font:600 13px var(--sans);border-radius:7px;padding:7px 13px;cursor:pointer}
 .c-cancel{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
-.c-ok{background:var(--bad);color:#fff;border:1px solid var(--bad)}
-:root[data-theme="dark"] .c-ok{color:#2A0E08}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .c-ok{color:#2A0E08}}
-@keyframes pop{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.c-ok{background:var(--bad);color:var(--surface);border:1px solid var(--bad)}
 .foot-confirm{margin-top:12px}
 .empty{color:var(--muted);text-align:center;padding:30px 0}
 .note{font-size:13px;color:var(--muted);margin:14px 0 0}
-@media (max-width:600px){header.top{position:static}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* guia "o que caiu" */
+.callout{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:12px}
+.callout h3{margin:0 0 8px;font:600 15px var(--sans)}
+.callout ul{margin:0;padding-left:18px}
+.callout li{margin:3px 0}
+.callout blockquote{margin:12px 0 0;padding:10px 14px;border-left:3px solid var(--hot);background:var(--hot-soft);border-radius:0 8px 8px 0;font-size:14px}
+.jumps{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.jumps .jl{font:500 12px var(--mono);color:var(--muted);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px}
+.jumps .row{display:flex;flex-wrap:wrap;gap:6px}
+.jump{font:600 12.5px var(--mono);border-radius:7px;padding:4px 10px;cursor:pointer;border:1px solid var(--hot);color:var(--hot);background:var(--hot-soft);transition:transform .15s var(--ease)}
+.jump.alt{background:transparent}
+.jump:hover{transform:translateY(-1px)}
+.topics{display:flex;flex-direction:column;gap:12px}
+.topic{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);transition:border-color .3s}
+.topic.done{border-left-color:var(--ok)}
+.topic-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.topic-h h3{margin:0;font:600 15.5px var(--sans)}
+.topic-h .hot{margin-top:5px}
+.topic ul{margin:10px 0 0;padding-left:18px;font-size:14px}
+.topic li{margin:3px 0}
+.topic p{margin:10px 0 0;font-size:14px}
+.studied{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;font:500 12.5px var(--sans);border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:999px;padding:4px 11px 4px 7px;cursor:pointer;transition:all .2s}
+.studied .box{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--muted);display:grid;place-items:center;transition:all .2s}
+.studied .box svg{width:9px;height:9px;fill:none;stroke:var(--surface);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.4);transition:all .25s var(--ease)}
+.studied[aria-pressed="true"]{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.studied[aria-pressed="true"] .box{background:var(--ok);border-color:var(--ok)}
+.studied[aria-pressed="true"] .box svg{opacity:1;transform:none}
+.go{margin-top:12px}
+
+/* treino de contas */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
+.card h3{margin:0 0 4px;font:600 15px var(--sans)}
+.card .sub{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+.tq{font-size:15.5px;margin:0 0 14px}
+.tq code{font-size:16px;padding:2px 7px;color:var(--accent)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.field{display:flex;flex-direction:column;gap:5px;font:500 12.5px var(--sans);color:var(--muted)}
+.field input,.calc-in{font:500 15px var(--mono);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;transition:border-color .2s,background .2s}
+.field input:focus,.calc-in:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.field.ok input{border-color:var(--ok);background:var(--ok-soft)}
+.field.bad input{border-color:var(--bad);background:var(--bad-soft)}
+.field .ans{font:500 12px var(--mono);min-height:1em}
+.field.ok .ans{color:var(--ok)} .field.bad .ans{color:var(--bad)}
+.acts-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.verdict{font:600 13.5px var(--sans);margin-left:4px}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.steps{margin:14px 0 0;padding:12px 14px 12px 32px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;font-size:14px}
+.steps li{margin:5px 0}
+.res{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin-top:12px;font:500 13.5px var(--mono)}
+.res dt{color:var(--muted);font-family:var(--sans)}
+.res dd{margin:0}
+.calc-err{color:var(--muted);font-size:13px;margin-top:8px}
+details.how{margin-top:10px}
+details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)}
+
+/* botão flutuante */
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:6;display:inline-flex;align-items:center;gap:7px;font:600 13.5px var(--sans);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:999px;padding:10px 16px;cursor:pointer;box-shadow:0 8px 24px -8px rgba(0,0,0,.35);transition:transform .3s var(--ease),opacity .3s}
+.fab.off{opacity:0;transform:translateY(16px);pointer-events:none}
+.fab svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- animações ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+@keyframes pop{0%{transform:scale(.4)}65%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes glow{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 45%,transparent),var(--shadow)}100%{box-shadow:0 0 0 12px transparent,var(--shadow)}}
+@keyframes reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes flash{0%,100%{box-shadow:var(--shadow)}25%,60%{box-shadow:0 0 0 3px var(--accent),var(--shadow)}}
+@keyframes okpulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 50%,transparent)}100%{box-shadow:0 0 0 8px transparent}}
+.enter>*{animation:rise .42s var(--ease) both;animation-delay:calc(var(--i,0)*32ms)}
+.enter>.settled{animation:none}
+.fresh .field.ok input{animation:okpulse .7s ease-out}
+.fresh .field.bad input{animation:shake .42s}
+.fresh .steps,.fresh .verdict{animation:reveal .4s var(--ease) both}
+.q.just-ok{animation:glow .8s ease-out}
+.q.just-ok .opt.right .dot,.q.just-bad .opt .dot{animation:pop .4s var(--ease)}
+.q.just-bad .opt.wrong{animation:shake .42s}
+.q.just-ok .fb,.q.just-bad .fb,.reveal .fb{animation:reveal .4s var(--ease) both}
+.reveal .q{animation:rise .4s var(--ease) both;animation-delay:calc(var(--i,0)*30ms)}
+.flash{animation:flash 1.5s ease}
+
+@media (max-width:600px){
+  header.top{position:static}
+  .fields{grid-template-columns:1fr}
+  .stat-t .tn{max-width:150px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -118,18 +261,32 @@ pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1
 <header class="top">
   <div class="top-inner">
     <div class="row1">
-      <h1>Simulado de Redes<small>70 questões · 6 partes</small></h1>
-      <div class="score" id="score"></div>
+      <div class="brand"><h1>Simulado de Redes</h1><small id="sub"></small></div>
+      <div class="stat" id="stat" aria-live="polite">
+        <div class="stat-t"><span class="tn" id="st-tab"></span><span id="st-main"></span><br><span id="st-sub"></span></div>
+        <div class="ring-w">
+          <svg class="ring" viewBox="0 0 46 46" aria-hidden="true">
+            <circle class="rg-track" cx="23" cy="23" r="18"/>
+            <circle class="rg-ok" id="rg-ok" cx="23" cy="23" r="18"/>
+            <circle class="rg-bad" id="rg-bad" cx="23" cy="23" r="18"/>
+            <circle class="rg-warn" id="rg-warn" cx="23" cy="23" r="18"/>
+          </svg>
+          <span id="rg-pct"></span>
+        </div>
+      </div>
     </div>
     <div class="row1">
-      <div class="mode" role="group" aria-label="Modo">
-        <button id="m-estudo" type="button">Correção imediata</button>
-        <button id="m-prova" type="button">Modo prova</button>
+      <div class="groups" id="groups" role="group" aria-label="Seções"></div>
+      <div class="row-r">
+        <div class="mode" id="mode" role="group" aria-label="Modo">
+          <button id="m-estudo" type="button">Correção imediata</button>
+          <button id="m-prova" type="button">Modo prova</button>
+        </div>
+        <button class="reset-btn" type="button" id="reset-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Recomeçar tudo</button>
       </div>
-      <button class="reset-btn" type="button" id="reset-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Recomeçar tudo</button>
     </div>
     <div class="confirm" id="confirm-all" role="alertdialog" aria-label="Recomeçar tudo" hidden>
-      <p><strong>Apagar todas as respostas?</strong> As 6 partes voltam a ficar em branco.</p>
+      <p><strong>Apagar tudo?</strong> As respostas de todas as abas, os tópicos marcados e o placar do treino voltam a zero.</p>
       <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset-all">Apagar e recomeçar</button></div>
     </div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Partes"></nav>
@@ -137,6 +294,8 @@ pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1
 </header>
 
 <main class="wrap" id="main"></main>
+
+<button class="fab off" id="fab" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Próxima sem resposta</button>
 
 <script>
 const PARTS = [
@@ -307,113 +466,972 @@ const TABLE_BODY =
 "L        209.165.200.225/32 is directly connected, Serial0/0/0";
 const TABLES = { TD: TABLE_HEAD + TABLE_BODY, SEM: TABLE_BODY };
 
-const KEY = "simulado-redes-v1";
-let S = { part:0, mode:"estudo", ans:{}, checked:{}, filter:"todas" };
-try { const saved = JSON.parse(localStorage.getItem(KEY)); if (saved) S = Object.assign(S, saved); } catch(e){}
+/* ---------- figuras: topologia em SVG e cabeçalho de camada 4 ---------- */
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const VF = ["Verdadeiro","Falso"];
+const IIs = ["A afirmativa I.","As duas afirmativas.","A afirmativa II.","Nenhuma das afirmativas."];
+
+const ICON = {
+  router:`<circle class="dg-n" r="17"/><path class="dg-i" d="M-9-4h17m-4-4 4 4-4 4M9 5H-8m4-4-4 4 4 4"/>`,
+  switch:`<rect class="dg-n" x="-22" y="-12" width="44" height="24" rx="5"/><path class="dg-i" d="M-12-4h22m-4-3 4 3-4 3M12 4h-22m4-3-4 3 4 3"/>`,
+  pc:`<rect class="dg-n" x="-14" y="-14" width="28" height="19" rx="2.5"/><path class="dg-i" d="M-7 11h14M0 5v6"/>`,
+  server:`<rect class="dg-n" x="-11" y="-16" width="22" height="32" rx="3"/><path class="dg-i" d="M-6-8h12M-6-2h12M-6 4h7"/>`,
+  cloud:`<path class="dg-n" d="M-26 12a10 10 0 0 1 1-20 13 13 0 0 1 24-7 11 11 0 0 1 21 7 10 10 0 0 1 1 20z"/>`
+};
+// distância do rótulo: [abaixo, acima, lateral]
+const LBL = {router:[31,-25,23], switch:[27,-19,28], pc:[26,-21,20], server:[31,-23,17], cloud:[27,-35,32]};
+
+function dg(w, h, nodes, links){
+  const N = {}; nodes.forEach(n => N[n.id] = n);
+  const f = v => v.toFixed(1);
+  const txt = (x,y,s,cls,anc="middle") => `<text x="${f(x)}" y="${f(y)}" text-anchor="${anc}" class="${cls}">${esc(s)}</text>`;
+  let L = "", T = "";
+  links.forEach(([a,b,o={}]) => {
+    const A=N[a], B=N[b], dx=B.x-A.x, dy=B.y-A.y, len=Math.hypot(dx,dy), ux=dx/len, uy=dy/len, nx=-uy, ny=ux;
+    const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    if(o.serial){
+      const P=[[A.x,A.y],[mx-ux*8,my-uy*8],[mx+nx*7,my+ny*7],[mx-nx*7,my-ny*7],[mx+ux*8,my+uy*8],[B.x,B.y]];
+      L += `<polyline class="dg-l" points="${P.map(p=>f(p[0])+","+f(p[1])).join(" ")}"/>`;
+    } else L += `<line class="dg-l" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
+    const lab = (s, t, side) => {
+      if(!s) return;
+      let x=A.x+dx*t+nx*side*8, y=A.y+dy*t+ny*side*8, anc="middle";
+      if(Math.abs(ny) >= .5){ y += ny*side > 0 ? 10 : -2; }
+      else { anc = nx*side > 0 ? "start" : "end"; y += 4; }
+      T += txt(x, y, s, "dg-s", anc);
+    };
+    lab(o.a, o.at ?? .27, o.as ?? -1);
+    lab(o.b, o.bt ?? .73, o.bs ?? 1);
+    lab(o.m, .5, o.ms ?? -1);
+  });
+  const G = nodes.map(n => {
+    const [bl,tl,sl] = LBL[n.t], p = n.lp || "b";
+    let lb = "";
+    const lines = [n.l, n.l2].filter(Boolean);
+    lines.forEach((s,j) => {
+      const cls = j ? "dg-s" : "dg-t";
+      if(p==="b") lb += txt(n.x, n.y+bl+j*13, s, cls);
+      else if(p==="t") lb += txt(n.x, n.y+tl-(lines.length-1-j)*13, s, cls);
+      else if(p==="l") lb += txt(n.x-sl, n.y+4+(j-(lines.length-1)/2)*13, s, cls, "end");
+      else lb += txt(n.x+sl, n.y+4+(j-(lines.length-1)/2)*13, s, cls, "start");
+    });
+    return `<g class="${n.c?"dg-"+n.c:""}"><g transform="translate(${n.x} ${n.y})">${ICON[n.t]}</g>${lb}</g>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" style="max-width:${w}px" role="img" aria-label="Topologia de rede">${L}${G}${T}</svg>`;
+}
+
+// linhas do cabeçalho: [[rótulo, bits, valor?], ...]
+function hdr(rows, cap){
+  const cell = ([l,bits,v]) => `<div class="hdr-cell" style="grid-column:span ${bits}">${esc(l)}${v!=null?`<b>${esc(v)}</b>`:""}<small>${bits} bits</small></div>`;
+  return `<div class="hdr"><div class="hdr-ruler"><span style="grid-column:1/9">0</span><span style="grid-column:9/17">15</span><span style="grid-column:17/25">16</span><span style="grid-column:25/33">31</span></div>`+
+    rows.map(r => `<div class="hdr-row">${r.map(cell).join("")}</div>`).join("") + (cap?`<div class="hdr-cap">${esc(cap)}</div>`:"") + `</div>`;
+}
+
+const FIG_RTA = dg(560, 262, [
+  {id:"r", t:"router", x:280, y:62, l:"RTA", lp:"t"},
+  {id:"s1", t:"switch", x:80, y:62, l:"Rede 192.31.7.0"},
+  {id:"s2", t:"switch", x:480, y:62, l:"Rede 192.135.250.0"},
+  {id:"s3", t:"switch", x:280, y:150, l:"Rede 192.133.219.0", lp:"r"},
+  {id:"a", t:"pc", x:190, y:218, l:"A", c:"hl"},
+  {id:"b", t:"pc", x:280, y:218, l:"B"},
+  {id:"c", t:"pc", x:370, y:218, l:"C"},
+], [
+  ["r","s1",{a:"192.31.7.1", at:.42, as:1}], ["r","s2",{a:"192.135.250.1", at:.42}], ["r","s3",{a:"192.133.219.1", at:.45, as:1}],
+  ["s3","a"], ["s3","b"], ["s3","c"],
+]);
+
+const FIG_203 = dg(720, 268, [
+  {id:"r", t:"router", x:360, y:48, l:"ROTEADOR", lp:"t"},
+  {id:"net", t:"cloud", x:620, y:48, l:"Ligação externa", lp:"b"},
+  {id:"s1", t:"switch", x:120, y:140, l:"sub-rede 1", lp:"l"},
+  {id:"s2", t:"switch", x:360, y:150, l:"sub-rede 2", lp:"r"},
+  {id:"s3", t:"switch", x:600, y:150, l:"sub-rede 3", lp:"r"},
+  {id:"h1", t:"pc", x:60, y:220, l:"203.155.196.38"},
+  {id:"h2", t:"pc", x:180, y:220, l:"203.155.196.54"},
+  {id:"h3", t:"pc", x:300, y:220, l:"203.155.196.68"},
+  {id:"h4", t:"pc", x:420, y:220, l:"203.155.196.82"},
+  {id:"h5", t:"pc", x:540, y:220, l:"203.155.196.196"},
+  {id:"h6", t:"pc", x:660, y:220, l:"203.155.196.202"},
+], [["r","net"],["r","s1"],["r","s2"],["r","s3"],["s1","h1"],["s1","h2"],["s2","h3"],["s2","h4"],["s3","h5"],["s3","h6"]]);
+
+const FIG_SYD = dg(560, 100, [
+  {id:"m", t:"router", x:110, y:44, l:"Melbourne"},
+  {id:"s", t:"router", x:450, y:44, l:"Sydney"},
+], [["m","s",{serial:true, a:"S0 · 201.100.53.1 /24", at:.3, as:-1, b:"S0 (DCE)", bt:.82, bs:-1}]]);
+
+const FIG_R1R2 = dg(700, 128, [
+  {id:"a", t:"pc", x:40, y:52, l:"Host A"},
+  {id:"r1", t:"router", x:210, y:52, l:"Roteador1"},
+  {id:"r2", t:"router", x:490, y:52, l:"Roteador2"},
+  {id:"b", t:"pc", x:660, y:52, l:"Host B", l2:"172.16.0.2"},
+], [["a","r1",{b:"Fa0/0", bs:-1, bt:.72}], ["r1","r2",{serial:true, a:"S0/0/0 · 192.168.0.1", at:.3, b:"S0/0/1 · 192.168.0.2", bt:.7}], ["r2","b",{a:"Fa0/0", as:-1, at:.28}]]);
+
+const FIG_LANS = dg(600, 300, [
+  {id:"net", t:"cloud", x:300, y:40, l:"Internet", lp:"r"},
+  {id:"r", t:"router", x:300, y:118, l:"R1", lp:"l"},
+  {id:"sa", t:"switch", x:140, y:180, l:"LAN A", l2:"192.168.10.0/24", lp:"l"},
+  {id:"sb", t:"switch", x:460, y:180, l:"LAN B", l2:"192.168.20.0/24", lp:"r"},
+  {id:"p1", t:"pc", x:80, y:250, l:"PC1", l2:"192.168.10.20"},
+  {id:"p2", t:"pc", x:200, y:250, l:"PC2", l2:"192.168.10.30"},
+  {id:"p3", t:"pc", x:400, y:250, l:"PC3", l2:"192.168.20.40"},
+  {id:"sv", t:"server", x:520, y:250, l:"Servidor", l2:"192.168.20.50"},
+], [["r","net",{a:"S0/0/0", as:1, at:.3}], ["r","sa",{a:"G0/0 · 192.168.10.1", at:.62, as:1}], ["r","sb",{a:"G0/1 · 192.168.20.1", at:.62, as:-1}],
+    ["sa","p1"],["sa","p2"],["sb","p3"],["sb","sv"]]);
+
+const FIG_VLAN = dg(600, 258, [
+  {id:"r", t:"router", x:180, y:36, l:"R1", lp:"l"},
+  {id:"s1", t:"switch", x:180, y:122, l:"SW1", lp:"l"},
+  {id:"s2", t:"switch", x:420, y:122, l:"SW2", lp:"r"},
+  {id:"a", t:"pc", x:120, y:206, l:"PC-A", l2:"VLAN 10"},
+  {id:"b", t:"pc", x:240, y:206, l:"PC-B", l2:"VLAN 20", c:"v20"},
+  {id:"c", t:"pc", x:360, y:206, l:"PC-C", l2:"VLAN 10"},
+  {id:"d", t:"pc", x:480, y:206, l:"PC-D", l2:"VLAN 20", c:"v20"},
+], [["r","s1",{m:"G0/0 ↔ Fa0/1", ms:1}], ["s1","s2",{m:"link SW1 ↔ SW2"}], ["s1","a"],["s1","b"],["s2","c"],["s2","d"]]);
+
+const FIG_CFG = dg(620, 236, [
+  {id:"r", t:"router", x:300, y:70, l:"R1", lp:"t"},
+  {id:"sw", t:"switch", x:110, y:70, l:"SW1", lp:"t"},
+  {id:"p1", t:"pc", x:60, y:170, l:"PC1"},
+  {id:"p2", t:"pc", x:160, y:170, l:"PC2"},
+  {id:"r2", t:"router", x:520, y:70, l:"R2", lp:"t"},
+  {id:"r3", t:"router", x:460, y:180, l:"R3", lp:"r"},
+], [["r","sw",{a:"F0/0", at:.25, as:-1}], ["sw","p1"], ["sw","p2"],
+    ["r","r2",{serial:true, a:"S0/0/0", at:.24, as:-1}], ["r","r3",{serial:true, a:"S0/0/1", at:.3, as:1}]]);
+const CFG_R1 =
+"R1(config)# interface f0/0\nR1(config-if)# ip address 192.168.10.1 255.255.255.0\nR1(config-if)# no shutdown\n"+
+"R1(config-if)# interface s0/0/0\nR1(config-if)# ip address 172.16.1.1 255.255.255.252\nR1(config-if)# no shutdown\n"+
+"R1(config-if)# interface s0/0/1\nR1(config-if)# ip address 172.16.2.1 255.255.255.252\nR1(config-if)# no shutdown";
+
+const FIG_REL5 = dg(720, 262, [
+  {id:"sv", t:"server", x:100, y:62, l:"Server Web", l2:"192.168.120.2 · VLAN 120", lp:"t"},
+  {id:"p0", t:"pc", x:100, y:196, l:"PC0", l2:"192.168.110.2 · VLAN 110"},
+  {id:"s0", t:"switch", x:250, y:130, l:"Switch0", lp:"t"},
+  {id:"r0", t:"router", x:400, y:130, l:"Router0", lp:"t"},
+  {id:"r1", t:"router", x:550, y:130, l:"Router1", lp:"t"},
+  {id:"s1", t:"switch", x:660, y:130, l:"Switch1", lp:"t"},
+  {id:"p1", t:"pc", x:660, y:214, l:"PC1", l2:"192.168.30.2", lp:"l"},
+], [["sv","s0",{b:"Fa0/24", bt:.66, bs:1}], ["p0","s0",{b:"Fa0/1", bt:.66, bs:-1}], ["s0","r0",{m:"trunk", ms:-1, a:"Gig0/1", at:.2, as:1, b:"Gig0/1", bt:.8, bs:1}],
+    ["r0","r1",{m:"192.168.0.0/30", ms:-1, a:"Gig0/0", at:.2, as:1, b:"Gig0/0", bt:.8, bs:1}], ["r1","s1",{a:"Gig0/1", at:.3, as:1}], ["s1","p1"]]);
+
+const HDR_UDP = hdr([[["Porta de origem",16],["Porta de destino",16]],[["Comprimento",16],["Checksum",16]]], "Cabeçalho completo: 8 bytes");
+const HDR_DNS = hdr([[["Porta de origem",16,"53"],["Porta de destino",16,"51432"]],[["Comprimento",16,"64"],["Checksum",16,"0x3A1F"]]]);
+const HDR_TCP = hdr([[["Porta de origem",16,"49200"],["Porta de destino",16,"80"]],[["Número de sequência",32,"1205448019"]],[["Número de confirmação",32,"0"]],
+  [["HLEN",4,"5"],["Flags",12,"SYN"],["Janela",16,"64240"]],[["Checksum",16,"0x9C2E"],["Ponteiro urgente",16,"0"]]]);
+
+const TBL_R2 =
+"R2# show ip route\n<saída de dados omitida>\nGateway of last resort is 192.168.0.1 to network 0.0.0.0\n\n"+
+"     10.0.0.0/8 is variably subnetted, 3 subnets, 3 masks\n"+
+"R       10.1.0.0/24 [120/1] via 192.168.2.1, 00:00:12, Serial0/0/1\n"+
+"R       10.1.0.0/23 [120/1] via 192.168.2.1, 00:00:12, Serial0/0/1\n"+
+"S       10.1.0.0/22 is directly connected, Serial0/0/0\n"+
+"<saída de dados omitida>\nS*   0.0.0.0/0 [1/0] via 192.168.0.1";
+const TBL_R1 =
+"R1# show ip route\nGateway of last resort is 200.1.1.1 to network 0.0.0.0\n\n"+
+"     10.0.0.0/8 is variably subnetted, 3 subnets, 3 masks\n"+
+"R       10.0.0.0/24 [120/1] via 192.168.2.1, 00:00:21, Serial0/0/1\n"+
+"R       10.0.0.0/23 [120/2] via 192.168.3.1, 00:00:21, Serial0/1/0\n"+
+"S       10.0.0.0/22 is directly connected, Serial0/0/0\n"+
+"S*   0.0.0.0/0 [1/0] via 200.1.1.1";
+const TBL_ROT1 = "Roteador1# show ip route\n<saída de dados omitida>\n\nC    10.0.0.0/8 is directly connected, FastEthernet0/0\nC    192.168.0.0/24 is directly connected, Serial0/0/0";
+
+/* ---------- PV1: simulado novo ---------- */
+const PV1_SIM = { id:"pv1-sim", t:"Simulado PV1", layer:"40 questões", kind:"quiz", grade:2.5,
+ intro:"Montado a partir do relato de quem fez a PV1: <b>primeira página só de contas</b>, depois teoria, com o peso que ela contou (MQTT, gateway, comandos do roteador, figuras do cabeçalho e da tabela de rotas, VLAN, CSMA/CD e preâmbulo). As quatro últimas imitam a última questão da prova: um desenho com a configuração do roteador, para interpretar. As questões são novas, no formato da prova: 40 questões de 2,5 pontos.",
+ qs:[
+ {q:"Qual máscara de sub-rede é representada pela notação /26?", o:["255.255.255.192","255.255.255.224","255.255.255.128","255.255.255.240","Nenhuma das anteriores"], a:0,
+  e:"/26 = 24 + 2 bits. No último octeto, 11000000 = 128 + 64 = 192."},
+ {q:"Seja o endereço 192.168.20.77, com máscara 255.255.255.224. A qual rede este endereço pertence?", o:["192.168.20.0","192.168.20.64","192.168.20.32","192.168.20.96","Nenhuma das anteriores"], a:1,
+  e:"Máscara 224 → bloco de 256 − 224 = 32: 0, 32, 64, 96… O 77 fica no bloco 64–95. Rede: 192.168.20.64."},
+ {q:"Qual o endereço de broadcast da rede à qual pertence o endereço 192.168.20.77 /27?", o:["192.168.20.255","192.168.20.96","192.168.20.95","192.168.20.63","Nenhuma das anteriores"], a:2,
+  e:"/27 é a mesma máscara 224 da questão anterior, então o bloco é 64–95. O broadcast é o último endereço do bloco: 192.168.20.95."},
+ {q:"Dado o endereço 10.45.130.9 /18, qual o endereço de rede?", o:["10.45.0.0","10.45.128.0","10.45.130.0","10.45.192.0","Nenhuma das anteriores"], a:1,
+  e:"/18 → o 3º octeto tem 2 bits de rede: máscara 192, bloco de 64 (0, 64, 128, 192). O 130 está no bloco 128–191. Rede: 10.45.128.0."},
+ {q:"Quantos endereços de hosts válidos tem a rede 10.45.128.0 /18?", o:["16384","16382","8190","62","Nenhuma das anteriores"], a:1,
+  e:"32 − 18 = 14 bits de host. 2¹⁴ = 16384 endereços, menos o de rede e o de broadcast = 16382 hosts."},
+ {q:"Uma rede com máscara 255.255.255.224 possui quantos endereços no total e quantos hosts utilizáveis?", o:["32 endereços e 30 hosts","32 endereços e 32 hosts","30 endereços e 28 hosts","64 endereços e 62 hosts","Nenhuma das anteriores"], a:0,
+  e:"224 = 11100000 → sobram 5 bits de host. 2⁵ = <b>32 endereços</b> no total; tirando o endereço de rede e o de broadcast, sobram <b>30 hosts</b> utilizáveis."},
+ {q:"Qual das alternativas a seguir descreve melhor o endereço 172.20.15.255 /20?", o:["Endereço de rede da rede 172.20.0.0.","Endereço de host da rede 172.20.0.0.","Endereço de broadcast da rede 172.20.0.0.","Endereço de broadcast da rede 172.20.15.0.","Nenhuma das anteriores."], a:2,
+  e:"/20 → o 3º octeto anda em blocos de 16. A rede 172.20.0.0 vai até 172.20.<b>15</b>.255, então esse é o último endereço do bloco: o <b>broadcast</b>. Compare com a questão 3 da prova anterior, em que o “.255” era host."},
+ {q:"Qual das alternativas a seguir descreve melhor o endereço 192.168.1.64 /26?", o:["Endereço de rede da rede 192.168.1.64.","Endereço de host da rede 192.168.1.0.","Endereço de broadcast da rede 192.168.1.0.","Endereço de host da rede 192.168.1.64.","Nenhuma das anteriores."], a:0,
+  e:"/26 → blocos de 64: 0, 64, 128, 192. O .64 é o <b>primeiro</b> endereço do bloco 64–127, então é o endereço de rede. (O broadcast da rede 192.168.1.0 /26 seria o .63.)"},
+ {q:"Na topologia da figura, qual deve ser o gateway padrão configurado no PC1?", fig:FIG_LANS, o:["192.168.20.1","192.168.10.1","192.168.10.30","192.168.10.0","Nenhuma das anteriores"], a:1,
+  e:"O gateway padrão é o IP da interface do roteador <b>na mesma rede do host</b>. O PC1 está na 192.168.10.0/24, e a interface do R1 nessa rede é a G0/0, 192.168.10.1."},
+ {q:"Ainda na figura, o PC1 precisa enviar um pacote ao PC2 (192.168.10.30). Para onde o PC1 envia esse pacote?", fig:FIG_LANS, o:["Para o gateway padrão 192.168.10.1, que o repassa ao PC2.","Diretamente para o PC2, pois os dois estão na mesma rede.","Para o roteador, que o envia em broadcast para a LAN B.","Para a Internet, que o devolve ao PC2.","Nenhuma das anteriores."], a:1,
+  e:"O PC1 aplica a máscara e vê que 192.168.10.30 está na mesma rede que ele. Então entrega direto: o switch leva o quadro pelo MAC. O gateway só entra quando o destino está em <b>outra</b> rede."},
+ {q:"Ainda na figura, o PC1 precisa enviar um pacote ao Servidor (192.168.20.50). Qual o primeiro equipamento de camada 3 a receber esse pacote, e por qual interface?", fig:FIG_LANS, o:["O Servidor, diretamente, pela placa de rede.","O roteador R1, pela interface G0/1 (192.168.20.1).","O roteador R1, pela interface G0/0 (192.168.10.1).","O switch da LAN A, que encaminha pelo IP.","Nenhuma das anteriores."], a:2,
+  e:"O servidor está em outra rede, então o PC1 manda o pacote ao gateway: a interface do R1 <b>do lado do PC1</b>, a G0/0. O R1 então sai pela G0/1 até o servidor. O switch não olha o IP, porque trabalha na camada 2."},
+ {q:"O MQTT é um protocolo de qual camada do modelo TCP/IP, e sobre qual protocolo de transporte ele normalmente funciona?", o:["Aplicação, sobre TCP","Aplicação, sobre UDP","Transporte, sobre IP","Rede, sobre Ethernet","Nenhuma das anteriores"], a:0,
+  e:"MQTT é um protocolo de aplicação e roda sobre TCP: porta 1883, ou 8883 com TLS."},
+ {q:"No MQTT, qual é o papel do broker?", o:["Gerar os dados dos sensores","Receber as mensagens publicadas e repassá-las aos clientes que assinaram o tópico","Atribuir endereços IP aos dispositivos IoT","Traduzir nomes de tópicos em endereços IP","Nenhuma das anteriores"], a:1,
+  e:"O broker é o intermediário: recebe o que é publicado num tópico e entrega a quem assinou aquele tópico. Publicador e assinante não se conhecem nem falam diretamente."},
+ {q:"Um sensor publica a temperatura no tópico casa/sala/temperatura. Um aplicativo de celular quer receber esses valores. O que o aplicativo deve fazer?", o:["Conectar-se diretamente ao sensor pelo IP dele","Assinar (subscribe) o tópico casa/sala/temperatura no broker","Publicar no mesmo tópico para pedir os dados","Enviar um broadcast na rede local","Nenhuma das anteriores"], a:1,
+  e:"No modelo publicação/assinatura, quem quer receber <b>assina</b> o tópico no broker. A cada valor novo que o sensor publica, o broker repassa ao aplicativo."},
+ {q:"Qual é a porta TCP padrão do MQTT sem criptografia?", o:["80","443","1883","8080","n.d.a."], a:2,
+  e:"1883 sem TLS e 8883 com TLS. A porta 1883 apareceu como distratora na prova anterior."},
+ {q:"Sobre o MQTT, assinale a afirmativa correta:", o:["Exige que publicador e assinante estejam conectados ao mesmo tempo e se conheçam","É pesado, por isso é usado em servidores e não em dispositivos IoT","Tem cabeçalho pequeno e oferece níveis de QoS (0, 1 e 2) para a entrega das mensagens","Funciona em broadcast puro, sem intermediário","Nenhuma das anteriores"], a:2,
+  e:"O cabeçalho mínimo tem 2 bytes, por isso o MQTT é tão usado em IoT. O QoS define a garantia de entrega: 0 = no máximo uma vez, 1 = pelo menos uma vez, 2 = exatamente uma vez. Publicador e assinante ficam desacoplados pelo broker."},
+ {q:"O socket é a interface entre quais camadas?", o:["Física e Enlace","Enlace e Rede","Rede e Transporte","Transporte e Aplicação","Nenhuma das anteriores"], a:3,
+  e:"Socket é o ponto onde a aplicação entrega e recebe dados da camada de transporte, identificado por IP + porta."},
+ {q:"Qual camada do modelo OSI é associada à sintaxe dos dados, à compressão e à criptografia?", o:["Sessão","Apresentação","Aplicação","Transporte","Nenhuma das anteriores"], a:1,
+  e:"A camada de apresentação (camada 6) cuida do formato dos dados: codificação, compressão e criptografia."},
+ {q:"Na pilha TCP/IP, qual a sequência correta de encapsulamento, do emissor para o meio físico?", o:["Dados → segmento → pacote → quadro → bits","Dados → pacote → segmento → quadro → bits","Dados → quadro → pacote → segmento → bits","Bits → quadro → pacote → segmento → dados","Nenhuma das anteriores"], a:0,
+  e:"Aplicação: dados. Transporte: <b>segmento</b> (põe as portas). Internet: <b>pacote</b> (põe os IPs). Acesso à rede: <b>quadro</b> (põe os MACs) e bits. A d) é o caminho no receptor, o desencapsulamento."},
+ {q:"A figura mostra o cabeçalho de um protocolo da camada de transporte. Que protocolo é esse?", fig:HDR_UDP, o:["TCP","UDP","IP","Ethernet","Nenhuma das anteriores"], a:1,
+  e:"Só quatro campos de 16 bits (8 bytes), sem número de sequência, confirmação ou janela: é o <b>UDP</b>. O cabeçalho TCP tem no mínimo 20 bytes."},
+ {q:"No cabeçalho da figura, o primeiro campo de 16 bits (bits 0 a 15) identifica:", fig:HDR_UDP, o:["A porta de destino","A porta de origem","O endereço IP de origem","O número de sequência","Nenhuma das anteriores"], a:1,
+  e:"No TCP e no UDP a ordem é a mesma: primeiro a <b>porta de origem</b>, depois a <b>porta de destino</b>, cada uma com 16 bits (0 a 65535). Endereço IP fica no cabeçalho IP, não no de transporte."},
+ {q:"Um analisador de rede capturou o segmento da figura. O que se pode afirmar sobre ele?", fig:HDR_DNS, o:["É um segmento TCP de um cliente pedindo uma página web","É um segmento UDP enviado por um servidor DNS a um cliente","É um segmento UDP enviado por um cliente a um servidor DNS","É um segmento TCP enviado por um servidor web","Nenhuma das anteriores"], a:1,
+  e:"Quatro campos de 16 bits = UDP. A porta de <b>origem</b> é 53 (DNS, bem conhecida) e a de destino é 51432 (dinâmica). Então quem enviou foi o <b>servidor</b> DNS, respondendo ao cliente. Na pergunta do cliente, as portas aparecem invertidas: origem 51432, destino 53."},
+ {q:"O segmento da figura foi capturado em uma rede. Qual alternativa está correta?", fig:HDR_TCP, o:["É um segmento UDP, pois tem porta de origem e de destino","É um segmento TCP de um cliente (porta dinâmica) para um servidor web (porta 80)","É um segmento TCP de um servidor web para um cliente","É um pacote IP, pois tem número de sequência","Nenhuma das anteriores"], a:1,
+  e:"Número de sequência, confirmação e janela = <b>TCP</b>. A porta de destino é 80 (HTTP) e a de origem, 49200, é efêmera, sorteada pelo cliente. É o navegador abrindo conexão (flag SYN) com o servidor web."},
+ {q:"Qual é a função do preâmbulo em um quadro Ethernet?", o:["Indicar o endereço MAC de destino","Sincronizar o receptor, com uma sequência de 1s e 0s alternados","Detectar erros no quadro","Indicar o tipo de protocolo da camada superior","Nenhuma das anteriores"], a:1,
+  e:"O preâmbulo tem 7 bytes 10101010 que acertam o relógio do receptor, seguidos do SFD (10101011), que marca o início do quadro. Detecção de erro é o FCS; o tipo de protocolo é o campo EtherType."},
+ {q:"No CSMA/CD, o que a estação faz antes de transmitir, e o que acontece quando ela detecta uma colisão?", o:["Pede permissão ao switch; após a colisão, o switch escolhe quem transmite","Escuta o meio; após a colisão, envia um sinal de congestionamento (jam) e espera um tempo aleatório para tentar de novo","Transmite sem escutar; após a colisão, descarta o quadro","Espera o token; após a colisão, quem tem o menor MAC transmite primeiro","Nenhuma das anteriores"], a:1,
+  e:"CS (carrier sense) = escuta o meio antes. MA = vários acessam o mesmo meio. CD = detecta a colisão, envia o sinal de <b>jam</b>, e cada estação espera um tempo aleatório (backoff). Ninguém tem prioridade."},
+ {q:"Na figura, o link entre SW1 e SW2 precisa transportar quadros das VLANs 10 e 20. Como esse link deve ser configurado?", fig:FIG_VLAN, o:["Como porta de acesso na VLAN 10","Como porta de acesso na VLAN 1","Como tronco (trunk), com marcação IEEE 802.1Q","Como link roteado, com um IP em cada ponta","Nenhuma das anteriores"], a:2,
+  e:"Porta de acesso leva uma VLAN só. Para várias VLANs no mesmo cabo usa-se <b>trunk</b>, e cada quadro leva a tag 802.1Q com o número da VLAN."},
+ {q:"Ainda na figura, para que o PC-A (VLAN 10) converse com o PC-B (VLAN 20), o que é necessário?", fig:FIG_VLAN, o:["Nada, pois estão ligados ao mesmo switch","Um roteador (ou switch camada 3) fazendo o roteamento entre as VLANs; um único link trunk até o roteador basta","Um roteador para cada VLAN, cada um ligado a um switch diferente","Colocar todas as portas na VLAN 1","Nenhuma das anteriores"], a:1,
+  e:"VLANs diferentes são redes diferentes, então precisam de roteamento (camada 3), mesmo no mesmo switch. Um só roteador, com subinterfaces num link trunk, atende todas: é o <b>router-on-a-stick</b>. Não precisa de um roteador nem de um cabo por VLAN."},
+ {q:"Qual sequência de comandos associa o endereço 192.168.1.1/24 à interface GigabitEthernet0/0 de um roteador?", o:["Router(config)# ip address 192.168.1.1 255.255.255.0","Router(config)# interface g0/0 e Router(config-if)# ip address 192.168.1.1 255.255.255.0","Router# ip address 192.168.1.1/24 g0/0","Router(config-if)# ip route 192.168.1.1 255.255.255.0","Nenhuma das anteriores"], a:1,
+  e:"O IP é configurado <b>na interface</b>: entra-se nela com <code>interface g0/0</code> e, no prompt (config-if)#, usa-se <code>ip address &lt;ip&gt; &lt;máscara&gt;</code>, com a máscara por extenso (não /24). <code>ip route</code> é para rota estática."},
+ {q:"Depois de configurar o IP, a interface do roteador continua como “administratively down”. Qual comando, no modo (config-if)#, a ativa?", o:["enable","no shutdown","interface up","copy running-config startup-config","n.d.a."], a:1,
+  e:"As interfaces de roteador Cisco vêm desligadas (shutdown), e <code>no shutdown</code> as liga. O <code>copy running-config startup-config</code> só salva a configuração na NVRAM."},
+ {q:"Qual comando exibe a tabela de roteamento do roteador, com as rotas C, L, S, R e a rota padrão?", o:["show ip interface brief","show running-config","show ip route","show vlan brief","n.d.a."], a:2,
+  e:"<code>show ip route</code> mostra a tabela de rotas: o código de cada rota (C, L, S, R, O…), a rede com a máscara e por onde sair. É a saída que aparece nas questões de tabela."},
+ {q:"Qual comando mostra um resumo das interfaces do roteador, com o IP de cada uma e se estão up ou down?", o:["show ip route","show ip interface brief","show mac address-table","ipconfig /all","n.d.a."], a:1,
+  e:"<code>show ip interface brief</code> lista cada interface com o IP, o Status (up, down, administratively down) e o Protocol. <code>show interfaces</code> dá o detalhe completo de cada uma (MAC, banda, erros). O <code>ipconfig</code> é do Windows, não do roteador."},
+ {q:"Considerando a tabela de roteamento de R1, que rota será selecionada para um pacote com destino 10.0.0.130?", pre:TBL_R1, o:["rota para 0.0.0.0/0","rota para 10.0.0.0/22","rota para 10.0.0.0/23","rota para 10.0.0.0/24","N.D.A."], a:3,
+  e:"10.0.0.130 cabe nas três: /24 (10.0.0.0 a 10.0.0.255), /23 (até 10.0.1.255) e /22 (até 10.0.3.255). Quando mais de uma serve, ganha a de <b>maior prefixo</b>, a mais específica: /24."},
+ {q:"Na mesma tabela de R1, que rota será selecionada para um pacote com destino 10.0.2.10?", pre:TBL_R1, o:["rota para 0.0.0.0/0","rota para 10.0.0.0/22","rota para 10.0.0.0/23","rota para 10.0.0.0/24","N.D.A."], a:1,
+  e:"10.0.2.10 passa da /24 (que vai até 10.0.0.255) e da /23 (até 10.0.1.255), mas cabe na /22 (até 10.0.3.255). Só ela serve: 10.0.0.0/22."},
+ {q:"Na mesma tabela de R1, que rota será selecionada para um pacote com destino 10.0.4.1?", pre:TBL_R1, o:["rota para 0.0.0.0/0","rota para 10.0.0.0/22","rota para 10.0.0.0/23","rota para 10.0.0.0/24","N.D.A."], a:0,
+  e:"Nenhuma das três chega a 10.0.4.x: a maior, a /22, para em 10.0.3.255. Vai pela rota padrão 0.0.0.0/0, via 200.1.1.1. Estar “directly connected” não faz a /22 servir. É o mesmo caso da questão que caiu igual (10.1.4.1)."},
+ {q:"O TCP, por ser orientado à conexão, permite apenas uma conexão por vez em cada host; já o UDP permite várias aplicações simultâneas por não ter conexão.", o:VF, a:1,
+  e:"Os dois permitem várias aplicações e conexões ao mesmo tempo, separadas pelas portas. Ser orientado à conexão não limita isso. É a mesma ideia do verdadeiro/falso que caiu igual."},
+ {q:"Com relação ao TCP e ao UDP:\nI. Na resposta de um servidor web, a porta de origem do segmento é 80.\nII. O UDP retransmite os segmentos que chegam corrompidos ao destino.\nEstá(ão) correta(s) apenas:", o:IIs, a:0,
+  e:"I: na resposta as portas se invertem, então a de origem é a do servidor (80). II: o UDP detecta o erro pelo checksum e descarta o segmento, mas não retransmite."},
+ {q:"A figura mostra um roteador e a configuração das suas interfaces. Os hosts ligados ao switch da F0/0 podem usar qualquer endereço de 192.168.10.1 a 192.168.10.255.", fig:FIG_CFG, pre:CFG_R1, o:VF, a:1,
+  e:"Na rede 192.168.10.0/24, o <b>.255</b> é o broadcast e o <b>.1</b> já é do roteador (ip address 192.168.10.1 na F0/0). Sobram para os hosts os endereços de <b>192.168.10.2 a 192.168.10.254</b>."},
+ {q:"Na mesma figura, os PCs ligados ao switch devem usar 192.168.10.1 como gateway padrão.", fig:FIG_CFG, pre:CFG_R1, o:VF, a:0,
+  e:"O gateway é o IP da interface do roteador na rede dos PCs. O switch está na F0/0, cujo IP é 192.168.10.1."},
+ {q:"Na mesma figura, a rede 192.168.10.0/24 está ligada ao roteador pela interface S0/0/0.", fig:FIG_CFG, pre:CFG_R1, o:VF, a:1,
+  e:"Pela configuração, o IP 192.168.10.1 foi colocado na <b>F0/0</b> (FastEthernet), que é onde está o switch. As seriais S0/0/0 e S0/0/1 ligam o R1 aos roteadores R2 e R3, nas redes 172.16."},
+ {q:"Na mesma figura, as interfaces S0/0/0 e S0/0/1 estão em redes diferentes, cada uma com apenas dois endereços de host utilizáveis.", fig:FIG_CFG, pre:CFG_R1, o:VF, a:0,
+  e:"Máscara 255.255.255.252 = /30 → 4 endereços, 2 hosts. A S0/0/0 está na 172.16.1.0/30 e a S0/0/1 na 172.16.2.0/30: redes diferentes, como precisa ser. Cada interface de roteador fica numa rede própria."},
+]};
+
+/* ---------- PV1: prova anterior (T02-B, 01/10/25) ---------- */
+const PV1_PROVA = { id:"pv1-prova", t:"Prova anterior", layer:"T02-B · 2025", kind:"quiz", grade:2.5,
+ intro:"A prova da turma T02-B do ano passado (01/10/25), transcrita das fotos: 40 questões de 2,5 pontos. O gabarito é o da correção do professor. Segundo quem fez a PV1 agora, <b>seis questões caíram iguais</b> e a 11 caiu parecida, com outra figura.",
+ qs:[
+ {q:"Qual máscara de sub-rede é representada pela notação /25?", o:["255.255.255.30","255.255.255.252","255.255.255.230","Nenhuma das anteriores."], a:3,
+  e:"/25 = 24 + 1 bit. No último octeto, 10000000 = 128. A máscara é 255.255.255.128, que não está entre as alternativas."},
+ {q:"Seja o endereço 198.47.47.224, com máscara 255.255.255.192. A qual rede este endereço pertence?", o:["198.47.0.0","198.47.47.192","198.47.47.0","Nenhuma das anteriores."], a:1, tag:"igual",
+  e:"Máscara 192 no último octeto → blocos de 256 − 192 = 64: 0, 64, 128, 192. O 224 cai no bloco que começa em 192 (e vai até 255). Rede: 198.47.47.192."},
+ {q:"Qual das alternativas a seguir descreve melhor o endereço 10.19.0.255 /16?", o:["Endereço de rede da rede 10.19.0.0.","Endereço de host da rede 10.19.0.0.","Endereço de broadcast da rede 10.19.0.0.","Nenhuma das anteriores."], a:1,
+  e:"Com /16, a parte de host são os dois últimos octetos (0.255). A rede é 10.19.0.0 e o broadcast é 10.19.<b>255</b>.255. Como 0.255 não é tudo 0 nem tudo 1, é um <b>host</b> comum. A pegadinha é o “.255” no final: só é broadcast quando <b>todos</b> os bits de host são 1."},
+ {q:"Com relação à configuração de endereços em uma interface (placa de rede) de um dispositivo, é correto afirmar:", o:["Tanto os endereços MAC e IP podem ser fornecidos por um servidor DHCP.","Devem ser configurados, pelo usuário, no mínimo, os endereços MAC, IP e máscara de rede.","Devem ser configurados, pelo usuário, no mínimo os endereços MAC, IP, máscara de rede e o gateway padrão.","Nenhuma das anteriores."], a:3,
+  e:"O MAC vem gravado na placa pelo fabricante: o DHCP não fornece MAC e o usuário não precisa configurá-lo. Isso derruba as três primeiras."},
+ {q:"A principal vantagem dos endereços privados, em relação aos endereços públicos, é:", o:["Garantir a privacidade dos dados enviados","Possibilitar o roteamento de pacotes de forma mais simples na internet.","Permitir que dentro das organizações, possam ser utilizadas quaisquer faixas de endereços IP.","Nenhuma das anteriores."], a:3,
+  e:"A vantagem é <b>economizar endereços públicos</b>: as mesmas faixas privadas são reutilizadas em todas as redes internas. Elas não dão privacidade (não criptografam nada), não são roteadas na internet, e não vale “qualquer faixa”: só 10.0.0.0/8, 172.16.0.0/12 e 192.168.0.0/16."},
+ {q:"Endereços IP privados são utilizados:", o:["Na Internet pública","Para comunicação entre roteadores","Para comunicação entre provedores","Apenas por servidores","Nenhuma das anteriores"], a:4,
+  e:"Endereços privados são usados <b>dentro de redes locais</b>, e essa alternativa não aparece aqui. Roteadores até podem usar IP privado, mas não é para isso que eles existem. Na questão 5 da lista, a alternativa “internamente em redes locais” aparece."},
+ {q:"O que é endereçamento IP dinâmico?", o:["Atribuição manual de endereços IP","Uso de endereços públicos fixos","IP atribuído automaticamente por um servidor, como DHCP","Atribuição de IPs via DNS","Nenhuma das anteriores"], a:2,
+  e:"Dinâmico = entregue automaticamente pelo DHCP. Atribuição manual é estática, e o DNS traduz nomes, não atribui IPs."},
+ {q:"O endereço MAC identifica:", o:["Endereço da camada lógica","Endereço da camada física","Roteador padrão","Nome do domínio","Nenhuma das anteriores"], a:4, flag:"Pegadinha",
+  e:"O MAC identifica a interface na <b>camada de enlace</b> (camada 2). Ele é <i>chamado</i> de endereço físico, mas não pertence à camada física, que não tem endereço; e “lógico” é o IP. Na lista (questão 9) a alternativa certa aparece: “dispositivo na camada de enlace”."},
+ {q:"Qual é a função principal do DHCP?", o:["Traduzir nomes de domínio","Atribuir IPs dinamicamente","Monitorar tráfego da rede","Gerenciar protocolos de roteamento","Nenhuma das anteriores"], a:1,
+  e:"O DHCP entrega automaticamente IP, máscara, gateway e DNS."},
+ {q:"Qual comando no Windows mostra o endereço IP e MAC de um dispositivo?", o:["ping","ipconfig","ipconfig /all","netstat","n.d.a."], a:2,
+  e:"O <b>ipconfig</b> sozinho mostra IP, máscara e gateway, mas não o MAC. O <b>/all</b> acrescenta o endereço físico (MAC), o DHCP e o DNS."},
+ {q:"Observando a topologia de rede da figura, qual o endereço de gateway padrão para o host A?", fig:FIG_RTA, o:["192.135.250.1","192.31.7.1","192.133.219.1","192.133.0.0","Nenhuma das anteriores"], a:2, tag:"parecida",
+  e:"O gateway padrão é o IP da interface do roteador <b>na mesma rede do host</b>. O host A está na rede 192.133.219.0, e a interface do RTA nessa rede é 192.133.219.1. Os outros IPs do roteador pertencem a outras redes, que o host não alcança diretamente."},
+ {q:"Dado o endereço/máscara 172.31.10.10 /20, qual a rede a que esse endereço pertence?", o:["172.31.0.0","172.31.10.0","172.31.8.0","172.31.16.0","Nenhuma das anteriores"], a:0, note:"Na prova, as questões 12 a 14 eram de resposta aberta.",
+  e:"/20 → o 3º octeto tem máscara 240, bloco de 16: 0, 16, 32… O 10 está no bloco 0–15. Rede: 172.31.0.0."},
+ {q:"Dado o endereço/máscara 172.31.10.10 /20, qual o endereço de broadcast dessa rede?", o:["172.31.10.255","172.31.15.255","172.31.255.255","172.31.16.255","Nenhuma das anteriores"], a:1,
+  e:"Mesmo bloco 0–15 no 3º octeto: o broadcast termina em 15, e o último octeto vira 255 → 172.31.15.255."},
+ {q:"Dado o endereço/máscara 172.31.10.10 /20, quantos endereços de hosts essa rede possui?", o:["4096","4094","2046","254","Nenhuma das anteriores"], a:1,
+  e:"32 − 20 = 12 bits de host. 2¹² = 4096 endereços, menos o de rede e o de broadcast = 4094 hosts."},
+ {q:"Um protocolo operando no modo não confiável significa que:", o:["Esse protocolo garante a entrega dos dados enviados.","Esse protocolo garante a entrega dos dados, porém esses dados podem estar corrompidos.","Esse protocolo garante a entrega dos dados, pois os dados que chegarem ao destino estarão corretos","Nenhuma das anteriores."], a:3,
+  e:"Não confiável (como o UDP) quer dizer que o protocolo <b>não garante</b> a entrega: não há confirmação nem retransmissão. As três primeiras dizem que garante."},
+ {q:"Qual camada do modelo OSI tem como função regular o fluxo de informações entre origem e destino, e fazê-lo de forma confiável?", o:["Aplicação","Rede","Transporte","Nenhuma das anteriores."], a:2,
+  e:"Controle de fluxo e entrega confiável fim a fim são da camada de transporte (o TCP)."},
+ {q:"No modelo TCP/IP, qual camada encapsula os segmentos em pacotes?", o:["Aplicação","Rede","Transporte","Nenhuma das anteriores."], a:1,
+  e:"O transporte gera <b>segmentos</b>; a camada de rede (Internet) acrescenta o cabeçalho IP e forma o <b>pacote</b>; o enlace forma o <b>quadro</b>."},
+ {q:"Qual afirmativa é verdadeira sobre os modelos TCP/IP e OSI?", o:["A camada de transporte TCP/IP e a camada 4 OSI fornecem serviços e funções semelhantes.","A camada de acesso à rede TCP/IP tem funções similares à camada de rede OSI.","A camada 7 OSI e a camada de aplicação TCP/IP fornecem funções idênticas.","As primeiras três camadas OSI descrevem os serviços gerais, também fornecidos pela camada de Internet TCP/IP.","Nenhuma das anteriores"], a:0, tag:"igual",
+  e:"Transporte é transporte nos dois modelos. A camada de acesso à rede equivale a física + enlace (não à de rede). A aplicação do TCP/IP junta as camadas 5, 6 e 7 do OSI, então não é idêntica à 7. E a camada Internet equivale só à camada 3."},
+ {q:"Que camada do modelo OSI descreve os vários tipos de meios de rede?", o:["Aplicação","Rede","Transporte","Nenhuma das anteriores."], a:3,
+  e:"Os meios (cabo de cobre, fibra, wireless) são da camada <b>física</b>, que não está entre as alternativas."},
+ {q:"Antes que qualquer dado possa ser transmitido, entre dois usuários, faz-se necessário o estabelecimento de uma conexão fim a fim entre esses usuários. Isso caracteriza o que chamamos de:", o:["Modo orientado à conexão.","Modo datagrama.","Modo não orientado à conexão.","Nenhuma das anteriores."], a:0,
+  e:"Estabelecer a conexão antes de enviar (o handshake do TCP) é o modo orientado à conexão. Datagrama e não orientado à conexão descrevem o UDP."},
+ {q:"Qual a afirmativa incorreta em relação à comunicação entre Aplicação e Transporte?", o:["A interface através da qual um protocolo na camada de aplicação troca dados com um protocolo na camada de transporte é o que chamamos de socket.","A camada de transporte faz uso de identificadores de portas, que servem para diferenciar as interfaces através das quais os dados são transmitidos e recebidos pelos dispositivos para os meios de transmissão.","Um processo, para sua correta identificação, faz uso de um endereço IP e de um identificador de porta.","Nenhuma das anteriores."], a:1,
+  e:"A porta identifica o <b>processo/aplicação</b>, não a interface física por onde o dado sai. As alternativas a e c estão certas: socket é a interface aplicação↔transporte, e um processo é identificado por IP + porta."},
+ {q:"Qual é o principal propósito da atribuição de portas ocorrida na Camada 4?", o:["Identificar os dispositivos na rede origem.","Identificar dispositivos na rede destino.","Identificar os dispositivos nas redes origem e destino que estão se comunicando.","Nenhuma das anteriores"], a:3, tag:"igual",
+  e:"Portas identificam <b>processos/serviços</b> nos dispositivos finais. Identificar dispositivos é papel do IP (e do MAC, no enlace). Na lista (questão 51) a alternativa certa aparece escrita."},
+ {q:"Durante uma sessão de comunicação TCP, se os pacotes chegam ao destino fora de ordem, o que irá acontecer a esses pacotes?", o:["Os pacotes serão descartados.","Os pacotes serão retransmitidos pela origem.","Os pacotes serão reordenados no destino.","Nenhuma das anteriores."], a:2,
+  e:"O TCP usa o número de sequência para remontar os dados na ordem certa. Retransmissão é para o que se <b>perdeu</b>, não para o que chegou fora de ordem."},
+ {q:"Qual informação é encontrada nas informações de cabeçalho de ambos os protocolos TCP e UDP?", o:["Número de sequência","Números de porta origem e porta destino","ACK (Número de reconhecimento)","Nenhuma das anteriores."], a:1,
+  e:"O cabeçalho UDP tem só porta de origem, porta de destino, comprimento e checksum. Número de sequência e ACK são exclusivos do TCP."},
+ {q:"Qual das afirmações abaixo está correta em relação aos protocolos UDP e TCP?", o:["UDP usa janelamento e confirmações para transferência confiável de dados.","UDP usa números de porta para fornecer transporte confiável de pacotes IP.","TCP usa janelamento e sequenciamento para fornecer transferência confiável de dados.","TCP é um protocolo não orientado à conexão. UDP é um protocolo orientado a conexão.","Nenhuma das anteriores."], a:2, tag:"igual",
+  e:"Janela + número de sequência é o que torna o TCP confiável. O UDP não tem janela nem confirmação, e a d) inverte os dois protocolos."},
+ {q:"Analisando as afirmativas abaixo, é correto afirmar que:\nI. O protocolo TCP, por ser confiável e orientado a conexão, não permite que diferentes aplicações possam estabelecer conexões simultâneas na rede.\nII. O UDP, por ser não orientado a conexão e não confiável, não permite que duas ou mais aplicações rodem simultaneamente na rede.", o:["Somente a afirmativa I é verdadeira;","As duas afirmativas são verdadeiras;","Somente a afirmativa II é verdadeira;","As duas afirmativas são falsas."], a:3, tag:"igual",
+  e:"As duas são falsas pelo mesmo motivo: as <b>portas</b> permitem várias aplicações ao mesmo tempo, tanto no TCP quanto no UDP (é a multiplexação). Ser confiável ou não, orientado à conexão ou não, não tem nada a ver com isso."},
+ {q:"Durante a transmissão de dados, qual técnica o TCP usa junto com o janelamento para garantir que um fluxo de dados enviado de uma aplicação será entregue a outra aplicação sem duplicação ou perda de dados?", o:["Recuperação e controle de fluxo","Confirmação e retransmissão","Encapsulamento e broadcast","Sincronização e confirmação"], a:1,
+  e:"O receptor confirma (ACK) o que chegou, e o que não foi confirmado é retransmitido. O número de sequência evita a duplicação."},
+ {q:"Para o protocolo TCP, qual a faixa de identificadores de porta identificados como “bem conhecidos”?", o:["0 a 255","256 a 1022","0 a 1023","1024 a 2047","n.d.a."], a:2,
+  e:"Bem conhecidas: 0 a 1023. Registradas: 1024 a 49151. Dinâmicas: 49152 a 65535."},
+ {q:"Qual protocolo de aplicação é usado para controlar a transferência de recursos web de um servidor web a um browser de cliente?", o:["POP3","IMAP","SNMP","Nenhuma das anteriores"], a:3,
+  e:"É o <b>HTTP</b>, que não aparece. POP3 e IMAP são de e-mail; SNMP é gerência de rede."},
+ {q:"O protocolo DNS é utilizado para:", o:["Transferir arquivos entre computadores","Traduzir nomes de domínio em endereços IP","Estabelecer sessões seguras","Enviar e-mails","Nenhuma das anteriores"], a:1,
+  e:"DNS traduz nomes em IPs. Transferir arquivos é o FTP; sessões seguras, TLS/SSH; enviar e-mail, SMTP."},
+ {q:"Qual das seguintes afirmações sobre o HTTP é incorreta?", o:["É um protocolo orientado a conexão","Garante entrega confiável","Opera na camada de transporte","É encapsulado sobre o UDP","Nenhuma das anteriores"], a:2, flag:"Duas alternativas incorretas",
+  e:"O HTTP é de <b>aplicação</b>, então a c) é incorreta, e foi a aceita na correção. Só que a d) também é incorreta: o HTTP roda sobre TCP, não UDP. Se cair de novo, marque a c). As alternativas a e b são consideradas certas porque o HTTP herda do TCP a conexão e a entrega confiável."},
+ {q:"Observe o esquema, referente a uma rede de computadores com acesso à Internet, configurada pelo IP 203.155.196.0/27. A faixa total de endereços IP atribuída à sub-rede 1 está compreendida entre:", fig:FIG_203, o:["203.155.196.0 a 203.155.196.255","203.155.196.128 a 203.155.196.255","203.155.196.64 a 203.155.196.127","203.155.196.32 a 203.155.196.63","Nenhuma das anteriores"], a:3,
+  e:"/27 → blocos de 2⁵ = 32 endereços: 0–31, 32–63, 64–95… Os hosts da sub-rede 1 são .38 e .54, que caem no bloco <b>32–63</b>. (A sub-rede 2, com .68 e .82, é 64–95; a sub-rede 3, com .196 e .202, é 192–223.)"},
+ {q:"A figura ilustra parte da tabela de roteamento no roteador R2, após o comando show ip route ser utilizado. Que rota será selecionada para um pacote com um endereço de destino 10.1.4.1?", pre:TBL_R2, o:["rota para 0.0.0.0/0","rota para 10.1.0.0/22","rota para 10.1.0.0/23","rota para 10.1.0.0/24","N.D.A."], a:0, tag:"igual",
+  e:"Veja a faixa que cada rota cobre: /24 = 10.1.0.0 a 10.1.0.255; /23 = até 10.1.1.255; /22 = até 10.1.<b>3</b>.255. O 10.1.<b>4</b>.1 não cabe em nenhuma, então vai pela <b>rota padrão</b> 0.0.0.0/0. “Directly connected” não quer dizer que a rota serve: só serve se a faixa contém o destino. Se o destino fosse 10.1.0.5, aí ganharia a /24, a mais específica."},
+ {q:"Para descobrir à qual rede de destino encaminhar um pacote, o roteador faz uso de dois parâmetros: a máscara de rede e o endereço IP destino, ambos retirados do cabeçalho do pacote IP a ser encaminhado.", o:VF, a:1,
+  e:"O IP de destino vem do cabeçalho, mas a <b>máscara não</b>: o cabeçalho IP não carrega máscara. Ela vem da tabela de rotas do próprio roteador."},
+ {q:"Na configuração de uma rota estática, em um roteador conectado à internet, no mínimo, devem ser configurados o endereço IP e a máscara da rede destino.", o:VF, a:1,
+  e:"Falta o <b>próximo salto</b> (ou a interface de saída). O comando é <code>ip route &lt;rede&gt; &lt;máscara&gt; &lt;próximo salto ou interface&gt;</code>."},
+ {q:"O protocolo de roteamento RIP utiliza como métrica, para encontrar o caminho mais curto até a rede destino, o número de dispositivos que o pacote passa, do dispositivo origem (IP origem) até o dispositivo final (IP destino).", o:VF, a:0, flag:"Confira com o professor",
+  e:"O RIP usa a contagem de saltos (hops), e a correção aceitou Verdadeiro. A rigor, salto conta os <b>roteadores</b> no caminho, não “dispositivos” quaisquer, mas o professor tratou como a mesma ideia."},
+ {q:"Considerando a tabela de roteamento mostrada, pode-se afirmar que este roteador contém três rotas estáticas e três rotas dinâmicas, podendo rotear pacotes para seis redes distintas.", code:"SEM", o:VF, a:1,
+  e:"Não há rota estática (S) nem dinâmica (R, O, D…). Todas são <b>C</b> (diretamente conectada) e <b>L</b> (o IP da própria interface, /32). São só três redes: 192.168.10.0/24, 192.168.11.0/24 e 209.165.200.224/30."},
+ {q:"Com relação ao roteamento:\nI. Um sistema autônomo (AS) identifica um conjunto de redes que opera de forma isolada do restante da internet.\nII. Internamente, em um sistema autônomo, pode-se utilizar o roteamento denominado intra-sistema, fazendo uso de protocolos de roteamento tais como OSPF, IS-IS e BGP.\nEstá(ão) correta(s) apenas:", o:IIs, a:2, flag:"Confira com o professor",
+  e:"I é falsa: um AS é um conjunto de redes sob <b>uma mesma administração</b>, mas conectado à internet, não isolado. A correção deu a II como verdadeira. Cuidado com o BGP: ele é o protocolo <b>entre</b> sistemas autônomos (EGP), e dentro do AS só aparece como iBGP. OSPF e IS-IS são os IGPs típicos."},
+ {q:"Com relação ao roteamento:\nI. Um roteador descobre a qual rede destino um pacote deve ser encaminhado, através do endereço IP destino desse pacote.\nII. Um roteador descobre a melhor rota para uma rede destino, dentre diferentes rotas disponíveis, comparando o custo de cada uma dentre as diferentes rotas disponíveis. Esse custo pode ser calculado usando diferentes parâmetros, tais como largura de banda, número de saltos (hops), atrasos, etc.\nEstá(ão) correta(s) apenas:", o:IIs, a:1,
+  e:"I: o roteador decide pelo IP de <b>destino</b>, comparando com as máscaras da sua tabela. II: a métrica (custo) escolhe a melhor rota, e cada protocolo usa a sua: saltos no RIP, largura de banda no OSPF."},
+ {q:"Com relação ao roteamento:\nI. Protocolos de roteamento são utilizados pelos roteadores para que, ao receberem um pacote IP, possam identificar através de seu endereço IP destino qual a rede destino.\nII. Uma das vantagens do roteamento estático, em relação ao roteamento dinâmico, é que no roteamento estático, as rotas descobertas pelo roteador são sempre constantes (sempre as mesmas).\nEstá(ão) correta(s) apenas:", o:IIs, a:3,
+  e:"I descreve a consulta à tabela de rotas, não o protocolo de roteamento: protocolo de roteamento (RIP, OSPF) serve para os roteadores <b>trocarem informações e montarem a tabela</b>. II: rota estática não é “descoberta”, é configurada à mão, e não se adaptar a mudanças é desvantagem, não vantagem."},
+]};
+
+/* ---------- PV1: lista de exercícios (gabarito oficial) ---------- */
+const REL = "Na lista, duas alternativas aparecem com a letra c); aqui elas foram reletradas.";
+const PV1_LISTA = { id:"pv1-lista", t:"Lista PV1", layer:"91 questões", kind:"quiz",
+ intro:"A lista de exercícios da PV1 (Prof. Edson J. C. Gimenez), com o gabarito oficial do fim da lista e um comentário em cada questão. As marcadas em rosa caíram iguais ou parecidas na PV1.",
+ qs:[
+ {q:"Qual é o comprimento de um endereço IPv4?", o:["32 bits","64 bits","128 bits","16 bits","n.d.a."], a:0, e:"IPv4 = 32 bits, em 4 octetos de 8 bits."},
+ {q:"Qual é o comprimento de um endereço IPv6?", o:["32 bits","64 bits","128 bits","256 bits","n.d.a."], a:2, e:"IPv6 = 128 bits, escritos em 8 grupos de 4 dígitos hexadecimais."},
+ {q:"Qual das opções abaixo representa um endereço IPv4 válido?", o:["256.0.0.1","192.168.1.256","192.168.0.1","192.168.300.1","n.d.a."], a:2, e:"Cada octeto vai de 0 a 255. Os valores 256 e 300 não cabem em 8 bits."},
+ {q:"Qual das seguintes máscaras corresponde à rede 255.255.255.0?", o:["/16","/24","/32","/8","n.d.a."], a:1, tag:"parecida", e:"Três octetos de 1 = 24 bits → /24."},
+ {q:"Endereços IP privados são utilizados:", o:["Na Internet pública","Internamente em redes locais","Para comunicação entre provedores","Apenas por servidores","Nenhuma das anteriores"], a:1, e:"Endereços privados ficam dentro das redes locais; para sair à internet, passam pelo NAT."},
+ {q:"Qual dos seguintes blocos é reservado para endereçamento privado?", o:["172.15.0.0/16","10.0.0.0/8","192.0.2.0/24","169.254.0.0/16","n.d.a."], a:1, tag:"parecida",
+  e:"Faixas privadas: 10.0.0.0/8, 172.16.0.0/12 (de 172.16 a 172.31) e 192.168.0.0/16. 172.15 fica fora; 192.0.2.0/24 é reservada para documentação; 169.254.0.0/16 é o APIPA, que o Windows usa quando o DHCP não responde."},
+ {q:"O que é endereçamento IP dinâmico?", o:["Atribuição manual de endereços IP","Uso de endereços públicos fixos","IP atribuído automaticamente por um servidor, como DHCP","Atribuição de IPs via DNS","Nenhuma das anteriores"], a:2, e:"Dinâmico = entregue automaticamente pelo DHCP."},
+ {q:"O que diferencia endereços públicos dos privados?", o:["Os públicos são usados internamente","Os públicos são roteáveis na Internet","Os privados exigem IPv6","Os privados são únicos globalmente","Nenhuma das anteriores"], a:1, e:"Só os públicos são roteados na internet, e eles são únicos no mundo. Os privados se repetem em cada rede interna."},
+ {q:"O endereço MAC identifica:", o:["Endereço IP do host","Dispositivo na camada de enlace","Roteador padrão","Nome do domínio","Nenhuma das anteriores"], a:1, e:"MAC = endereço da camada 2 (enlace). Compare com a questão 8 da prova anterior, em que essa alternativa não aparecia."},
+ {q:"Qual é a função principal do DHCP?", o:["Traduzir nomes de domínio","Atribuir IPs dinamicamente","Monitorar tráfego da rede","Gerenciar protocolos de roteamento","Nenhuma das anteriores"], a:1, e:"O DHCP atribui IP, máscara, gateway e DNS automaticamente."},
+ {q:"Um endereço MAC tem quantos bits?", o:["32","48","64","128","n.d.a."], a:1, e:"48 bits = 12 dígitos hexadecimais."},
+ {q:"Um endereço IP com máscara /30 pode ter quantos hosts válidos?", o:["1","2","4","6","n.d.a."], a:1, tag:"parecida",
+  e:"/30 → 2 bits de host → 2² = 4 endereços, menos rede e broadcast = 2 hosts. É a máscara típica do enlace entre dois roteadores."},
+ {q:"Qual comando no Windows mostra os endereços IP e MAC de um dispositivo?", o:["Ping","tracert","ipconfig /all","netstat","n.d.a."], a:2, e:"O ipconfig /all mostra o endereço físico (MAC); o ipconfig simples não mostra."},
+ {q:"O endereço IP binário 11001101.11111111.10101010.11001101, em notação decimal equivale a:", o:["205.255.170.205","109.255.170.109","205.127.200.205","109.127.200.109","n.d.a."], a:0, e:"11001101 = 128+64+8+4+1 = 205; 11111111 = 255; 10101010 = 128+32+8+2 = 170."},
+ {q:"Qual máscara de rede é representada pela notação /20?", o:["255.255.224.0","255.255.248.0","255.255.220.0","255.255.240.0","n.d.a."], a:3, e:"/20 = 8 + 8 + 4 bits. No 3º octeto, 11110000 = 240 → 255.255.240.0."},
+ {q:"Qual máscara de rede é representada pela notação /30?", o:["255.255.255.224","255.255.255.248","255.255.255.252","255.255.255.0","n.d.a."], a:2, e:"/30 = 24 + 6 bits. No último octeto, 11111100 = 252."},
+ {q:"Qual dos endereços IP abaixo identifica um endereço IP público?", o:["10.1.1.1","172.32.5.2","172.16.4.4","192.168.5.5","n.d.a."], a:1, e:"A faixa privada que começa com 172 vai de 172.16 a 172.31. O 172.<b>32</b> já está fora, então é público."},
+ {q:"Qual dos endereços IP abaixo é classificado como endereço privado?", o:["172.32.5.2","192.167.10.10","172.16.4.4","172.0.0.0","n.d.a."], a:2, e:"172.16.4.4 está em 172.16.0.0/12. O 192.<b>167</b> não é 192.168, e 172.32 e 172.0 ficam fora de 172.16–172.31."},
+ {q:"Qual é a máscara de rede padrão para um endereço de classe B?", o:["255.255.255.255","255.255.255.0","255.255.0.0","255.0.0.0","n.d.a."], a:2, e:"Classe A = /8 (255.0.0.0), B = /16 (255.255.0.0), C = /24 (255.255.255.0). Classe B é o primeiro octeto de 128 a 191."},
+ {q:"Qual das alternativas a seguir é um exemplo de protocolo roteado?", o:["RIP","IP","EIGRP","OSPF","n.d.a."], a:1, e:"Roteado = o que carrega os dados do usuário (IP). RIP, EIGRP e OSPF são protocolos de roteamento."},
+ {q:"Do cabeçalho de um pacote IPv4, qual informação é usada pelo roteador para descobrir para onde o mesmo deve ser encaminhado?", o:["Endereço IP origem","Endereço MAC origem","Endereço MAC destino","Endereço IP destino","Nenhuma das anteriores"], a:3, e:"O roteador decide pelo IP de destino."},
+ {q:"O que os roteadores usam para trocar tabelas de roteamento e/ou compartilhar informações de roteamento?", o:["Protocolos roteados","Protocolos de roteamento","Protocolos de aplicação","Protocolos de transporte","Nenhuma das anteriores"], a:1, note:REL, e:"Protocolos de roteamento (RIP, OSPF, EIGRP) trocam rotas entre os roteadores."},
+ {q:"Quando uma rota para a rede de destino não é encontrada na tabela de roteamento de um roteador, qual ação o roteador pode tomar?", o:["O roteador envia ao destino uma solicitação para determinar o endereço de próximo salto necessário.","O roteador descarta o pacote, se não existir nenhuma rota padrão.","O roteador envia o pacote ao próximo salto indicado na tabela de roteamento.","O roteador envia o pacote para todas as suas interfaces (broadcast).","Nenhuma das anteriores"], a:1, tag:"parecida",
+  e:"Sem rota específica, o roteador usa a rota padrão; se não houver rota padrão, descarta. Roteador não faz broadcast de pacote para descobrir caminho."},
+ {q:"Qual é o termo correto para quando as tabelas de rotas são atualizadas dinamicamente pelos roteadores?", o:["Roteamento estático","Roteamento aprimorado","Roteamento dinâmico","Roteamento automático","Nenhuma das anteriores"], a:2, note:REL, e:"Tabela atualizada pelos próprios roteadores, via protocolo de roteamento = roteamento dinâmico."},
+ {q:"Qual característica é comumente associada aos protocolos de roteamento dinâmico?", o:["Não exigem nenhuma configuração de dispositivo.","Fornecem informações aos roteadores permitindo que suas tabelas de roteamento sejam atualizadas dinamicamente.","Exigem menos poder de processamento dos roteadores do que o roteamento estático.","São sempre indicados, uma vez que não há nenhuma intervenção humana para seu funcionamento.","Nenhuma das anteriores"], a:1,
+  e:"Roteamento dinâmico precisa de configuração inicial, gasta mais CPU e memória que o estático e nem sempre é o indicado: em rede pequena, ou para a rota padrão, costuma-se usar rota estática."},
+ {q:"Qual das seguintes alternativas melhor descreve a operação dos protocolos de roteamento vetor de distância?", o:["Utilizam a contagem de saltos como sua única métrica.","Depois da convergência, enviam atualização apenas quando ocorre alguma alteração na topologia da rede.","Enviam informações de suas tabelas de roteamento a todos os roteadores da topologia.","Mesmo após ocorrida a convergência, continuam enviando informações de roteamento em tempos pré-definidos.","Nenhuma das anteriores"], a:3,
+  e:"Vetor de distância (como o RIP) manda a tabela inteira periodicamente (a cada 30 s, no RIP), só para os vizinhos, mesmo sem mudança. Nem todos usam só saltos (o EIGRP usa banda e atraso). Atualizar só quando algo muda é característica do estado de enlace."},
+ {q:"Que tipo de rota permite que um roteador envie pacotes mesmo que sua tabela de roteamento não contenha nenhuma rota para a rede de destino?", o:["Rota dinâmica","Rota padrão","Rota de destino","Rota genérica","n.d.a."], a:1, e:"A rota padrão, 0.0.0.0/0."},
+ {q:"Considerando a tabela de roteamento indicada, qual a ação do roteador para um pacote recebido que possui o endereço IP destino igual a 192.168.12.227?", code:"TD", o:["Descartar o pacote.","Encaminhar o pacote pela interface Serial0/0/0.","Encaminhar o pacote pela interface GigabitEthernet0/0.","Encaminhar o pacote pela interface GigabitEthernet0/1.","Nenhuma das anteriores."], a:1,
+  e:"192.168.<b>12</b>.227 não está em 192.168.10.0/24 nem em 192.168.11.0/24. Vai pela rota padrão, via 209.165.200.226, que é alcançado pela rede 209.165.200.224/30 da <b>Serial0/0/0</b>."},
+ {q:"No contexto de protocolos de roteamento, qual é uma definição para tempo de convergência?", o:["A quantidade de tempo que um administrador de redes precisa para configurar um protocolo de roteamento em uma rede pequena a média.","A capacidade de transportar dados, vídeo e voz no mesmo meio físico.","Uma medida de complexidade de configuração do protocolo.","O tempo para as tabelas de roteamento atingirem um estado consistente após uma alteração de topologia.","Nenhuma das anteriores."], a:3,
+  e:"Convergência = todos os roteadores com a mesma visão da rede depois de uma mudança."},
+ {q:"Um administrador de rede acabou de inserir novas configurações no Roteador1. Que comando deve ser executado para salvar as alterações feitas na configuração na NVRAM?", o:["Router1# copy running-config startup-config","Router1(config)# copy running-config startup-config","Router1# copy startup-config running-config","Router1(config)# copy startup-config running-config","Nenhuma das anteriores."], a:0,
+  e:"A cópia vai da running-config (RAM, em uso) para a startup-config (NVRAM). O copy é executado no modo privilegiado (#), não no (config)#."},
+ {q:"A conexão serial ilustrada no gráfico precisa ser configurada. Sabendo que o endereço 201.100.53.2 /24 será atribuído à interface S0 do roteador Sydney, qual dos comandos de configuração indicados NÃO precisa ser executado no roteador Sydney para estabelecer a conectividade com o roteador Melbourne?", fig:FIG_SYD, o:["Sydney(config-if)# ip address 201.100.53.2 255.255.255.0","Sydney(config-if)# no shutdown","Sydney(config-if)# ip address 201.100.53.1 255.255.255.224","Sydney(config-if)# clock rate 56000","Nenhum dos comandos mostrados."], a:2,
+  e:"201.100.53.1 é o IP do Melbourne, e a máscara /27 nem bate com a rede /24. Os outros comandos são necessários: o IP certo, o <b>no shutdown</b> para ligar a interface e o <b>clock rate</b>, porque o Sydney é o lado <b>DCE</b> do cabo serial."},
+ {q:"Considerando a figura, qual rota estática deve ser configurada no Roteador1 para que o host A seja capaz de alcançar o host B na rede 172.16.0.0/16?", fig:FIG_R1R2, pre:TBL_ROT1, o:["ip route 192.168.0.0 172.16.0.0 255.255.0.0","ip route 172.16.0.0 255.255.0.0 192.168.0.1","ip route 172.16.0.0 255.255.0.0 S0/0/1","ip route 172.16.0.0 255.255.0.0 S0/0/0","nenhum dos anteriores"], a:3, tag:"parecida",
+  e:"Formato: <code>ip route &lt;rede destino&gt; &lt;máscara&gt; &lt;próximo salto ou interface de saída&gt;</code>. A saída do Roteador1 é a <b>S0/0/0</b> (a S0/0/1 é do Roteador2). Usar o próximo salto também valeria, mas ele seria 192.168.0.<b>2</b> (o Roteador2); 192.168.0.1 é o próprio Roteador1."},
+ {q:"Quantas camadas possui o modelo OSI?", o:["3","4","5","7","n.d.a."], a:3, e:"Física, enlace, rede, transporte, sessão, apresentação e aplicação."},
+ {q:"Qual camada do modelo OSI é responsável por permitir a entrega confiável fim a fim?", o:["Rede","Transporte","Sessão","Apresentação","n.d.a."], a:1, e:"Transporte (o TCP)."},
+ {q:"A camada de aplicação no modelo TCP/IP corresponde a quais camadas do modelo OSI?", o:["Aplicação","Transporte e Aplicação","Rede","Aplicação, Apresentação e Sessão","Nenhuma das anteriores"], a:3, e:"A aplicação do TCP/IP engloba as camadas 5, 6 e 7 do OSI."},
+ {q:"A função de roteamento de pacotes está associada à qual camada do modelo OSI?", o:["Transporte","Enlace","Rede","Sessão","n.d.a."], a:2, e:"Roteamento = camada 3, rede."},
+ {q:"A camada física do modelo OSI é responsável por:", o:["Roteamento","Transmissão de bits","Garantia de entrega","Encriptação","Nenhuma das anteriores"], a:1, e:"A camada física transmite os bits pelo meio."},
+ {q:"Os switches/comutadores, de modo geral, são considerados dispositivos de qual camada OSI?", o:["Física","Enlace","Rede","Aplicação","n.d.a."], a:1, e:"O switch comuta quadros pelo MAC: camada 2."},
+ {q:"O IP atua em qual camada do modelo OSI?", o:["Enlace","Aplicação","Transporte","Rede","n.d.a."], a:3, e:"IP = camada 3, rede."},
+ {q:"No modelo TCP/IP, o protocolo TCP pertence à:", o:["Camada de Aplicação","Camada de Transporte","Camada de Acesso à Rede","Camada de Rede","Nenhuma das anteriores"], a:1, e:"TCP e UDP são da camada de transporte."},
+ {q:"A principal função da camada de apresentação, no modelo OSI, é:", o:["Transmitir bits","Sintaxe de dados, compressão e criptografia","Estabelecer sessão","Roteamento","Nenhuma das anteriores"], a:1, tag:"parecida",
+  e:"Apresentação = formato (sintaxe) dos dados, compressão e criptografia. Na PV1 caiu ao contrário: “qual camada é associada à sintaxe dos dados?” → Apresentação."},
+ {q:"Qual das camadas do modelo TCP/IP é responsável por iniciar, manter e encerrar conexões lógicas entre aplicações?", o:["Aplicação","Transporte","Sessão","Apresentação","n.d.a."], a:1, tag:"parecida",
+  e:"O modelo TCP/IP não tem camada de sessão: quem abre, mantém e encerra conexões lógicas é o <b>transporte</b> (TCP). Sessão e apresentação são camadas do OSI."},
+ {q:"Qual camada do modelo TCP/IP é equivalente às camadas Física e Enlace do modelo OSI?", o:["Aplicação","Transporte","Internet","Acesso à Rede","n.d.a."], a:3, e:"Acesso à Rede = física + enlace."},
+ {q:"O protocolo UDP opera em qual camada do modelo TCP/IP?", o:["Aplicação","Transporte","Sessão","Apresentação","n.d.a."], a:1, e:"UDP = transporte."},
+ {q:"Em qual camada do modelo OSI está o protocolo HTTP?", o:["Aplicação","Transporte","Sessão","Apresentação","n.d.a."], a:0, e:"HTTP = aplicação."},
+ {q:"No modelo TCP/IP, a camada de Internet é equivalente a qual camada do modelo OSI?", o:["Física","Sessão","Rede","Transporte","n.d.a."], a:2, e:"Internet (TCP/IP) = rede (OSI)."},
+ {q:"Em um socket, qual combinação identifica uma conexão?", o:["Endereço MAC e identificador de porta","Endereço IP de origem e endereço IP de destino","Endereço IP e Identificador de porta","Endereço IP e endereço MAC","Nenhuma das anteriores"], a:2, tag:"parecida",
+  e:"Socket = IP + porta (ex.: 192.168.0.10:80). Uma conexão TCP é identificada pelo par de sockets das duas pontas."},
+ {q:"A camada de transporte opera entre quais camadas do modelo TCP/IP?", o:["Rede e Aplicação","Aplicação e Sessão","Sessão e Enlace","Enlace e Rede","Nenhuma das anteriores"], a:0, e:"No TCP/IP: acesso à rede → Internet (rede) → <b>transporte</b> → aplicação."},
+ {q:"A identificação de serviços/processos é realizada na camada de transporte por meio dos:", o:["Endereço IP","Identificadores de porta","Endereço MAC","Número de sequência","Nenhuma das anteriores"], a:1, e:"Portas identificam processos e serviços."},
+ {q:"Em um sistema orientado à conexão, o que acontece antes de qualquer dado de usuário ser transferido?", o:["É estabelecida uma conexão com o roteador local do destinatário","É estabelecida uma conexão entre o remetente e o receptor","É estabelecida uma conexão com o roteador local do remetente","Não há contato com o destino antes de nenhum dado real ser enviado","Nenhuma das anteriores"], a:1,
+  e:"A conexão é fim a fim, entre os dois hosts (handshake de três vias). Os roteadores no caminho não participam."},
+ {q:"Qual o principal propósito da atribuição de porta da Camada 4?", o:["Identificar dispositivos no meio local","Identificar aos dispositivos intermediários o melhor caminho pela rede","Identificar os dispositivos finais de origem e destino que estão se comunicando","Identificar os processos ou serviços que estão se comunicando nos dispositivos finais","Nenhuma das anteriores"], a:3,
+  e:"A porta identifica o processo/serviço. É a mesma ideia da questão 22 da prova anterior, que caiu igual."},
+ {q:"Qual das seguintes alternativas é um protocolo da camada de transporte do modelo TCP/IP?", o:["FTP","HTTP","DNS","HTTPS","n.d.a."], a:4, e:"Os quatro são de aplicação. De transporte seriam TCP e UDP."},
+ {q:"Qual a faixa de identificadores de porta identificados como “bem conhecidos”?", o:["0 a 255","256 a 1022","0 a 1023","1024 a 2047","n.d.a."], a:2, e:"Bem conhecidas: 0 a 1023."},
+ {q:"Qual é a camada do modelo OSI responsável por regular o fluxo de informações entre a origem e o destino, de maneira confiável e precisa?", o:["Aplicação","Apresentação","Sessão","Transporte","Rede"], a:3, e:"Controle de fluxo e confiabilidade = transporte."},
+ {q:"Qual das opções que representa o endereçamento de Camada 4?", o:["Identifica os aplicativos que se comunicam","Identifica a rede de destino","Identifica os dispositivos comunicando-se no meio local","Identifica hosts de origem e destino","Nenhuma das anteriores"], a:0,
+  e:"Camada 4 = portas = aplicativos. Rede de destino e hosts são camada 3; meio local é camada 2."},
+ {q:"O que é dinamicamente selecionado pelo host de origem ao se estabelecer uma conexão?", o:["Endereço lógico de destino","Endereço de gateway padrão","Porta de origem","Endereço físico de origem","Nenhuma das anteriores"], a:2, tag:"parecida",
+  e:"O cliente sorteia uma porta de origem dinâmica (efêmera, geralmente acima de 49152). A porta de destino é a bem conhecida do serviço (80, 53…)."},
+ {q:"Qual método de controle de acesso é usado nas redes IEEE802.3?", o:["Polling","CSMA/CA","CSMA/CD","Token","n.d.a."], a:2,
+  e:"Ethernet (802.3) usa CSMA/CD: escuta o meio, transmite e detecta colisão. O CSMA/CA, que evita colisões, é do Wi-Fi (802.11)."},
+ {q:"A família de padrões IEEE 802 define protocolos e serviços para redes de computadores. Em relação aos padrões dessa família, considere as afirmações a seguir.\nI. O IEEE 802.3, comumente referenciado como Ethernet, é a solução mais popular para redes locais cabeadas da atualidade.\nII. O padrão IEEE 802.1q, comumente referenciado como WiFi, habilita comunicações sem fio em uma área de dimensões locais.", o:["As duas afirmativas são verdadeiras;","As duas afirmativas são falsas;","Somente a afirmativa I é verdadeira;","Somente a afirmativa II é verdadeira;"], a:2,
+  e:"802.1Q é a <b>marcação de VLAN</b> (a tag nos quadros do trunk). O Wi-Fi é o 802.11."},
+ {q:"Após uma colisão, na rede Ethernet, qual dos dispositivos afetados terá prioridade para transmitir dados?", o:["O dispositivo envolvido na colisão com o endereço MAC mais baixo.","O dispositivo envolvido na colisão com o endereço IP mais baixo.","O dispositivo que se encontra mais próximo ao ponto de colisão.","O que começou a transmitir primeiro.","Nenhuma das anteriores."], a:4,
+  e:"Ninguém tem prioridade: cada dispositivo espera um tempo <b>aleatório</b> (backoff) antes de tentar de novo."},
+ {q:"Como são detectadas colisões em uma rede Ethernet?", o:["As estações identificam o campo FCS alterado nos pacotes em colisão.","A amplitude do sinal nos meios físicos da rede está acima do normal.","O tráfego na rede não pode ser detectado devido ao bloqueio.","A amplitude do sinal nos meios físicos da rede está abaixo do normal.","Nenhuma das anteriores."], a:1,
+  e:"Dois sinais se somam no meio, e a amplitude fica acima do normal. É assim que o CSMA/CD detecta a colisão."},
+ {q:"Qual das afirmativas descreve os benefícios das VLANs?", o:["As VLANs melhoram o desempenho da rede regulando o controle de fluxo e o tamanho da janela TCP.","As VLANs permitem que os switches roteiem pacotes para redes remotas por filtragem de ID de VLAN.","As VLANs reduzem o custo de rede reduzindo o número de portas físicas necessárias nos switches.","As VLANs dividem uma rede em redes lógicas menores, resultando em menor suscetibilidade a situações descontroladas em uma rede devido a excesso de broadcast.","Nenhuma das anteriores."], a:3,
+  e:"Cada VLAN é um domínio de broadcast separado, então um broadcast não inunda a rede toda. Janela TCP é coisa do transporte, switch de camada 2 não roteia, e VLAN não reduz portas."},
+ {q:"Uma característica da VLAN1 em uma configuração de switch padrão é:", o:["A VLAN1 deve sempre ser renomeada para VLAN0.","Inicialmente, todas as portas do switch são membros da VLAN1.","Somente uma das portas tronco deve ser atribuída à VLAN1.","As conexões entre o switch e os terminais finais devem sempre ser configuradas na VLAN1.","Nenhuma das anteriores."], a:1, tag:"igual",
+  e:"De fábrica, todas as portas estão na VLAN 1, a VLAN padrão, que não pode ser apagada nem renomeada."},
+ {q:"Para visualizar as VLANs do switch pode ser utilizado o comando:", o:["show vlan route","show vlan brief","show ip vlan brief","vlan ?","n.d.a."], a:1, e:"O show vlan brief lista as VLANs e as portas de cada uma."},
+ {q:"Para configurar a porta gi0/10 no modo acesso, pode ser utilizado o comando:", o:["SW1#switchport mode access","SW1(config-if)# switchport mode access","SW1(config-mode)# switchport mode access","SW1(config)# switchport mode access","Nenhuma das anteriores"], a:1,
+  e:"Configuração de porta é feita no modo de interface: <code>interface gi0/10</code> leva ao prompt (config-if)#."},
+ {q:"Para atribuir a porta gi0/10 à VLAN 10 pode ser utilizado o comando:", o:["SW1#switchport access 10","SW1(config-if)# switchport vlan 10","SW1(config-if)# switchport access vlan 10","SW1(config)# switchport access 10","Nenhuma das anteriores"], a:2, e:"O comando completo é switchport access vlan 10, no modo (config-if)#."},
+ {q:"Para configurar a porta gi0/10 no modo tronco (trunk), pode ser utilizado o comando:", o:["SW1#switchport mode trunk","SW1(config-if)# switchport mode trunk","SW1(config-mode)# switchport mode trunk","SW1(config)# switchport mode trunk","Nenhuma das anteriores"], a:1, note:"Na lista, o enunciado diz “modo acesso”, mas as alternativas e o gabarito são de modo tronco.",
+  e:"Mesmo raciocínio da questão 64: é um comando de interface, no prompt (config-if)#."},
+ {q:"O protocolo DNS é utilizado para:", o:["Transferir arquivos entre computadores","Traduzir nomes de domínio em endereços IP","Estabelecer sessões seguras","Enviar e-mails","Nenhuma das anteriores"], a:1, e:"DNS traduz nomes em IPs."},
+ {q:"Qual das seguintes afirmações sobre o HTTP é correta?", o:["É um protocolo orientado a conexão","Garante entrega confiável","Opera na camada de enlace","Funciona sobre UDP","Nenhuma das anteriores"], a:0, flag:"Confira com o professor",
+  e:"O gabarito dá a a), porque o HTTP usa uma conexão TCP. A b) também é defensável pela mesma razão: quem garante a entrega é o TCP que está por baixo. Na questão 31 da prova anterior, a) e b) foram tratadas como corretas."},
+ {q:"A porta padrão do protocolo HTTP é:", o:["25","53","21","80","n.d.a."], a:3, e:"80. (25 = SMTP, 53 = DNS, 21 = FTP.)"},
+ {q:"O protocolo usado para transferir páginas web com segurança é:", o:["HTTP","HTTPS","FTP","TFTP","n.d.a."], a:1, e:"HTTPS = HTTP sobre TLS, na porta 443."},
+ {q:"Qual a porta padrão do protocolo DNS?", o:["25","53","110","143","n.d.a."], a:1, e:"53. (110 = POP3, 143 = IMAP.)"},
+ {q:"Qual das seguintes aplicações normalmente usa TCP?", o:["Streaming de video","Serviços Web","DNS","VoIP","Nenhuma das anteriores"], a:1, e:"Web (HTTP) usa TCP. Streaming, VoIP e DNS costumam usar UDP."},
+ {q:"Qual das opções abaixo é uma função da camada de transporte?", o:["Encaminhar pacotes entre roteadores","Multiplexar conexões","Estabelecer rotas físicas","Converter endereços IP","Nenhuma das anteriores"], a:1, e:"Com as portas, o transporte multiplexa várias conversas sobre o mesmo IP."},
+ {q:"O protocolo TCP é caracterizado por:", o:["Ser não orientado à conexão","Usar janelas deslizantes para controle de fluxo","Enviar dados sem verificação","Oferecer baixa confiabilidade","Nenhuma das anteriores"], a:1, e:"A janela deslizante é o controle de fluxo do TCP. As outras alternativas descrevem o UDP."},
+ {q:"Qual protocolo da camada de transporte é indicado para aplicações que necessitam a troca de dados em tempo real?", o:["TCP","FTP","UDP","SMTP","n.d.a."], a:2, e:"UDP: sem conexão e sem retransmissão, tem menos atraso."},
+ {q:"Qual é o tamanho do campo identificação de porta nos cabeçalhos TCP e UDP?", o:["8 bits","16 bits","32 bits","64 bits","n.d.a."], a:1,
+  e:"16 bits → portas de 0 a 65535. Caiu na PV1 numa questão com a figura do cabeçalho: os dois primeiros campos de 16 bits são a porta de origem e a porta de destino."},
+ {q:"O que significa multiplexação na camada de transporte?", o:["Uso de várias interfaces simultâneas com um mesmo IP","Encaminhamento baseado em endereços MAC","Transmissão de pacotes para múltiplos destinos","Divisão de sinal em várias frequências","Nenhuma das anteriores"], a:4,
+  e:"Multiplexação no transporte = várias aplicações compartilhando a mesma conexão de rede, separadas pelas <b>portas</b>. Nenhuma alternativa diz isso (a d) é multiplexação em frequência, da camada física)."},
+ {q:"Qual das opções abaixo é uma característica do UDP?", o:["Controle de fluxo","Orientado à conexão","Controle de erro","Controle de congestionamento","Nenhuma das anteriores"], a:4, flag:"Confira com o professor",
+  e:"O UDP não tem controle de fluxo, conexão nem controle de congestionamento. O “controle de erro” é discutível: o UDP tem checksum, que detecta erro, mas não corrige nem retransmite. O gabarito considera que não tem."},
+ {q:"Quando um processo deseja enviar dados usando TCP, o que deve acontecer primeiro?", o:["Enviar o pacote de dados diretamente","Receber o pacote de dados diretamente","Estabelecer uma conexão lógica com o processo destino","Encapsular os dados no UDP","Nenhuma das anteriores"], a:2, e:"Primeiro vem o handshake de três vias (SYN, SYN-ACK, ACK)."},
+ {q:"Para que serve o campo 'número de sequência' no TCP?", o:["Identificar o processo de destino","Garantir entrega ordenada dos dados","Selecionar o caminho de roteamento","Determinar o tipo de serviço","Nenhuma das anteriores"], a:1, e:"Com o número de sequência, o receptor remonta os dados na ordem e percebe o que faltou."},
+ {q:"O campo 'tamanho de janela' no cabeçalho TCP é usado para:", o:["Determinar a porta de destino","Indicar o tamanho da fila de pacotes","Controlar o fluxo de dados fim a fim","Controlar os erros ocorridos ponto a ponto","Nenhuma das anteriores"], a:2, e:"A janela diz quantos bytes o receptor aceita antes de confirmar: é o controle de fluxo."},
+ {q:"O que diferencia TCP de UDP em relação à confiabilidade?", o:["TCP retransmite pacotes perdidos","TCP ignora perdas de pacotes","UDP é mais lento por causa da verificação","UDP utiliza menos portas","Nenhuma das anteriores"], a:0, e:"Retransmitir o que se perdeu é o que torna o TCP confiável."},
+ {q:"O que acontece se um pacote UDP se perder durante a transmissão?", o:["É retransmitido automaticamente","É armazenado para futura análise","É encaminhado ao TCP","É descartado e não retransmitido","Nenhuma das anteriores"], a:3, e:"O UDP não retransmite. Se a aplicação precisar, ela mesma cuida disso."},
+ {q:"Qual das afirmações abaixo caracteriza os protocolos da camada de transporte?", o:["TCP usa números de porta para fornecer transporte confiável de pacotes IP.","UDP usa janelamento e confirmações para transferência confiável de dados.","TCP usa janelamento e sequenciamento para fornecer transferência confiável de dados.","TCP é um protocolo não orientado à conexão. UDP é um protocolo orientado a conexão.","Nenhuma das anteriores"], a:2, note:"Na lista, as alternativas começam em b); aqui foram reletradas, e o gabarito d) virou c).",
+  e:"É a mesma ideia da questão 25 da prova anterior, que caiu igual: janelamento + sequenciamento = TCP confiável."},
+ {q:"Qual das alternativas a seguir não é uma característica do TCP?", o:["Confiável","Com conexão","Não fornece nenhuma verificação de erros","Divide as mensagens enviadas em segmentos","Nenhuma das anteriores"], a:2, e:"O TCP tem checksum, confirmação e retransmissão."},
+ {q:"Que protocolo permite a troca de datagramas, sem confirmações ou garantia de entrega?", o:["TCP","Telnet","FTP","UDP","n.d.a."], a:3, e:"Datagrama sem confirmação = UDP."},
+ {q:"Qual é o termo correto para a sequência que sincroniza uma conexão nas duas extremidades antes de qualquer dado do usuário ser trocado?", o:["Conexão fechada","Handshake de três vias","Janelas móveis","Retransmissão","Nenhuma das anteriores"], a:1, e:"SYN → SYN-ACK → ACK."},
+ {q:"Por que os números de porta são incluídos no cabeçalho TCP de um segmento?", o:["Para indicar a interface correta do roteador que deve ser usada para encaminhar um segmento","Para identificar quais portas do switch devem receber ou encaminhar o segmento","Para determinar qual protocolo da Camada 3 deve ser usado para encapsular os dados","Para habilitar um host de destino para encaminhar os dados para o aplicativo apropriado","Nenhuma das anteriores"], a:3,
+  e:"Porta TCP não é porta física de roteador ou de switch: ela entrega o dado ao aplicativo certo."},
+ {q:"Qual das opções é uma característica do User Datagram Protocol (UDP)?", o:["Controle de fluxo","Utiliza número de sequência e confirmações","Orientado à conexão","Sem conexão","Nenhuma das anteriores"], a:3, e:"UDP = sem conexão. As outras são do TCP."},
+ {q:"Qual protocolo da camada de transporte fornece baixo overhead e seria usado para aplicações que não exigem entrega de dados confiável?", o:["TCP","IP","UDP","HTTP","DNS"], a:2, e:"UDP: cabeçalho de 8 bytes e nenhuma garantia de entrega."},
+ {q:"Qual informação é comum nas informações de cabeçalho TCP e UDP?", o:["Número de sequência","Número de confirmação","Portas origem e destino","Controle de fluxo","Nenhuma das anteriores"], a:2, e:"Os dois cabeçalhos começam com porta de origem e porta de destino."},
+]};
+
+/* ---------- PV1: Relatório 5 ---------- */
+const PV1_REL = { id:"pv1-rel", t:"Relatório 5", layer:"Laboratório", kind:"quiz",
+ intro:"Questões sobre o <b>Relatório 5</b> (ambiente de interconexão IPv4/Ethernet), que junta VLAN, roteamento entre VLANs, OSPF e rota estática. Os endereços são os do roteiro impresso. Na sua turma, algumas VLANs foram trocadas à mão (VLAN 10 e 20, redes 192.168.10.0 e 192.168.20.0), mas a lógica é a mesma.",
+ qs:[
+ {q:"Na topologia do relatório, por que o Router0 tem as subinterfaces g0/1.110 e g0/1.120?", fig:FIG_REL5, o:["Para ligar dois cabos diferentes na mesma porta","Para rotear entre as VLANs 110 e 120 usando um único link trunk até o switch","Para criar as VLANs no roteador em vez de no switch","Para conectar o Router0 ao Router1","Nenhuma das anteriores"], a:1,
+  e:"Cada subinterface é o gateway de uma VLAN (192.168.110.1 e 192.168.120.1), e as duas passam pelo mesmo cabo trunk da Gig0/1. Isso é o <b>router-on-a-stick</b>. As VLANs continuam sendo criadas no switch."},
+ {q:"O que faz o comando “encapsulation dot1q 110”, digitado na subinterface g0/1.110?", fig:FIG_REL5, o:["Cria a VLAN 110 no roteador","Associa a subinterface à VLAN 110, usando a marcação IEEE 802.1Q","Coloca a porta em modo de acesso","Liga a interface","Nenhuma das anteriores"], a:1,
+  e:"O dot1q é o 802.1Q: a subinterface passa a tratar os quadros marcados com a tag da VLAN 110. Sem esse comando, nem dá para configurar o IP na subinterface."},
+ {q:"Como deve estar configurada a porta Gig0/1 do Switch0, que vai para o Router0?", fig:FIG_REL5, o:["switchport mode access e switchport access vlan 110","switchport mode trunk","switchport access vlan 120","ip address 192.168.110.1 255.255.255.0","Nenhuma das anteriores"], a:1,
+  e:"Ela leva as duas VLANs ao roteador, então é <b>trunk</b>. Fa0/1 (PC0, VLAN 110) e Fa0/24 (Server Web, VLAN 120) são portas de acesso. Switch de camada 2 não tem ip address em porta."},
+ {q:"Na etapa 3, antes de configurar o roteamento entre VLANs, PC0 e Server Web não se comunicam. Por quê?", fig:FIG_REL5, o:["Porque o cabo entre eles está errado","Porque estão em VLANs diferentes, que são redes e domínios de broadcast separados, e ainda não há quem roteie entre elas","Porque o switch ainda não aprendeu os endereços MAC","Porque falta o OSPF no Router1","Nenhuma das anteriores"], a:1,
+  e:"Mesmo no mesmo switch, VLAN 110 e VLAN 120 são redes diferentes. Só passam a se falar na etapa 4, com o trunk e as subinterfaces do Router0."},
+ {q:"Qual é o gateway padrão do PC0?", fig:FIG_REL5, o:["192.168.0.1","192.168.110.1","192.168.120.1","192.168.110.0","Nenhuma das anteriores"], a:1,
+  e:"O PC0 está na VLAN 110 (192.168.110.0/24), e o gateway dessa VLAN é a subinterface g0/1.110 do Router0: 192.168.110.1."},
+ {q:"A rede de interconexão entre os roteadores é 192.168.0.0/30. Qual a máscara e quantos hosts ela comporta?", fig:FIG_REL5, o:["255.255.255.0 e 254 hosts","255.255.255.252 e 2 hosts","255.255.255.248 e 6 hosts","255.255.255.252 e 4 hosts","Nenhuma das anteriores"], a:1,
+  e:"/30 = 255.255.255.252 → 4 endereços, 2 hosts: 192.168.0.1 (Router0) e 192.168.0.2 (Router1). O .0 é a rede e o .3 é o broadcast."},
+ {q:"No comando “network 192.168.30.0 0.0.0.255 area 0”, o que é o 0.0.0.255?", o:["A máscara de sub-rede da rede","A máscara curinga (wildcard), o inverso da máscara: os bits 0 têm de bater, os bits 1 podem variar","O endereço de broadcast","O número do processo OSPF","Nenhuma das anteriores"], a:1,
+  e:"No OSPF, a rede é anunciada com a <b>wildcard</b>: 255.255.255.255 − 255.255.255.0 = 0.0.0.255 para uma /24. O número do processo é o 10 de <code>router ospf 10</code>, e a área é a 0."},
+ {q:"Para que serve o comando “passive-interface gi0/1” no Router1?", o:["Desliga a interface gi0/1","Remove a rede da gi0/1 do OSPF","Para de enviar mensagens OSPF pela gi0/1, onde só há PCs, mas a rede dela continua sendo anunciada","Transforma a gi0/1 em trunk","Nenhuma das anteriores"], a:2,
+  e:"Na gi0/1 do Router1 só tem o Switch1 e o PC1, nenhum roteador para conversar. A interface passiva não manda hellos ali, mas a rede 192.168.30.0 continua anunciada ao Router0."},
+ {q:"Na etapa 6, o Router1 recebe “ip route 192.168.110.0 255.255.255.0 gi0/0”. O que esse comando faz?", o:["Cria uma rota estática para a rede 192.168.110.0/24, saindo pela interface gi0/0","Configura o IP 192.168.110.0 na interface gi0/0","Anuncia a rede 192.168.110.0 no OSPF","Cria a VLAN 110 na interface gi0/0","Nenhuma das anteriores"], a:0,
+  e:"Formato: <code>ip route &lt;rede&gt; &lt;máscara&gt; &lt;saída&gt;</code>. Aqui a saída é a interface gi0/0, rumo ao Router0. Também daria para usar o próximo salto, 192.168.0.1."},
+ {q:"Depois do OSPF, a rede 192.168.110.0/24 aparece no “show ip route” do Router1 com qual código?", o:["C","L","O","S*","Nenhuma das anteriores"], a:2,
+  e:"<b>O</b> = aprendida pelo OSPF. C = diretamente conectada, L = IP da própria interface, S = estática, S* = rota padrão estática, R = RIP."},
+ {q:"Com o OSPF e a rota estática da etapa 6, o Router1 passa a ter duas rotas para 192.168.110.0/24. Qual vai para a tabela?", o:["A do OSPF, porque é dinâmica","A estática, porque tem distância administrativa menor (1, contra 110 do OSPF)","As duas, alternando os pacotes","Nenhuma, porque as rotas se anulam","Nenhuma das anteriores"], a:1,
+  e:"Quando duas fontes ensinam a mesma rede com o mesmo prefixo, ganha a de menor <b>distância administrativa</b>: conectada 0, estática 1, OSPF 110, RIP 120. É o número antes da barra em [1/0] e [110/2]."},
+]};
+
+/* ---------- PV1: guia "o que caiu" ---------- */
+const CHECK = `<svg viewBox="0 0 12 12"><path d="M2.5 6.5l2.3 2.3 4.7-5"/></svg>`;
+const TOPICS = [
+ {id:"contas", t:"Contas de endereçamento", hot:"1ª página inteira", go:["pv1-treino","Treinar contas →"],
+  b:`<p>A primeira página foi só de contas. Para qualquer IP/máscara, saiba achar:</p><ul>
+  <li><b>Notação ↔ máscara</b>: /20 = 255.255.240.0; 255.255.248.0 = /21.</li>
+  <li><b>Rede e broadcast</b>: no octeto em que a máscara “quebra”, bloco = 256 − valor da máscara. A rede é o múltiplo do bloco logo abaixo do número; o broadcast é o próximo múltiplo − 1.</li>
+  <li><b>Endereços × hosts</b>: total de endereços = 2<sup>bits de host</sup>; hosts utilizáveis = esse total − 2 (rede e broadcast). Uma /27 tem 32 endereços e 30 hosts.</li>
+  <li><b>Classificar</b> o endereço: é de rede, de host ou de broadcast? (10.19.0.255/16 é host.)</li></ul>
+  <p>Exemplo da prova anterior: 172.31.10.10/20 → bloco de 16 no 3º octeto → rede 172.31.0.0, broadcast 172.31.15.255, 4094 hosts.</p>`},
+ {id:"mqtt", t:"MQTT", hot:"caiu muito",
+  b:`<ul><li>Protocolo de <b>aplicação</b> sobre <b>TCP</b>, porta <b>1883</b> (8883 com TLS).</li>
+  <li>Modelo <b>publicação/assinatura</b>: um cliente publica num <b>tópico</b> (ex.: casa/sala/temperatura) e quem assinou aquele tópico recebe.</li>
+  <li>O <b>broker</b> é o intermediário: publicador e assinante não se conhecem nem falam direto.</li>
+  <li>Leve (cabeçalho mínimo de 2 bytes), por isso é tão usado em <b>IoT</b>.</li>
+  <li><b>QoS</b>: 0 = no máximo uma vez, 1 = pelo menos uma vez, 2 = exatamente uma vez.</li></ul>`},
+ {id:"gateway", t:"Para onde vai o pacote do host", hot:"com figura",
+  b:`<ul><li>Destino na <b>mesma rede</b> (o AND com a máscara dá a mesma rede) → o host entrega direto, pelo MAC.</li>
+  <li>Destino em <b>outra rede</b> → o host manda para o <b>gateway padrão</b>.</li>
+  <li>Gateway padrão = IP da interface do roteador <b>na rede do host</b>, e não qualquer IP do roteador.</li></ul>
+  <p>Na figura da questão 11 da prova anterior, o host A está na 192.133.219.0, então o gateway é 192.133.219.1.</p>`},
+ {id:"camadas", t:"Camadas OSI × TCP/IP e socket", hot:"sempre cai",
+  b:`<ul><li>OSI (7): física, enlace, rede, transporte, sessão, <b>apresentação</b> (sintaxe dos dados, compressão, criptografia) e aplicação.</li>
+  <li>TCP/IP (4): acesso à rede (= física + enlace), Internet (= rede), transporte e aplicação (= 5 + 6 + 7).</li>
+  <li><b>Socket</b> = interface entre a aplicação e o transporte, identificado por <b>IP + porta</b>.</li>
+  <li>Encapsulamento: dados → <b>segmento</b> → <b>pacote</b> → <b>quadro</b> → bits.</li></ul>`},
+ {id:"cab4", t:"Figura do cabeçalho da camada 4", hot:"com figura",
+  b:`<p>Caiu uma figura com os campos e os bits do cabeçalho, perguntando se era UDP ou TCP e quem era cliente ou servidor.</p><ul>
+  <li><b>UDP</b>: 8 bytes, quatro campos de 16 bits (porta de origem, porta de destino, comprimento, checksum).</li>
+  <li><b>TCP</b>: 20 bytes ou mais; tem número de sequência, confirmação (ACK) e janela.</li>
+  <li>Cada porta tem <b>16 bits</b>, e a <b>primeira</b> é a de origem.</li>
+  <li>Porta bem conhecida (80, 53…) no <b>destino</b> → cliente falando com o servidor. Na <b>origem</b> → resposta do servidor.</li></ul>`},
+ {id:"rotas", t:"Tabela de rotas", hot:"caiu igual",
+  b:`<ul><li>Calcule a <b>faixa</b> de cada rota: 10.1.0.0/22 vai de 10.1.0.0 a 10.1.3.255.</li>
+  <li>Entre as que contêm o destino, ganha a de <b>maior prefixo</b> (a mais específica).</li>
+  <li>Nenhuma contém → <b>rota padrão</b> (S* 0.0.0.0/0). Sem rota padrão → o pacote é <b>descartado</b>.</li>
+  <li>“Directly connected” não decide nada: a rota só serve se a faixa contém o destino.</li></ul>
+  <p>Na questão que caiu igual (destino 10.1.4.1), nenhuma das rotas 10.1.0.0/22, /23 ou /24 contém o endereço, então a resposta é a rota padrão.</p>`},
+ {id:"ios", t:"Comandos do roteador", hot:"3 ou 4 questões",
+  b:`<ul><li><b>Associar IP à interface</b>: <code>interface g0/0</code> e, em (config-if)#, <code>ip address 192.168.1.1 255.255.255.0</code> (máscara por extenso).</li>
+  <li><b>Ligar a interface</b>: <code>no shutdown</code>. Roteador Cisco vem com as interfaces desligadas.</li>
+  <li><b>Ver as rotas</b>: <code>show ip route</code>, a tabela com C, L, S, R e a rota padrão.</li>
+  <li><b>Ver as interfaces</b>: <code>show ip interface brief</code> (resumo: IP e up/down de cada uma) ou <code>show interfaces</code> (detalhe completo).</li>
+  <li><b>Rota estática</b>: <code>ip route &lt;rede&gt; &lt;máscara&gt; &lt;próximo salto ou interface&gt;</code>.</li>
+  <li><b>Salvar</b>: <code>copy running-config startup-config</code>, no modo #.</li></ul>
+  <p>Quem fez a prova não lembrava o nome exato do comando das interfaces. Saiba os dois: <code>show ip interface brief</code> e <code>show interfaces</code>.</p>`},
+ {id:"cfg", t:"Desenho com a configuração do roteador", hot:"última questão", go:["pv1-rel","Questões do Relatório 5 →"],
+  b:`<p>A última questão foi um verdadeiro/falso com o desenho de um roteador com três ligações e a configuração das interfaces (F0/0 com 192.168.10.1, seriais S0/0/0 e S0/0/1 com 172.16…). Para interpretar:</p><ul>
+  <li>O IP que aparece em <code>ip address</code> numa interface é <b>do roteador</b>; ele vira o <b>gateway</b> de quem está naquela rede.</li>
+  <li>Hosts da rede 192.168.10.0/24 usam de <b>.2 a .254</b>: o .0 é a rede, o .255 é o broadcast e o .1 já é do roteador.</li>
+  <li>Siga o nome da interface: a rede que está na F0/0 está ligada à F0/0, e não a uma serial.</li>
+  <li>Cada interface de roteador fica numa <b>rede diferente</b>. Seriais costumam usar /30 (2 hosts).</li></ul>
+  <p>Também vale rever o Relatório 5: subinterfaces, <code>encapsulation dot1q</code>, OSPF com wildcard e rota estática.</p>`},
+ {id:"eth", t:"Ethernet: CSMA/CD e preâmbulo",
+  b:`<ul><li>Ethernet = IEEE <b>802.3</b>, método <b>CSMA/CD</b>: escuta o meio, transmite e, se houver colisão, manda o sinal de jam e espera um tempo <b>aleatório</b>.</li>
+  <li>A colisão é detectada pela <b>amplitude do sinal acima do normal</b>.</li>
+  <li><b>Preâmbulo</b>: 7 bytes 10101010 para sincronizar o receptor, mais o SFD (10101011).</li>
+  <li>O Wi-Fi (802.11) usa CSMA/<b>CA</b>; o 802.1Q é a marcação de VLAN.</li></ul>`},
+ {id:"vlan", t:"VLAN",
+  b:`<ul><li>De fábrica, todas as portas estão na <b>VLAN 1</b> (caiu idêntica à questão 62 da lista).</li>
+  <li>Cada VLAN é um <b>domínio de broadcast</b>.</li>
+  <li>Link entre switches levando várias VLANs = <b>trunk</b> (802.1Q). PC e impressora ficam em porta de <b>acesso</b>.</li>
+  <li>VLANs diferentes só se falam por <b>roteamento</b> (roteador ou switch L3). Um roteador só, com um link trunk, atende todas (router-on-a-stick).</li>
+  <li>Comandos, em (config-if)#: <code>switchport mode access</code>, <code>switchport access vlan 10</code>, <code>switchport mode trunk</code>. Para conferir: <code>show vlan brief</code>.</li></ul>`},
+ {id:"vf", t:"Verdadeiro/falso de TCP × UDP", hot:"caiu igual",
+  b:`<p>“O TCP, por ser confiável e orientado à conexão, não permite conexões simultâneas… O UDP, por não ser, não permite várias aplicações ao mesmo tempo…” → <b>as duas são falsas</b>. As portas permitem várias aplicações ao mesmo tempo nos dois protocolos.</p>`},
+];
+const JUMPS = [
+ ["Caíram iguais · prova anterior", [["pv1-prova",2],["pv1-prova",18],["pv1-prova",22],["pv1-prova",25],["pv1-prova",26],["pv1-prova",33]]],
+ ["Caiu parecida · prova anterior (outra figura)", [["pv1-prova",11,1]]],
+ ["Caiu igual · lista", [["pv1-lista",62]]],
+ ["Caíram parecidas · lista", [4,6,12,23,32,41,42,47,56].map(n=>["pv1-lista",n,1])],
+ ["Para treinar os comandos do roteador · lista", [30,31,32].map(n=>["pv1-lista",n,1])],
+];
+const PV1_GUIA = {id:"pv1-guia", t:"O que caiu", layer:"Relato da PV1", kind:"guide"};
+const PV1_TREINO = {id:"pv1-treino", t:"Treino de contas", layer:"1ª página", kind:"train"};
+
+/* ---------- estrutura ---------- */
+const OLD_IDS = ["ip","rot","osi","eth","app","tcp"];
+PARTS.forEach((P,i) => { P.id = OLD_IDS[i]; P.kind = "quiz"; P.num = i+1; });
+const GROUPS = [
+  {id:"assunto", t:"Por assunto", tabs:PARTS},
+  {id:"pv1", t:"Prova PV1", badge:"novo", tabs:[PV1_GUIA, PV1_TREINO, PV1_SIM, PV1_PROVA, PV1_LISTA, PV1_REL]},
+];
+const TABS = {};
+GROUPS.forEach(G => G.tabs.forEach(T => { TABS[T.id] = T; T.group = G.id; }));
+const QUIZ_TOTAL = Object.values(TABS).reduce((a,T) => a + (T.qs ? T.qs.length : 0), 0);
+
+/* ---------- estado ---------- */
+const KEY = "simulado-redes-v2", OLD_KEY = "simulado-redes-v1";
+let S = { group:"pv1", tab:{assunto:"ip", pv1:"pv1-guia"}, mode:"estudo", ans:{}, checked:{}, filter:"todas", study:{}, train:{ok:0,n:0}, tq:null, calc:"" };
+(function load(){
+  try { const v = JSON.parse(localStorage.getItem(KEY)); if (v) { S = Object.assign(S, v); return; } } catch(e){}
+  try { // migra o progresso da versão anterior (partes numeradas 0–5)
+    const o = JSON.parse(localStorage.getItem(OLD_KEY)); if (!o) return;
+    Object.entries(o.ans || {}).forEach(([k,v]) => { const [p,i] = k.split("-"); if (OLD_IDS[p]) S.ans[OLD_IDS[p]+"-"+i] = v; });
+    Object.keys(o.checked || {}).forEach(p => { if (o.checked[p] && OLD_IDS[p]) S.checked[OLD_IDS[p]] = true; });
+    if (o.mode) S.mode = o.mode;
+    if (OLD_IDS[o.part]) S.tab.assunto = OLD_IDS[o.part];
+  } catch(e){}
+})();
+if (!TABS[S.tab.assunto]) S.tab.assunto = "ip";
+if (!TABS[S.tab.pv1]) S.tab.pv1 = "pv1-guia";
+if (!GROUPS.some(G => G.id === S.group)) S.group = "pv1";
+(function fromHash(){ const h = decodeURIComponent(location.hash.slice(1)); if (TABS[h]) { S.group = TABS[h].group; S.tab[S.group] = h; } })();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 
-let confirming = null;
-const L = "abcde";
+/* ---------- utilidades ---------- */
 const $ = s => document.querySelector(s);
-const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const L = "abcde";
+const cur = () => TABS[S.tab[S.group]];
+const fmt = n => String(Math.round(n*10)/10).replace(".", ",");
+const fmtInt = n => n.toLocaleString("pt-BR");
+const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const ICO_OK = `<svg viewBox="0 0 12 12"><path d="M2.5 6.5l2.3 2.3 4.7-5"/></svg>`;
+const ICO_BAD = `<svg viewBox="0 0 12 12"><path d="M3.5 3.5l5 5M8.5 3.5l-5 5"/></svg>`;
+const ICO_RESET = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>`;
+let confirming = null;
 
-function revealed(p,i){ return S.mode==="estudo" ? (p+"-"+i) in S.ans : !!S.checked[p]; }
-function status(p,i){
-  const k=p+"-"+i; if(!(k in S.ans)) return "none";
-  if(!revealed(p,i)) return "pending";
-  return S.ans[k]===PARTS[p].qs[i].a ? "ok" : "bad";
+function flash(el){ el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
+function headerH(){ const h = $("header.top"); return getComputedStyle(h).position === "sticky" ? h.offsetHeight : 0; }
+
+/* ---------- placar ---------- */
+function revealed(T,i){ return S.mode === "estudo" ? (T.id+"-"+i) in S.ans : !!S.checked[T.id]; }
+function status(T,i){
+  const k = T.id+"-"+i; if (!(k in S.ans)) return "none";
+  if (!revealed(T,i)) return "pending";
+  return S.ans[k] === T.qs[i].a ? "ok" : "bad";
 }
-function partStats(p){
-  let ok=0, done=0, ans=0;
-  PARTS[p].qs.forEach((_,i)=>{ const s=status(p,i); if(s!=="none") ans++; if(s==="ok"||s==="bad") done++; if(s==="ok") ok++; });
-  return {ok,done,ans,n:PARTS[p].qs.length};
+function stats(T){
+  let ok=0, bad=0, pend=0;
+  T.qs.forEach((_,i) => { const s = status(T,i); if (s==="ok") ok++; else if (s==="bad") bad++; else if (s==="pending") pend++; });
+  return {ok, bad, pend, ans:ok+bad+pend, done:ok+bad, n:T.qs.length};
+}
+function tabStats(T){
+  if (T.kind === "quiz") {
+    const s = stats(T);
+    return {s, parts:[[s.ok/s.n,"ok"],[s.bad/s.n,"bad"],[s.pend/s.n,"warn"]], prog: s.done ? `${s.ok}/${s.n} acertos` : `${s.ans}/${s.n} respondidas`};
+  }
+  if (T.kind === "guide") {
+    const d = TOPICS.filter(t => S.study[t.id]).length;
+    return {d, parts:[[d/TOPICS.length,"acc"]], prog:`${d}/${TOPICS.length} estudados`};
+  }
+  const {ok, n} = S.train;
+  return {ok, n, parts: n ? [[ok/n,"ok"],[(n-ok)/n,"bad"]] : [], prog: n ? `${ok}/${n} acertos` : "contas aleatórias"};
 }
 
-function renderTop(){
-  let ok=0, done=0, n=0;
-  PARTS.forEach((_,p)=>{ const s=partStats(p); ok+=s.ok; done+=s.done; n+=s.n; });
-  $("#score").innerHTML = `<b>${ok}</b> / ${done} corrigidas<br>de ${n} questões`;
+const RC = 2*Math.PI*18;
+function renderStat(){
+  const T = cur(), st = tabStats(T);
+  let off = 0;
+  ["#rg-ok","#rg-bad","#rg-warn"].forEach((sel,j) => {
+    const c = $(sel), p = st.parts[j], len = p ? Math.max(0,p[0])*RC : 0;
+    c.setAttribute("class", "rg-" + (p ? p[1] : "ok"));
+    c.style.strokeDasharray = `${len} ${RC}`; c.style.strokeDashoffset = -off; off += len;
+  });
+  let main, sub, pct;
+  if (T.kind === "quiz") {
+    const s = st.s;
+    main = `<b>${s.ok}</b>/${s.n} acertos`;
+    sub = `${s.ans} de ${s.n} respondidas` + (T.grade && s.done ? ` · nota ${fmt(s.ok*T.grade)}` : "") + (s.pend ? ` · ${s.pend} a corrigir` : "");
+    pct = s.done ? Math.round(100*s.ok/s.done) + "%" : "–";
+  } else if (T.kind === "guide") {
+    main = `<b>${st.d}</b>/${TOPICS.length} tópicos`; sub = "marcados como estudados"; pct = Math.round(100*st.d/TOPICS.length) + "%";
+  } else {
+    main = `<b>${st.ok}</b>/${st.n} acertos`; sub = "contas conferidas"; pct = st.n ? Math.round(100*st.ok/st.n) + "%" : "–";
+  }
+  $("#st-tab").textContent = T.t;
+  $("#st-main").innerHTML = main; $("#st-sub").textContent = sub; $("#rg-pct").textContent = pct;
+}
+
+/* ---------- navegação ---------- */
+function renderNav(){
+  $("#groups").innerHTML = GROUPS.map(G => {
+    const n = G.tabs.reduce((a,T) => a + (T.qs ? T.qs.length : 0), 0);
+    return `<button class="grp" type="button" data-g="${G.id}" aria-pressed="${G.id===S.group}">${G.t}${G.badge ? `<i class="new">${G.badge}</i>` : `<span class="gn">${n}</span>`}</button>`;
+  }).join("");
+  renderTabs();
+  const T = cur();
+  $("#mode").hidden = T.kind !== "quiz";
   $("#m-estudo").setAttribute("aria-pressed", S.mode==="estudo");
   $("#m-prova").setAttribute("aria-pressed", S.mode==="prova");
-  $("#tabs").innerHTML = PARTS.map((P,p)=>{
-    const s=partStats(p);
-    const prog = s.done ? `${s.ok}/${s.n} acertos` : `${s.ans}/${s.n} respondidas`;
-    return `<button class="tab" role="tab" type="button" data-p="${p}" aria-selected="${p===S.part}">
-      <span class="layer">${P.layer}</span>${P.t}<span class="prog">${prog}</span></button>`;
+}
+function renderTabs(){
+  const G = GROUPS.find(g => g.id === S.group);
+  $("#tabs").innerHTML = G.tabs.map(T => {
+    const st = tabStats(T);
+    return `<button class="tab" role="tab" type="button" data-t="${T.id}" aria-selected="${T.id===S.tab[S.group]}"><span class="layer">${T.layer}</span>${T.t}<span class="prog">${st.prog}</span><span class="bar">${st.parts.map(([f,c]) => `<i class="b-${c}" style="width:${(f*100).toFixed(1)}%"></i>`).join("")}</span></button>`;
   }).join("");
 }
 
-function renderMain(){
-  const p=S.part, P=PARTS[p], st=partStats(p);
-  const flt = S.filter;
-  const items = P.qs.map((Q,i)=>({Q,i,s:status(p,i)})).filter(x=>
-    flt==="todas" || (flt==="erradas" && x.s==="bad") || (flt==="pendentes" && x.s==="none"));
-  let h = `<div class="sec-head"><div><h2>Parte ${p+1} · ${P.t}</h2>
-    <p>${P.qs.length} questões${P.pts?` · ${P.pts} pontos cada na prova original`:""}</p></div>
-    <div class="filters" role="group" aria-label="Filtro">
-      ${[["todas","Todas"],["pendentes","Sem resposta"],["erradas","Erradas"]].map(([k,t])=>
-        `<button class="chip" type="button" data-f="${k}" aria-pressed="${flt===k}">${t}</button>`).join("")}
-    </div></div><div class="list">`;
-  if(!items.length) h += `<p class="empty">${flt==="erradas"?"Nenhuma questão errada aqui.":"Todas as questões desta parte foram respondidas."}</p>`;
-  items.forEach(({Q,i,s})=>{
-    const k=p+"-"+i, chosen=S.ans[k], rev=revealed(p,i) && chosen!==undefined;
-    const locked = S.mode==="estudo" ? chosen!==undefined : !!S.checked[p];
-    h += `<article class="q ${rev?s:""} ${locked?"locked":""}" id="q${p}-${i}">
-      <div class="q-top"><span class="num">${String(i+1).padStart(2,"0")}</span><div>
-      <p class="stem">${esc(Q.q)}</p>${Q.flag?`<span class="flag">${Q.flag}</span>`:""}</div></div>
-      ${Q.code?`<pre class="table">${esc(TABLES[Q.code])}</pre>`:""}
-      <div class="opts" role="radiogroup">`;
-    Q.o.forEach((o,j)=>{
-      let c="opt";
-      if(chosen===j) c+=" sel";
-      if(rev && j===Q.a) c+=" right";
-      else if(rev && chosen===j) c+=" wrong";
-      h += `<label class="${c}"><input type="radio" name="r${k}" id="r${k}-${j}" value="${j}" ${chosen===j?"checked":""} ${locked?"disabled":""} data-k="${k}">
-        <span class="dot"></span><span class="l">${L[j]}</span><span>${esc(o)}</span></label>`;
-    });
-    h += `</div>`;
-    if(rev){
-      h += `<div class="fb"><strong class="${s==="ok"?"v-ok":"v-bad"}">${s==="ok"?"Correto.":"Resposta: "+L[Q.a]+") "+esc(Q.o[Q.a])}</strong> ${Q.e}</div>`;
-    }
-    h += `</article>`;
-  });
-  h += `</div><div class="foot">`;
-  if(S.mode==="prova" && !S.checked[p]) h += `<button class="btn" type="button" id="corrigir">Corrigir parte ${p+1} (${st.ans}/${st.n} respondidas)</button>`;
-  else if(st.done) h += `<span class="score"><b>${st.ok}</b> / ${st.n} nesta parte</span>`;
-  else h += `<span></span>`;
-  h += `<div style="display:flex;gap:8px;flex-wrap:wrap">
-    ${p<PARTS.length-1?`<button class="btn ghost" type="button" id="next">Próxima parte →</button>`:""}
-    <button class="reset-btn" type="button" id="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Refazer esta parte</button></div></div>
-    <div class="confirm foot-confirm" id="confirm-part" role="alertdialog" aria-label="Refazer parte" ${confirming==="part"?"":"hidden"}>
-      <p><strong>Apagar as respostas da Parte ${p+1}?</strong> As outras partes não mudam.</p>
-      <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset">Apagar parte</button></div>
-    </div>
-    <p class="note">Questões marcadas em amarelo têm redação ambígua ou dependem de como o professor encara o assunto. A explicação diz qual é a resposta mais provável.</p>`;
-  $("#main").innerHTML = h;
+function render(anim = true){
+  $("#sub").textContent = `${QUIZ_TOTAL} questões · Redes de Dados I`;
+  renderNav(); renderStat(); renderMain(anim);
+  $("#confirm-all").hidden = confirming !== "all";
+  try { history.replaceState(null, "", "#" + cur().id); } catch(e){}
+  $(".tab[aria-selected=true]")?.scrollIntoView({block:"nearest", inline:"nearest"});
+}
+function renderMain(anim = true){
+  const T = cur(), m = $("#main");
+  m.innerHTML = T.kind === "guide" ? guideHTML() : T.kind === "train" ? trainHTML() : quizHTML(T);
+  if (anim) m.querySelectorAll("[data-anim]").forEach(el => el.classList.add("enter"));
+  if (T.kind === "train") calcRender();
+  updateFab();
+}
+function go(id, top = true){
+  const T = TABS[id]; S.group = T.group; S.tab[T.group] = id; S.filter = "todas"; confirming = null;
+  save(); render(); if (top) window.scrollTo(0,0);
 }
 
-function render(){ renderTop(); renderMain(); $("#confirm-all").hidden = confirming!=="all"; }
+/* ---------- questões ---------- */
+function quizHTML(T){
+  const flt = S.filter;
+  const items = T.qs.map((Q,i) => ({i, s:status(T,i)})).filter(x =>
+    flt==="todas" || (flt==="erradas" && x.s==="bad") || (flt==="pendentes" && x.s==="none"));
+  const head = T.group === "assunto" ? `Parte ${T.num} · ${T.t}` : T.t;
+  const meta = `${T.qs.length} questões` + (T.pts ? ` · ${T.pts} pontos cada na prova original` : "") + (T.grade ? ` · ${fmt(T.grade)} pontos cada` : "");
+  let h = `<div class="sec-head"><div><h2>${head}</h2><p>${meta}</p></div>
+    <div class="filters" role="group" aria-label="Filtro">${[["todas","Todas"],["pendentes","Sem resposta"],["erradas","Erradas"]].map(([k,t]) =>
+      `<button class="chip" type="button" data-f="${k}" aria-pressed="${flt===k}">${t}</button>`).join("")}</div></div>`;
+  if (T.intro) h += `<p class="intro">${T.intro}</p>`;
+  h += `<div class="list" data-anim>`;
+  if (!items.length) h += `<p class="empty">${flt==="erradas" ? "Nenhuma questão errada aqui." : "Todas as questões desta aba foram respondidas."}</p>`;
+  items.forEach(({i}, n) => h += cardHTML(T, i, n));
+  return h + `</div><div id="foot">${footHTML(T)}</div>`;
+}
 
-document.addEventListener("change", e=>{
-  const t=e.target; if(!t.dataset || !t.dataset.k) return;
-  S.ans[t.dataset.k] = +t.value; save();
-  const y = window.scrollY; render(); window.scrollTo(0,y);
+function cardHTML(T, i, n = 0){
+  const Q = T.qs[i], k = T.id+"-"+i, chosen = S.ans[k], s = status(T,i), rev = revealed(T,i) && chosen !== undefined;
+  const locked = S.mode === "estudo" ? chosen !== undefined : !!S.checked[T.id];
+  const cls = rev ? s : (chosen !== undefined ? "pending" : "");
+  const tags = (Q.tag ? `<span class="hot${Q.tag==="parecida" ? " alt" : ""}">${Q.tag==="igual" ? "Caiu igual na PV1" : "Caiu parecida na PV1"}</span>` : "")
+             + (Q.flag ? `<span class="flag">${Q.flag}</span>` : "");
+  let h = `<article class="q ${cls} ${locked ? "locked" : ""}" id="q-${k}" data-s="${s}" style="--i:${Math.min(n,12)}">
+    <div class="q-top"><span class="num">${String(i+1).padStart(2,"0")}</span><div>
+    <p class="stem">${esc(Q.q)}</p><div class="tags">${tags}</div>${Q.note ? `<p class="qnote">${Q.note}</p>` : ""}</div></div>
+    ${Q.fig ? `<figure class="fig">${Q.fig}</figure>` : ""}
+    ${Q.code ? `<pre class="table">${esc(TABLES[Q.code])}</pre>` : ""}
+    ${Q.pre ? `<pre class="table">${esc(Q.pre)}</pre>` : ""}
+    <div class="opts" role="radiogroup" aria-label="Alternativas da questão ${i+1}">`;
+  Q.o.forEach((o,j) => {
+    let c = "opt", ic = "";
+    if (chosen === j) c += " sel";
+    if (rev && j === Q.a) { c += " right"; ic = ICO_OK; }
+    else if (rev && chosen === j) { c += " wrong"; ic = ICO_BAD; }
+    h += `<label class="${c}"><input type="radio" name="r${k}" id="r${k}-${j}" value="${j}" ${chosen===j ? "checked" : ""} ${locked ? "disabled" : ""} data-k="${k}" data-i="${i}">
+      <span class="dot">${ic}</span><span class="l">${L[j]}</span><span>${esc(o)}</span></label>`;
+  });
+  h += `</div>`;
+  if (rev) h += `<div class="fb"><strong class="${s==="ok" ? "v-ok" : "v-bad"}">${s==="ok" ? "Correto." : "Resposta: "+L[Q.a]+") "+esc(Q.o[Q.a])}</strong> ${Q.e}</div>`;
+  return h + `</article>`;
+}
+
+function footHTML(T){
+  const st = stats(T), tabs = GROUPS.find(g => g.id === T.group).tabs, next = tabs[tabs.indexOf(T)+1];
+  const part = T.group === "assunto";
+  let h = `<div class="foot">`;
+  if (S.mode === "prova" && !S.checked[T.id]) h += `<button class="btn" type="button" id="corrigir">Corrigir ${part ? "parte "+T.num : "esta aba"} (${st.ans}/${st.n} respondidas)</button>`;
+  else if (st.done) h += `<span class="score"><b>${st.ok}</b> / ${st.n} acertos${T.grade ? ` · nota ${fmt(st.ok*T.grade)}` : ""}</span>`;
+  else h += `<span></span>`;
+  h += `<div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${next ? `<button class="btn ghost" type="button" data-go="${next.id}">${part ? "Próxima parte" : "Próxima: "+next.t} →</button>` : ""}
+    <button class="reset-btn" type="button" id="reset">${ICO_RESET}Refazer esta ${part ? "parte" : "aba"}</button></div></div>
+    <div class="confirm foot-confirm" id="confirm-part" role="alertdialog" aria-label="Refazer" ${confirming==="part" ? "" : "hidden"}>
+      <p><strong>Apagar as respostas de “${T.t}”?</strong> As outras abas não mudam.</p>
+      <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset">Apagar</button></div>
+    </div>
+    <p class="note">Selo amarelo: redação ambígua ou que depende de como o professor encara o assunto; a explicação diz qual é a resposta mais provável.${T.group==="pv1" ? " Selo rosa: caiu igual ou parecida na PV1, segundo quem fez a prova." : ""}</p>`;
+  return h;
+}
+
+function answer(k, i, v){
+  const T = cur(); S.ans[k] = v; save();
+  const s = status(T, i), tmp = document.createElement("div");
+  tmp.innerHTML = cardHTML(T, i);
+  const nu = tmp.firstElementChild;
+  nu.classList.add("settled");
+  if (s === "ok") nu.classList.add("just-ok"); else if (s === "bad") nu.classList.add("just-bad");
+  document.getElementById("q-"+k).replaceWith(nu);
+  if (s === "pending") document.getElementById(`r${k}-${v}`)?.focus({preventScroll:true});
+  $("#foot").innerHTML = footHTML(T);
+  renderTabs(); renderStat(); updateFab();
+}
+
+function updateFab(){
+  const has = cur().kind === "quiz" && document.querySelector('.q[data-s="none"]');
+  $("#fab").classList.toggle("off", !has);
+}
+function nextUnanswered(){
+  const cards = [...document.querySelectorAll('.q[data-s="none"]')]; if (!cards.length) return;
+  const top = headerH() + 24;
+  const el = cards.find(c => c.getBoundingClientRect().top > top) || cards[0];
+  el.scrollIntoView({block:"center", behavior: reduced() ? "auto" : "smooth"});
+  flash(el);
+}
+
+/* ---------- guia "o que caiu" ---------- */
+function guideHTML(){
+  const d = TOPICS.filter(t => S.study[t.id]).length;
+  return `<div class="sec-head"><div><h2>O que caiu na PV1</h2><p id="gd-count">Relato de quem acabou de fazer a prova · ${d}/${TOPICS.length} tópicos estudados</p></div></div>
+  <div data-anim>
+    <div class="callout" style="--i:0"><h3>Resumo</h3><ul>
+      <li>A <b>primeira página foi só de contas</b>: rede, broadcast, notação, total de endereços e hosts utilizáveis. O resto foi teoria.</li>
+      <li>Várias questões <b>iguais à prova anterior</b> e parecidas com a <b>lista</b>. Caíram umas três figuras e três ou quatro questões de comandos do roteador.</li>
+      <li>Pesou: <b>MQTT</b>, camadas OSI e TCP/IP, socket, TCP × UDP, VLAN, CSMA/CD e o preâmbulo do Ethernet.</li></ul>
+      <blockquote><b>Dica de quem fez:</b> faça a lista, estude a prova anterior e estude MQTT. De resto, o conceito geral (camadas OSI, TCP e UDP) sempre cai.</blockquote></div>
+    <div class="callout" style="--i:1"><h3>Questões que caíram</h3><div class="jumps">${JUMPS.map(([l,arr]) =>
+      `<div><div class="jl">${l}</div><div class="row">${arr.map(([t,n,alt]) => `<button class="jump${alt ? " alt" : ""}" type="button" data-jump="${t}:${n}">${t==="pv1-prova" ? "Prova" : "Lista"} ${n}</button>`).join("")}</div></div>`).join("")}</div></div>
+  </div>
+  <div class="topics" data-anim>${TOPICS.map((t,j) => `<section class="topic${S.study[t.id] ? " done" : ""}" style="--i:${j}" id="tp-${t.id}">
+    <div class="topic-h"><div><h3>${t.t}</h3>${t.hot ? `<span class="hot">${t.hot}</span>` : ""}</div>
+    <button class="studied" type="button" data-study="${t.id}" aria-pressed="${!!S.study[t.id]}"><span class="box">${CHECK}</span>Estudei</button></div>
+    ${t.b}${t.go ? `<button class="btn ghost go" type="button" data-go="${t.go[0]}">${t.go[1]}</button>` : ""}</section>`).join("")}</div>
+  <p class="note">O relato é de memória, de quem saiu da prova agora. Use como guia do que priorizar, não como gabarito.</p>`;
+}
+function toggleStudy(id){
+  S.study[id] = !S.study[id]; save();
+  const b = document.querySelector(`[data-study="${id}"]`);
+  b.setAttribute("aria-pressed", S.study[id]);
+  $("#tp-"+id).classList.toggle("done", S.study[id]);
+  const d = TOPICS.filter(t => S.study[t.id]).length;
+  $("#gd-count").textContent = `Relato de quem acabou de fazer a prova · ${d}/${TOPICS.length} tópicos estudados`;
+  renderTabs(); renderStat();
+}
+
+/* ---------- treino de contas ---------- */
+const PFX = [8,12,16,16,18,19,20,20,21,22,22,23,24,24,25,26,26,27,27,28,29,30];
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+function newTQ(){ let o1; do { o1 = rnd(1,223); } while (o1 === 127); return {ip:[o1,rnd(0,255),rnd(0,255),rnd(0,255)], p:PFX[rnd(0,PFX.length-1)], vals:{}, res:null}; }
+const ipNum = ip => ((ip[0]*256 + ip[1])*256 + ip[2])*256 + ip[3];
+const numIp = x => [Math.floor(x/16777216)%256, Math.floor(x/65536)%256, Math.floor(x/256)%256, x%256];
+const bin8 = n => n.toString(2).padStart(8,"0");
+function calc(ip, p){
+  const size = 2**(32-p), v = ipNum(ip), net = v - v%size, bc = net + size - 1, maskO = numIp(2**32 - size);
+  return {v, netN:net, bcN:bc, maskO, mask:maskO.join("."), net:numIp(net).join("."), bc:numIp(bc).join("."),
+          first:numIp(net+1).join("."), last:numIp(bc-1).join("."), total:size, hosts:Math.max(0,size-2)};
+}
+function steps(ip, p){
+  const r = calc(ip,p), k = Math.floor(p/8), rem = p%8, hb = 32-p, O = ["1º","2º","3º","4º"];
+  const s = [`<li><b>Máscara.</b> /${p} = ${p} bits 1 seguidos de ${hb} bits 0: <code>${r.maskO.map(bin8).join(".")}</code> → <b>${r.mask}</b>.</li>`];
+  if (rem === 0) {
+    s.push(`<li><b>Rede e broadcast.</b> /${p} fecha certinho em ${k} octeto${k>1 ? "s" : ""}: ${k===1 ? "o primeiro fica igual" : `os ${k} primeiros ficam iguais`}, e os outros viram 0 na rede e 255 no broadcast → rede <b>${r.net}</b>, broadcast <b>${r.bc}</b>.</li>`);
+  } else {
+    const mo = r.maskO[k], blk = 256-mo, v = ip[k], lo = v - v%blk, hi = lo + blk - 1;
+    const seq = [lo-blk, lo, lo+blk].filter(x => x >= 0 && x < 256);
+    s.push(`<li><b>Octeto que “quebra”:</b> o ${O[k]}, onde a máscara vale ${mo} (<code>${bin8(mo)}</code>). Bloco = 256 − ${mo} = <b>${blk}</b>.</li>`);
+    s.push(`<li><b>Rede.</b> No ${O[k]} octeto, os blocos andam de ${blk} em ${blk} (${seq[0]===0 ? "" : "…, "}${seq.join(", ")}, …). O ${v} cai no bloco <b>${lo}–${hi}</b>. A rede começa no ${lo}${k<3 ? ", e os octetos seguintes viram 0" : ""} → <b>${r.net}</b>.</li>`);
+    s.push(`<li><b>Broadcast.</b> É o fim do bloco: ${hi}${k<3 ? ", e os octetos seguintes viram 255" : ""} → <b>${r.bc}</b>.</li>`);
+  }
+  s.push(`<li><b>Endereços e hosts.</b> ${hb} bits de host → 2<sup>${hb}</sup> = <b>${fmtInt(r.total)}</b> endereços no total. Tirando rede e broadcast, sobram <b>${fmtInt(r.hosts)}</b> hosts utilizáveis (de ${r.first} a ${r.last}).</li>`);
+  return s.join("");
+}
+const TF = [["mask","Máscara"],["net","Endereço de rede"],["bc","Broadcast"],["total","Endereços no total"],["hosts","Hosts utilizáveis"]];
+function trainHTML(){
+  if (!S.tq) { S.tq = newTQ(); save(); }
+  return `<div class="sec-head"><div><h2>Treino de contas</h2><p>Como a primeira página da PV1 · uma conta nova a cada clique</p></div></div>
+  <div data-anim>
+    <div class="card" style="--i:0" id="tcard">${tqHTML()}</div>
+    <div class="card" style="--i:1"><h3>Resolver qualquer endereço</h3>
+      <p class="sub">Digite um IP com prefixo (10.0.40.200/16) ou com máscara (10.0.40.200 255.255.0.0) para ver a resolução passo a passo. Serve para conferir as contas da lista.</p>
+      <input class="calc-in" id="calc" placeholder="ex.: 172.31.10.10/20" autocomplete="off" spellcheck="false" value="${esc(S.calc || "")}">
+      <div id="calc-out"></div></div>
+  </div>`;
+}
+function tqHTML(){
+  const q = S.tq, r = calc(q.ip, q.p), res = q.res;
+  const ans = {mask:r.mask, net:r.net, bc:r.bc, total:fmtInt(r.total), hosts:fmtInt(r.hosts)};
+  const nOk = res ? Object.values(res).filter(Boolean).length : 0;
+  return `<h3>Dado o endereço abaixo, responda:</h3><p class="tq"><code>${q.ip.join(".")} /${q.p}</code></p>
+  <div class="fields">${TF.map(([k,l]) => `<label class="field${res ? (res[k] ? " ok" : " bad") : ""}">${l}
+    <input data-tf="${k}" value="${esc(q.vals?.[k] || "")}" autocomplete="off" spellcheck="false" ${k==="total"||k==="hosts" ? 'inputmode="numeric"' : 'inputmode="decimal"'} ${res ? "readonly" : ""}>
+    <span class="ans">${res ? (res[k] ? "✓ certo" : "✗ " + ans[k]) : ""}</span></label>`).join("")}</div>
+  <div class="acts-row">${res
+    ? `<button class="btn" type="button" id="t-new">Nova conta →</button><span class="verdict ${nOk===5 ? "ok" : "bad"}">${nOk===5 ? "Tudo certo!" : `${nOk} de 5 certos`}</span>`
+    : `<button class="btn" type="button" id="t-check">Conferir</button><button class="btn ghost" type="button" id="t-skip">Pular</button>`}</div>
+  ${res ? `<ol class="steps">${steps(q.ip, q.p)}</ol>` : ""}`;
+}
+function normIp(s){
+  const p = String(s || "").trim().split(/[.\s,]+/).filter(Boolean);
+  if (p.length !== 4 || p.some(x => !/^\d{1,3}$/.test(x))) return null;
+  return p.map(Number).join(".");
+}
+function checkTQ(){
+  const q = S.tq, r = calc(q.ip, q.p), v = {};
+  document.querySelectorAll("[data-tf]").forEach(inp => v[inp.dataset.tf] = inp.value);
+  const num = s => String(s || "").replace(/\D/g, "");
+  const pm = String(v.mask || "").trim().match(/^\/\s*(\d{1,2})$/);
+  q.vals = v;
+  q.res = { mask: normIp(v.mask) === r.mask || (pm && +pm[1] === q.p), net: normIp(v.net) === r.net, bc: normIp(v.bc) === r.bc,
+            total: num(v.total) === String(r.total), hosts: num(v.hosts) === String(r.hosts) };
+  S.train.n++; if (Object.values(q.res).every(Boolean)) S.train.ok++;
+  save(); paintTQ(true); renderTabs(); renderStat();
+}
+function paintTQ(fresh){
+  const c = $("#tcard"); c.innerHTML = tqHTML();
+  c.classList.remove("fresh"); if (fresh) { void c.offsetWidth; c.classList.add("fresh"); }
+}
+function calcRender(){
+  const el = $("#calc-out"); if (!el) return;
+  const s = (S.calc || "").trim(); if (!s) { el.innerHTML = ""; return; }
+  const err = t => el.innerHTML = `<p class="calc-err">${t}</p>`;
+  const m = s.match(/^(\d{1,3}(?:\.\d{1,3}){3})\s*(?:\/\s*(\d{1,2})|\s+(\d{1,3}(?:\.\d{1,3}){3}))$/);
+  if (!m) return err("Formato: 192.168.1.10/24 ou 192.168.1.10 255.255.255.0");
+  const ip = m[1].split(".").map(Number);
+  if (ip.some(x => x > 255)) return err("Cada octeto vai de 0 a 255.");
+  let p;
+  if (m[2] != null) p = +m[2];
+  else {
+    const mk = m[3].split(".").map(Number), bits = mk.map(x => x > 255 ? "x" : bin8(x)).join("");
+    if (!/^1*0*$/.test(bits)) return err("Essa máscara não é válida: os bits 1 precisam vir todos juntos, à esquerda.");
+    p = bits.indexOf("0"); if (p < 0) p = 32;
+  }
+  if (p < 1 || p > 32) return err("O prefixo vai de /1 a /32.");
+  const r = calc(ip, p);
+  if (p > 30) return el.innerHTML = `<dl class="res"><dt>Máscara</dt><dd>${r.mask} (/${p})</dd><dt>Endereços</dt><dd>${r.total}</dd></dl>
+    <p class="calc-err">/${p} é caso especial (${p===31 ? "enlace ponto a ponto com 2 endereços, sem rede nem broadcast" : "um único host"}); a regra do −2 não vale aqui.</p>`;
+  const kind = r.v === r.netN ? "o endereço de rede" : r.v === r.bcN ? "o endereço de broadcast" : "um endereço de host";
+  el.innerHTML = `<dl class="res"><dt>Máscara</dt><dd>${r.mask} (/${p})</dd><dt>Rede</dt><dd>${r.net}</dd><dt>Broadcast</dt><dd>${r.bc}</dd>
+    <dt>Hosts</dt><dd>${r.first} a ${r.last}</dd><dt>Endereços</dt><dd>${fmtInt(r.total)} no total · ${fmtInt(r.hosts)} hosts</dd><dt>${m[1]} é</dt><dd>${kind}</dd></dl>
+    <details class="how"><summary>Ver o passo a passo</summary><ol class="steps">${steps(ip, p)}</ol></details>`;
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("change", e => {
+  const t = e.target; if (t.dataset && t.dataset.k) answer(t.dataset.k, +t.dataset.i, +t.value);
 });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && confirming){ confirming=null; render(); } });
-document.addEventListener("click", e=>{
-  const tab=e.target.closest(".tab");
-  if(tab){ confirming=null; S.part=+tab.dataset.p; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
-  const f=e.target.closest("[data-f]");
-  if(f){ S.filter=f.dataset.f; save(); render(); return; }
-  if(e.target.id==="m-estudo"||e.target.id==="m-prova"){ S.mode=e.target.id.slice(2); save(); const y=window.scrollY; render(); window.scrollTo(0,y); return; }
-  if(e.target.id==="corrigir"){ S.checked[S.part]=true; save(); render(); return; }
-  if(e.target.id==="next"){ confirming=null; S.part++; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "calc") { S.calc = t.value; save(); calcRender(); }
+  else if (t.dataset && t.dataset.tf && S.tq) { (S.tq.vals ||= {})[t.dataset.tf] = t.value; save(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && confirming) { confirming = null; $("#confirm-all").hidden = true; const c = $("#confirm-part"); if (c) c.hidden = true; }
+  if (e.key === "Enter" && e.target.dataset && e.target.dataset.tf && S.tq && !S.tq.res) { e.preventDefault(); checkTQ(); }
+});
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-g]");
+  if (g) { S.group = g.dataset.g; S.filter = "todas"; confirming = null; save(); render(); window.scrollTo(0,0); return; }
+  const tb = e.target.closest(".tab"); if (tb) { go(tb.dataset.t); return; }
+  const gt = e.target.closest("[data-go]"); if (gt) { go(gt.dataset.go); return; }
+  const jp = e.target.closest("[data-jump]");
+  if (jp) {
+    const [t, n] = jp.dataset.jump.split(":"); go(t, false);
+    const el = document.getElementById(`q-${t}-${n-1}`);
+    if (el) { el.scrollIntoView({block:"center", behavior: reduced() ? "auto" : "smooth"}); flash(el); }
+    return;
+  }
+  const f = e.target.closest("[data-f]"); if (f) { S.filter = f.dataset.f; save(); renderMain(); return; }
+  const st = e.target.closest("[data-study]"); if (st) { toggleStudy(st.dataset.study); return; }
+  if (e.target.closest("[data-cancel]")) { confirming = null; $("#confirm-all").hidden = true; const c = $("#confirm-part"); if (c) c.hidden = true; return; }
   const id = e.target.closest("button")?.id;
-  if(id==="reset-all"){ confirming = confirming==="all" ? null : "all"; render(); if(confirming) $("#do-reset-all").focus(); return; }
-  if(id==="reset"){ confirming = confirming==="part" ? null : "part"; render(); if(confirming){ const c=$("#confirm-part"); c.scrollIntoView({block:"nearest"}); $("#do-reset").focus(); } return; }
-  if(e.target.closest("[data-cancel]")){ confirming=null; render(); return; }
-  if(id==="do-reset-all"){ confirming=null; S.ans={}; S.checked={}; S.part=0; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
-  if(id==="do-reset"){ confirming=null; PARTS[S.part].qs.forEach((_,i)=>delete S.ans[S.part+"-"+i]); delete S.checked[S.part]; S.filter="todas"; save(); render(); window.scrollTo(0,0); return; }
+  if (id === "m-estudo" || id === "m-prova") { S.mode = id.slice(2); save(); const y = scrollY; render(false); window.scrollTo(0,y); return; }
+  if (id === "corrigir") {
+    const T = cur(), y = scrollY; S.checked[T.id] = true; save();
+    renderMain(false); $(".list")?.classList.add("reveal"); renderTabs(); renderStat(); window.scrollTo(0,y); return;
+  }
+  if (id === "reset-all") { confirming = confirming === "all" ? null : "all"; $("#confirm-all").hidden = confirming !== "all"; if (confirming) $("#do-reset-all").focus(); return; }
+  if (id === "reset") {
+    confirming = confirming === "part" ? null : "part"; const c = $("#confirm-part"); c.hidden = confirming !== "part";
+    if (confirming) { c.scrollIntoView({block:"nearest"}); $("#do-reset").focus(); } return;
+  }
+  if (id === "do-reset-all") { confirming = null; Object.assign(S, {ans:{}, checked:{}, study:{}, train:{ok:0,n:0}, tq:null, filter:"todas"}); save(); render(); window.scrollTo(0,0); return; }
+  if (id === "do-reset") {
+    const T = cur(); confirming = null; T.qs.forEach((_,i) => delete S.ans[T.id+"-"+i]); delete S.checked[T.id]; S.filter = "todas";
+    save(); render(); window.scrollTo(0,0); return;
+  }
+  if (id === "t-check") { checkTQ(); return; }
+  if (id === "t-new" || id === "t-skip") { S.tq = newTQ(); save(); paintTQ(false); $("#tcard input")?.focus(); return; }
+  if (id === "fab") { nextUnanswered(); return; }
 });
 render();
 </script>
