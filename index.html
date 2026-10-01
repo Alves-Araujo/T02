@@ -286,6 +286,49 @@ pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1
 .rtx-d{margin:0 0 10px;color:var(--muted);font-size:13.5px}
 .src{display:inline-block;font:500 11.5px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 7px}
 
+/* recomeçar */
+body.modal-open{overflow:hidden}
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:rgba(6,14,12,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:fadein .18s ease-out}
+.sheet{width:min(560px,100%);max-height:min(86vh,760px);display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);animation:sheetin .22s var(--ease)}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes sheetin{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.sheet-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.sheet-h h2{margin:0;font-family:var(--display);font-stretch:112%;font-weight:600;font-size:19px}
+.sheet-h p{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+.x{font:400 22px/1 var(--sans);width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);cursor:pointer}
+.x:hover{color:var(--ink)}
+.sheet-b{overflow-y:auto;padding:6px 18px 10px}
+.rs-g{border:0;margin:10px 0 0;padding:0}
+.rs-g legend{padding:0;margin-bottom:4px}
+.rs-gl{display:flex;align-items:center;gap:9px;font:600 12px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent);cursor:pointer}
+.rs-i{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;margin:0 -10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.rs-i:hover{background:var(--surface-2)}
+.rs-i.off{opacity:.5;cursor:default} .rs-i.off:hover{background:transparent}
+.rs-i input,.rs-gl input{position:absolute;opacity:0;pointer-events:none}
+.cb{width:17px;height:17px;flex:0 0 auto;margin-top:2px;border:1.5px solid var(--muted);border-radius:5px;display:grid;place-items:center;transition:background .15s,border-color .15s}
+.cb::after{content:"";width:9px;height:5px;border-left:2.2px solid var(--surface);border-bottom:2.2px solid var(--surface);transform:rotate(-45deg) scale(0);margin-top:-2px;transition:transform .18s var(--ease)}
+input:checked+.cb{background:var(--bad);border-color:var(--bad)}
+input:checked+.cb::after{transform:rotate(-45deg) scale(1)}
+input:indeterminate+.cb{background:var(--bad);border-color:var(--bad)}
+input:indeterminate+.cb::after{width:9px;height:0;border-left:0;border-bottom:2.2px solid var(--surface);transform:none;margin-top:0}
+input:focus-visible+.cb{outline:2px solid var(--accent);outline-offset:2px}
+.rs-gl .cb{margin-top:0}
+.rs-t{display:flex;flex-direction:column;gap:1px;font-size:14px}
+.rs-t b{font-weight:500}
+.rs-t small{font:500 11.5px var(--mono);color:var(--muted)}
+.rs-t em{font-style:normal;color:var(--accent)}
+.rs-t .rs-warn{font-family:var(--sans);font-size:12.5px;color:var(--warn);margin-top:3px}
+.sheet-f{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line)}
+.sheet-f .acts{display:flex;gap:8px}
+.sheet-f button{font:600 13px var(--sans);border-radius:7px;padding:8px 14px;cursor:pointer}
+.sheet-f .c-ok:disabled{opacity:.45;cursor:default}
+.link{background:none;border:0;color:var(--accent);padding:8px 0!important}
+.toast{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));z-index:21;transform:translateX(-50%);display:flex;align-items:center;gap:14px;max-width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 12px 10px 16px;font-size:13.5px;box-shadow:0 12px 30px -10px rgba(0,0,0,.5)}
+.toast.in{animation:toastin .3s var(--ease)}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translateX(-50%)}}
+.toast button{flex:0 0 auto;font:600 13px var(--sans);background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:7px;padding:5px 11px;cursor:pointer}
+:root:not([data-theme="light"]) .toast button{color:var(--accent)}
+
 /* treino de contas */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
 .card h3{margin:0 0 4px;font:600 15px var(--sans)}
@@ -378,7 +421,7 @@ details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)
       </div>
       <div class="groups" id="groups" role="group" aria-label="Seções"></div>
       <div class="row-r">
-        <button class="reset-btn" type="button" id="reset-all" title="Recomeçar tudo" aria-label="Recomeçar tudo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="rt">Recomeçar tudo</span></button>
+        <button class="reset-btn" type="button" id="reset-all" title="Recomeçar: escolher o que apagar" aria-label="Recomeçar: escolher o que apagar" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="rt">Recomeçar…</span></button>
       </div>
       <div class="stat" id="stat" aria-live="polite">
         <div class="stat-t"><span id="st-main"></span><br><span id="st-sub"></span></div>
@@ -393,15 +436,13 @@ details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)
         </div>
       </div>
     </div>
-    <div class="confirm" id="confirm-all" role="alertdialog" aria-label="Recomeçar tudo" hidden>
-      <p><strong>Apagar tudo?</strong> As respostas de todas as abas, os tópicos marcados e o placar do treino voltam a zero.</p>
-      <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset-all">Apagar e recomeçar</button></div>
-    </div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Partes"></nav>
   </div>
 </header>
 
 <main class="wrap" id="main"></main>
+<div class="modal" id="reset-modal" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <button class="fab off" id="fab" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Próxima sem resposta</button>
 
@@ -1602,6 +1643,95 @@ function rtxHTML(){
   return h;
 }
 
+/* ---------- recomeçar: escolher o que apagar ---------- */
+let undoSnap = null, toastT = null;
+
+function resetUnits(){
+  const quiz = T => {
+    const s = stats(T), any = s.ans > 0 || !!S.checked[T.id];
+    return {id:"q:"+T.id, tab:T.id, label: T.group === "assunto" ? `Parte ${T.num} · ${T.t}` : T.t,
+      info: any ? `${s.ans}/${s.n} respondidas` : "nada respondido", has: any,
+      apply: () => { T.qs.forEach((_,i) => delete S.ans[T.id+"-"+i]); delete S.checked[T.id]; }};
+  };
+  const sumD = SUMMARY.filter(x => S.study["sum-"+x.id]).length;
+  const topD = TOPICS.filter(t => S.study[t.id]).length;
+  const rx = [], rxTabs = {};
+  RT_EX.forEach(g => g.q.forEach(([t,n]) => { const k = t+"-"+(n-1); if (k in S.ans) { rx.push(k); rxTabs[t] = (rxTabs[t] || 0) + 1; } }));
+  const rtAny = S.rt.n > 0 || (S.rq && S.rq.ans != null) || !!S.rtFree;
+  return [
+    {g:"resumo", t:"Resumo", items:[
+      {id:"sum", tab:"pv1-resumo", short:"Resumo (seções lidas)", label:"Seções marcadas como lidas", info:`${sumD}/${SUMMARY.length} lidas`, has: sumD > 0,
+       apply: () => SUMMARY.forEach(x => delete S.study["sum-"+x.id])}]},
+    {g:"rotas", t:"Tabela de rotas", items:[
+      {id:"rt", tab:"rotas", short:"treino da tabela de rotas", label:"Treino (placar e tabela atual)", info: S.rt.n ? `${S.rt.ok}/${S.rt.n} acertos` : rtAny ? "tabela em andamento" : "nada feito", has: rtAny,
+       apply: () => { S.rt = {ok:0, n:0}; S.rq = null; S.rtFree = ""; }},
+      {id:"rtx", tab:null, short:"exercícios de tabela de rotas", label:"Exercícios de tabela de rotas", info:`${rx.length}/${rtxStats().n} respondidas`, has: rx.length > 0,
+       warn: rx.length ? "São as mesmas questões das outras abas: também apaga lá (" + Object.entries(rxTabs).map(([t,c]) => `${TABS[t].t}: ${c}`).join(", ") + ")." : "",
+       apply: () => rx.forEach(k => delete S.ans[k])}]},
+    {g:"assunto", t:"Por assunto", items: PARTS.map(quiz)},
+    {g:"pv1", t:"Prova PV1", items:[
+      {id:"guia", tab:"pv1-guia", short:"O que caiu (tópicos)", label:"O que caiu · tópicos estudados", info:`${topD}/${TOPICS.length} estudados`, has: topD > 0,
+       apply: () => TOPICS.forEach(t => delete S.study[t.id])},
+      {id:"treino", tab:"pv1-treino", short:"Treino de contas", label:"Treino de contas", info: S.train.n ? `${S.train.ok}/${S.train.n} acertos` : S.tq?.res || S.calc ? "em andamento" : "nada feito",
+       has: S.train.n > 0 || !!S.tq?.res || !!S.calc || !!(S.tq && Object.values(S.tq.vals || {}).some(Boolean)),
+       apply: () => { S.train = {ok:0, n:0}; S.tq = null; S.calc = ""; }},
+      ...[PV1_SIM, PV1_PROVA, PV1_LISTA, PV1_REL].map(quiz)]},
+  ];
+}
+
+function openReset(){
+  const groups = resetUnits(), here = cur().id;
+  const sel = new Set();
+  groups.forEach(G => G.items.forEach(it => { if (it.has && it.tab === here) sel.add(it.id); }));
+  $("#reset-modal").innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rs-title">
+    <div class="sheet-h"><div><h2 id="rs-title">Recomeçar</h2><p>Escolha o que apagar. O resto continua como está.</p></div>
+      <button class="x" type="button" data-rs-close aria-label="Fechar">×</button></div>
+    <div class="sheet-b">${groups.map(G => {
+      const live = G.items.filter(it => it.has);
+      return `<fieldset class="rs-g" data-rg="${G.g}"><legend><label class="rs-gl"><input type="checkbox" data-rsg="${G.g}" ${live.length ? "" : "disabled"}><span class="cb"></span>${G.t}</label></legend>
+      ${G.items.map(it => `<label class="rs-i${it.has ? "" : " off"}"><input type="checkbox" data-rs="${it.id}" data-rgi="${G.g}" ${it.has ? "" : "disabled"} ${sel.has(it.id) ? "checked" : ""}><span class="cb"></span>
+        <span class="rs-t"><b>${it.label}</b><small>${it.info}${it.tab === here && it.has ? ` · <em>aba atual</em>` : ""}</small>${it.warn ? `<small class="rs-warn">${it.warn}</small>` : ""}</span></label>`).join("")}</fieldset>`;
+    }).join("")}</div>
+    <div class="sheet-f"><button class="link" type="button" id="rs-all">Selecionar tudo</button>
+      <div class="acts"><button class="c-cancel" type="button" data-rs-close>Cancelar</button><button class="c-ok" type="button" id="rs-apply"></button></div></div>
+  </div>`;
+  $("#reset-modal").hidden = false;
+  document.body.classList.add("modal-open");
+  rsSync();
+  ($("#rs-apply:not(:disabled)") || $("[data-rs-close]")).focus();
+}
+function closeReset(){ $("#reset-modal").hidden = true; $("#reset-modal").innerHTML = ""; document.body.classList.remove("modal-open"); $("#reset-all")?.focus(); }
+function rsSync(){
+  document.querySelectorAll("[data-rsg]").forEach(g => {
+    const it = [...document.querySelectorAll(`[data-rs][data-rgi="${g.dataset.rsg}"]:not(:disabled)`)], on = it.filter(x => x.checked).length;
+    g.checked = it.length > 0 && on === it.length; g.indeterminate = on > 0 && on < it.length;
+  });
+  const n = document.querySelectorAll("[data-rs]:checked").length, b = $("#rs-apply");
+  b.disabled = !n; b.textContent = n ? `Apagar ${n} ${n === 1 ? "item" : "itens"}` : "Nada selecionado";
+  const live = document.querySelectorAll("[data-rs]:not(:disabled)").length;
+  $("#rs-all").textContent = live && n === live ? "Desmarcar tudo" : "Selecionar tudo";
+}
+function applyReset(){
+  const ids = new Set([...document.querySelectorAll("[data-rs]:checked")].map(x => x.dataset.rs)); if (!ids.size) return;
+  undoSnap = JSON.stringify(S);
+  const names = [];
+  resetUnits().forEach(G => G.items.forEach(it => { if (ids.has(it.id)) { it.apply(); names.push(it.short || it.label); } }));
+  S.filter = "todas"; confirming = null;
+  save(); closeReset(); render(false);
+  toast(`Apagado: ${names.join(", ")}.`);
+}
+function toast(msg){
+  const t = $("#toast");
+  t.innerHTML = `<span>${msg}</span><button type="button" id="undo">Desfazer</button>`;
+  t.hidden = false; t.classList.remove("in"); void t.offsetWidth; t.classList.add("in");
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; undoSnap = null; }, 9000);
+}
+function undoReset(){
+  if (!undoSnap) return;
+  S = Object.assign(S, JSON.parse(undoSnap)); undoSnap = null; save();
+  $("#toast").hidden = true; clearTimeout(toastT); render(false);
+}
+
 /* ---------- fundo animado: uma rede com pacotes trafegando ---------- */
 const NET = (() => {
   const cv = document.getElementById("net"), cx = cv.getContext("2d");
@@ -1870,7 +2000,6 @@ function renderTabs(){
 function render(anim = true){
   $("#sub").textContent = `${QUIZ_TOTAL} questões · Redes de Dados I`;
   renderNav(); renderStat(); renderMain(anim);
-  $("#confirm-all").hidden = confirming !== "all";
   try { history.replaceState(null, "", "#" + cur().id); } catch(e){}
   $(".tab[aria-selected=true]")?.scrollIntoView({block:"nearest", inline:"nearest"});
 }
@@ -2125,6 +2254,8 @@ function calcRender(){
 document.addEventListener("change", e => {
   const t = e.target; if (t.dataset && t.dataset.k) answer(t.dataset.k, +t.dataset.i, +t.value);
   else if (t.dataset && t.dataset.rt) rtAnswer(t.dataset.rt);
+  else if (t.dataset && t.dataset.rsg) { document.querySelectorAll(`[data-rs][data-rgi="${t.dataset.rsg}"]:not(:disabled)`).forEach(x => x.checked = t.checked); rsSync(); }
+  else if (t.dataset && t.dataset.rs) rsSync();
 });
 document.addEventListener("input", e => {
   const t = e.target;
@@ -2133,7 +2264,8 @@ document.addEventListener("input", e => {
   else if (t.dataset && t.dataset.tf && S.tq) { (S.tq.vals ||= {})[t.dataset.tf] = t.value; save(); }
 });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && confirming) { confirming = null; $("#confirm-all").hidden = true; const c = $("#confirm-part"); if (c) c.hidden = true; }
+  if (e.key === "Escape" && !$("#reset-modal").hidden) { closeReset(); return; }
+  if (e.key === "Escape" && confirming) { confirming = null; const c = $("#confirm-part"); if (c) c.hidden = true; }
   if (e.key === "Enter" && e.target.dataset && e.target.dataset.tf && S.tq && !S.tq.res) { e.preventDefault(); checkTQ(); }
 });
 document.addEventListener("click", e => {
@@ -2152,7 +2284,7 @@ document.addEventListener("click", e => {
   const sc = e.target.closest("[data-sec]");
   if (sc) { const el = document.getElementById("tp-sum-"+sc.dataset.sec); if (el) { window.scrollTo({top: el.getBoundingClientRect().top + scrollY - headerH() - 14, behavior: reduced() ? "auto" : "smooth"}); flash(el); } return; }
   const st = e.target.closest("[data-study]"); if (st) { toggleStudy(st.dataset.study); return; }
-  if (e.target.closest("[data-cancel]")) { confirming = null; $("#confirm-all").hidden = true; const c = $("#confirm-part"); if (c) c.hidden = true; return; }
+  if (e.target.closest("[data-cancel]")) { confirming = null; const c = $("#confirm-part"); if (c) c.hidden = true; return; }
   const id = e.target.closest("button")?.id;
   if (id === "m-estudo" || id === "m-prova") { S.mode = id.slice(2); save(); const y = scrollY; render(false); window.scrollTo(0,y); return; }
   if (id === "corrigir") {
@@ -2160,12 +2292,15 @@ document.addEventListener("click", e => {
     renderMain(false); $(".list")?.classList.add("reveal"); renderTabs(); renderStat(); window.scrollTo(0,y);
     const st = stats(T); NET.burst(st.ok >= st.bad ? "ok" : "bad"); return;
   }
-  if (id === "reset-all") { confirming = confirming === "all" ? null : "all"; $("#confirm-all").hidden = confirming !== "all"; if (confirming) $("#do-reset-all").focus(); return; }
+  if (id === "reset-all") { openReset(); return; }
+  if (e.target.id === "reset-modal" || e.target.closest("[data-rs-close]")) { closeReset(); return; }
+  if (id === "rs-all") { const on = $("#rs-all").textContent.startsWith("Selecionar"); document.querySelectorAll("[data-rs]:not(:disabled)").forEach(x => x.checked = on); rsSync(); return; }
+  if (id === "rs-apply") { applyReset(); return; }
+  if (id === "undo") { undoReset(); return; }
   if (id === "reset") {
     confirming = confirming === "part" ? null : "part"; const c = $("#confirm-part"); c.hidden = confirming !== "part";
     if (confirming) { c.scrollIntoView({block:"nearest"}); $("#do-reset").focus(); } return;
   }
-  if (id === "do-reset-all") { confirming = null; Object.assign(S, {ans:{}, checked:{}, study:{}, train:{ok:0,n:0}, tq:null, rt:{ok:0,n:0}, rq:null, rtFree:"", filter:"todas"}); save(); render(); window.scrollTo(0,0); return; }
   if (id === "do-reset") {
     const T = cur(); confirming = null; T.qs.forEach((_,i) => delete S.ans[T.id+"-"+i]); delete S.checked[T.id]; S.filter = "todas";
     save(); render(); window.scrollTo(0,0); return;

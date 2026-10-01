@@ -81,7 +81,7 @@ com o pacote em cada caso.
 | **⚠️&nbsp;Questões&nbsp;marcadas** | Cinco questões têm um selo amarelo: redação ambígua, foto cortada ou pegadinha. O comentário diz qual é a resposta mais provável e qual seria a alternativa se o professor ler de outro jeito. |
 | **📊&nbsp;Placar&nbsp;por&nbsp;aba** | O anel no topo mostra a aba aberta: acertos, respondidas, questões a corrigir e a nota (nas abas de prova). Cada aba tem a própria barra de progresso. Fica no `localStorage` do navegador; nada é enviado para lugar nenhum. |
 | **⬇️&nbsp;Próxima&nbsp;sem&nbsp;resposta** | Botão flutuante que desce até a próxima questão em branco. |
-| **↺&nbsp;Recomeçar** | **Refazer esta aba** ou **Recomeçar tudo**, sempre com confirmação antes de apagar. `Esc` cancela. |
+| **↺&nbsp;Recomeçar** | Abre uma janela para escolher o que apagar: cada aba aparece com o seu progresso, e a aba atual já vem marcada. Depois de apagar, um aviso oferece **Desfazer** por alguns segundos. Nas abas de questões também há o **Refazer esta aba**. `Esc` fecha. |
 
 No fundo, uma rede animada: nós, links e pacotes trafegando nas laterais, bem fraca atrás do conteúdo. Ela reage às respostas: acertar solta pacotes verdes dos dois lados do card, e errar solta pacotes vermelhos. O card também brilha no acerto, e a alternativa treme no erro. As abas entram
 com uma animação curta, e tudo isso é desligado se o sistema estiver com
