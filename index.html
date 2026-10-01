@@ -54,7 +54,11 @@ header.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height
 .logo .rp{fill:none;stroke:var(--accent);stroke-width:1.2}
 .top-inner{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .hrow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
-.hrow .groups{margin-right:auto}
+.hrow .groups{margin-right:auto;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.hrow .groups::-webkit-scrollbar{display:none}
+.grp{white-space:nowrap}
+.grp .gs{display:none}
+.sec-ctl{display:flex;gap:8px 10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
 .row1{display:flex;align-items:center;justify-content:space-between;gap:10px 12px;flex-wrap:wrap}
 .row-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 h1{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:20px;white-space:nowrap;letter-spacing:-.01em;margin:0;line-height:1.1}
@@ -209,6 +213,79 @@ pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1
 .studied[aria-pressed="true"] .box svg{opacity:1;transform:none}
 .go{margin-top:12px}
 
+/* resumo */
+.sum-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.sum-chip{display:inline-flex;align-items:center;gap:7px;font:500 13px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px 5px 6px;cursor:pointer;transition:border-color .15s,transform .15s var(--ease),background .2s}
+.sum-chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+.sum-chip i{font:600 11px var(--mono);font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);transition:background .2s,color .2s}
+.sum-chip.read i{background:var(--ok);color:var(--surface)}
+.topic.sum h3{display:flex;align-items:center;gap:9px;font-size:16.5px}
+.topic.sum .sn{font:600 12px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 7px}
+.topic.sum{padding:16px 18px 18px}
+.topic.sum>ul,.topic.sum>ol,.topic.sum>p,.topic.sum>.tbl-w,.topic.sum>.key,.topic.sum>.fig,.topic.sum>pre,.topic.sum>.enc,.topic.sum>.frame,.topic.sum>.modes{margin-top:12px}
+.sub-h{font:600 12px var(--mono)!important;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-top:18px!important;margin-bottom:-4px}
+.tbl-w{overflow-x:auto;border:1px solid var(--line);border-radius:9px}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.45}
+.tbl th{text-align:left;font:600 11.5px var(--mono);letter-spacing:.03em;color:var(--muted);background:var(--surface-2);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:top}
+.tbl tr:first-child td{border-top:0}
+.tbl tbody tr{transition:background .15s}
+.tbl tbody tr:hover{background:var(--accent-soft)}
+.tbl.nums td{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px}
+.tbl.nums td:first-child{font-family:var(--sans);font-size:13.5px}
+.tbl code{font-size:12.5px;white-space:nowrap}
+.tbl .m{font:500 11.5px var(--mono);color:var(--accent);white-space:nowrap}
+.key{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px}
+.topic.sum ol.steps{margin-top:12px}
+.enc{display:flex;flex-direction:column;gap:5px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:12px;overflow-x:auto}
+.enc-r{display:grid;grid-template-columns:86px 1fr 70px;align-items:center;gap:10px;min-width:440px}
+.enc-l{font:500 12px var(--mono);color:var(--muted);text-align:right}
+.enc-n{font:600 12px var(--mono);color:var(--accent)}
+.enc-b{display:flex;justify-content:center;gap:2px}
+.enc-b i{font:600 11.5px var(--mono);font-style:normal;padding:5px 9px;border-radius:5px;color:var(--ink);white-space:nowrap}
+.e-d{background:var(--surface);border:1px solid var(--line);min-width:72px;text-align:center}
+.e-4{background:color-mix(in srgb,var(--accent) 22%,transparent)} .e-3{background:color-mix(in srgb,var(--warn) 25%,transparent)}
+.e-2{background:color-mix(in srgb,var(--hot) 22%,transparent)} .e-1{background:var(--code-bg);color:var(--code-ink)!important;letter-spacing:.12em}
+.frame{display:flex;gap:2px;overflow-x:auto;padding-bottom:2px}
+.frame span{min-width:62px;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:6px 6px;text-align:center;font:500 11px var(--mono);color:var(--muted)}
+.frame span b{display:block;font:600 12px var(--sans);color:var(--ink);margin-bottom:1px}
+.frame span:first-child,.frame span:nth-child(2){background:var(--accent-soft);border-color:var(--accent)}
+.modes{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:12.5px;color:var(--muted)}
+.modes code{color:var(--accent)}
+
+/* tabela de rotas */
+.rt-how summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.rt-how summary::-webkit-details-marker{display:none}
+.rt-how summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg);transition:transform .2s}
+.rt-how[open] summary::before{transform:rotate(45deg)}
+.rt-how summary h3{margin:0}
+.rt-how>pre,.rt-how>.rt-legend,.rt-how>.steps{margin-top:12px}
+.rt-anat span{border-bottom:2px solid;padding-bottom:1px}
+.a1{border-color:#4FC2AF;color:#7fe0cf} .a2{border-color:#E8B85A;color:#f0cd85} .a3{border-color:#9b8cff;color:#c3b9ff} .a4{border-color:#FF8CC2;color:#ffb3d6} .a5{border-color:#7fb8ff;color:#a9d0ff}
+.rt-legend{display:flex;flex-direction:column;gap:5px;font-size:13.5px}
+.rt-legend i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:8px;vertical-align:middle;background:currentColor;border:0}
+.rt-legend i.a1{color:#4FC2AF} .rt-legend i.a2{color:#E8B85A} .rt-legend i.a3{color:#9b8cff} .rt-legend i.a4{color:#FF8CC2} .rt-legend i.a5{color:#7fb8ff}
+#rtcard h3{font-size:15.5px;margin-bottom:12px;line-height:1.5}
+.rt-dest{font-size:15px!important;color:var(--accent);padding:2px 7px!important}
+.rt-pre{margin-bottom:12px;line-height:1.6}
+.rt-pre .ln{display:inline-block;min-width:100%;padding:0 6px;margin:0 -6px;border-radius:4px;transition:background .3s,color .3s}
+.rt-pre .ln.hit{background:rgba(232,184,90,.14)}
+.rt-pre .ln.win{background:rgba(79,194,175,.28);color:#fff;box-shadow:inset 3px 0 0 #4FC2AF}
+#rtcard.just-ok{animation:glow .8s ease-out}
+#rtcard.just-bad .opt.wrong{animation:shake .42s}
+#rtcard .fb{margin-top:12px;max-width:none;animation:reveal .4s var(--ease) both}
+.rt-tbl tr.hit td{background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.rt-tbl tr.win td{background:var(--ok-soft);font-weight:600}
+.rt-tbl td:nth-child(2){font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.rt-why{margin:12px 0 0;font-size:14px;line-height:1.6}
+#rt-free-out .tbl-w{margin-top:12px}
+
+.rtx-head{margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}
+.rtx-g{display:flex;align-items:center;gap:9px;margin:22px 0 2px;font:600 16px var(--sans)}
+.rtx-g span{font:600 12px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 8px}
+.rtx-d{margin:0 0 10px;color:var(--muted);font-size:13.5px}
+.src{display:inline-block;font:500 11.5px var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 7px}
+
 /* treino de contas */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
 .card h3{margin:0 0 4px;font:600 15px var(--sans)}
@@ -261,6 +338,7 @@ details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)
 .reveal .q{animation:rise .4s var(--ease) both;animation-delay:calc(var(--i,0)*30ms)}
 .flash{animation:flash 1.5s ease}
 
+@media (max-width:1320px){ #reset-all .rt{display:none} #reset-all{padding:6px 9px} }
 @media (max-width:1060px){
   .hrow{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand stat" "groups ctrl";align-items:center}
   .brand-w{grid-area:brand;min-width:0} .stat{grid-area:stat} .hrow .groups{grid-area:groups;justify-self:start;margin:0} .hrow .row-r{grid-area:ctrl;justify-self:end}
@@ -271,12 +349,13 @@ details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)
   .stat-t #st-sub{display:none}
   .stat-t .w{display:none}
   h1{overflow:hidden;text-overflow:ellipsis}
-  .hrow{grid-template-areas:"brand stat" "groups groups" "ctrl ctrl"}
-  .hrow .row-r{justify-self:start}
+  .hrow{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"brand stat ctrl" "groups groups groups"}
+  .grp .gl,.grp .gn{display:none} .grp .gs{display:inline}
+  .grp{padding:7px 11px}
   h1{font-size:18px} .logo{width:30px;height:30px} .brand-w{gap:8px}
   .brand small{overflow:hidden;text-overflow:ellipsis}
   .stat-t{font-size:10.5px} .stat-t b{font-size:14px}
-  #reset-all .rt{display:none} #reset-all{padding:6px 9px}
+  #reset-all{padding:6px 9px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
@@ -299,10 +378,6 @@ details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)
       </div>
       <div class="groups" id="groups" role="group" aria-label="Seções"></div>
       <div class="row-r">
-        <div class="mode" id="mode" role="group" aria-label="Modo">
-          <button id="m-estudo" type="button">Correção imediata</button>
-          <button id="m-prova" type="button">Modo prova</button>
-        </div>
         <button class="reset-btn" type="button" id="reset-all" title="Recomeçar tudo" aria-label="Recomeçar tudo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="rt">Recomeçar tudo</span></button>
       </div>
       <div class="stat" id="stat" aria-live="polite">
@@ -1073,6 +1148,460 @@ const JUMPS = [
 const PV1_GUIA = {id:"pv1-guia", t:"O que caiu", layer:"Relato", kind:"guide"};
 const PV1_TREINO = {id:"pv1-treino", t:"Treino de contas", layer:"1ª página", kind:"train"};
 
+/* ---------- PV1: resumo da matéria ---------- */
+const tbl = (head, rows, cls = "") => `<div class="tbl-w"><table class="tbl ${cls}"><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${
+  rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+const key = s => `<div class="key">${s}</div>`;
+
+const ENC = `<div class="enc" aria-label="Encapsulamento">
+  <div class="enc-r"><span class="enc-l">Aplicação</span><span class="enc-b"><i class="e-d">Dados</i></span><span class="enc-n">dados</span></div>
+  <div class="enc-r"><span class="enc-l">Transporte</span><span class="enc-b"><i class="e-4">TCP/UDP</i><i class="e-d">Dados</i></span><span class="enc-n">segmento</span></div>
+  <div class="enc-r"><span class="enc-l">Rede</span><span class="enc-b"><i class="e-3">IP</i><i class="e-4">TCP/UDP</i><i class="e-d">Dados</i></span><span class="enc-n">pacote</span></div>
+  <div class="enc-r"><span class="enc-l">Enlace</span><span class="enc-b"><i class="e-2">Eth</i><i class="e-3">IP</i><i class="e-4">TCP/UDP</i><i class="e-d">Dados</i><i class="e-2">FCS</i></span><span class="enc-n">quadro</span></div>
+  <div class="enc-r"><span class="enc-l">Física</span><span class="enc-b"><i class="e-1">0110100101110010…</i></span><span class="enc-n">bits</span></div>
+</div>`;
+
+const SUMMARY = [
+ {id:"osi", t:"Modelos OSI e TCP/IP", b:`
+  ${tbl(["#","Camada OSI","O que faz","PDU","Exemplos","TCP/IP"], [
+    ["7","<b>Aplicação</b>","Serviços para o usuário","Dados","HTTP, DNS, FTP, SMTP, MQTT",'<span class="m">Aplicação</span>'],
+    ["6","<b>Apresentação</b>","<b>Sintaxe</b> dos dados, compressão, criptografia","Dados","—",'<span class="m">Aplicação</span>'],
+    ["5","<b>Sessão</b>","Abre, mantém e encerra sessões","Dados","—",'<span class="m">Aplicação</span>'],
+    ["4","<b>Transporte</b>","Fim a fim, <b>portas</b>, confiabilidade, controle de fluxo","Segmento","TCP, UDP",'<span class="m">Transporte</span>'],
+    ["3","<b>Rede</b>","Endereço <b>lógico (IP)</b>, roteamento","Pacote","IP, ICMP · roteador",'<span class="m">Internet</span>'],
+    ["2","<b>Enlace</b>","Endereço <b>físico (MAC)</b>, quadros, acesso ao meio, FCS","Quadro","Ethernet · switch",'<span class="m">Acesso à rede</span>'],
+    ["1","<b>Física</b>","Bits no meio: cabos, conectores, sinais","Bits","Cobre, fibra, Wi-Fi",'<span class="m">Acesso à rede</span>'],
+  ])}
+  <p><b>Encapsulamento</b>: cada camada acrescenta o seu cabeçalho na descida. No receptor, o caminho é o inverso: desencapsulamento.</p>
+  ${ENC}
+  ${key(`<b>Decore:</b> OSI tem 7 camadas, TCP/IP tem 4. A aplicação do TCP/IP junta as camadas 5, 6 e 7; a de acesso à rede junta a 1 e a 2; a Internet equivale à rede. O TCP/IP <b>não tem</b> camada de sessão: quem abre e encerra conexões lógicas é o transporte.`)}`},
+
+ {id:"ipv4", t:"Endereçamento IPv4", hot:"1ª página", b:`
+  <ul>
+   <li><b>IPv4</b> = 32 bits, em 4 octetos decimais de 0 a 255. <b>IPv6</b> = 128 bits, 32 dígitos hexadecimais. <b>MAC</b> = 48 bits, 12 dígitos hexadecimais.</li>
+   <li>A <b>máscara</b> tem bits 1 na parte de rede e bits 0 na parte de host. O roteador faz IP AND máscara para achar a rede.</li>
+   <li><b>Endereço de rede</b> = todos os bits de host em 0. <b>Broadcast</b> = todos em 1. O que fica entre os dois são hosts.</li>
+  </ul>
+  ${tbl(["Prefixo","Máscara","Endereços","Hosts"], [
+    ["/8","255.0.0.0","16.777.216","16.777.214"],["/16","255.255.0.0","65.536","65.534"],
+    ["/20","255.255.<b>240</b>.0","4.096","4.094"],["/21","255.255.<b>248</b>.0","2.048","2.046"],["/22","255.255.<b>252</b>.0","1.024","1.022"],["/23","255.255.<b>254</b>.0","512","510"],
+    ["/24","255.255.255.0","256","254"],["/25","255.255.255.<b>128</b>","128","126"],["/26","255.255.255.<b>192</b>","64","62"],
+    ["/27","255.255.255.<b>224</b>","32","30"],["/28","255.255.255.<b>240</b>","16","14"],["/29","255.255.255.<b>248</b>","8","6"],["/30","255.255.255.<b>252</b>","4","2"],
+  ], "nums")}
+  <p class="sub-h">Os valores possíveis de um octeto da máscara</p>
+  ${tbl(["Bits 1","1","2","3","4","5","6","7","8"], [["Valor","128","192","224","240","248","252","254","255"]], "nums")}
+  <p class="sub-h">Como achar rede e broadcast, em 3 passos</p>
+  <ol class="steps">
+   <li>Ache o octeto em que a máscara “quebra” (não é 255 nem 0). <b>Bloco = 256 − valor da máscara</b>.</li>
+   <li><b>Rede</b> = o múltiplo do bloco logo abaixo do número do IP nesse octeto; os octetos seguintes viram 0.</li>
+   <li><b>Broadcast</b> = próximo múltiplo − 1; os octetos seguintes viram 255. <b>Hosts</b> = 2<sup>bits de host</sup> − 2.</li>
+  </ol>
+  ${key(`<b>Exemplo da prova anterior:</b> 172.31.10.10/20 → máscara 255.255.240.0 → bloco 256 − 240 = 16 no 3º octeto (0, 16, 32…). O 10 cai no bloco 0–15. Rede <b>172.31.0.0</b>, broadcast <b>172.31.15.255</b>, 32 − 20 = 12 bits → 2¹² − 2 = <b>4094 hosts</b>.`)}
+  <p class="sub-h">Binário ↔ decimal</p>
+  <p>Pesos de cada bit no octeto: <code>128 64 32 16 8 4 2 1</code>. Exemplo: 11001101 = 128 + 64 + 8 + 4 + 1 = <b>205</b>.</p>
+  <p class="sub-h">Faixas especiais</p>
+  ${tbl(["Tipo","Faixa","Observação"], [
+    ["<b>Privados</b> (RFC 1918)","10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16","Só dentro de redes locais; saem para a internet pelo NAT. 172.16 a <b>172.31</b>: o 172.32 já é público."],
+    ["Loopback","127.0.0.0/8","O próprio host (127.0.0.1)"],
+    ["APIPA","169.254.0.0/16","O Windows usa quando o DHCP não responde"],
+    ["Classes (antigas)","A 1–126 /8 · B 128–191 /16 · C 192–223 /24","Máscara padrão de cada classe"],
+  ])}
+  <ul>
+   <li><b>Públicos</b> são únicos no mundo e roteáveis na internet; privados se repetem em cada rede interna. A vantagem dos privados é <b>economizar endereços públicos</b>.</li>
+   <li><b>Estático</b> = configurado à mão. <b>Dinâmico</b> = entregue pelo <b>DHCP</b> (IP, máscara, gateway e DNS). O <b>MAC</b> vem gravado na placa pelo fabricante: o DHCP não fornece MAC.</li>
+   <li>No Windows, <code>ipconfig</code> mostra IP, máscara e gateway; <code>ipconfig /all</code> mostra também o MAC.</li>
+  </ul>`},
+
+ {id:"entrega", t:"Gateway: para onde vai o pacote", b:`
+  <ul>
+   <li>O host aplica a máscara ao IP de destino. <b>Mesma rede</b> → entrega direto (o switch leva o quadro pelo MAC). <b>Outra rede</b> → manda ao <b>gateway padrão</b>.</li>
+   <li>Gateway padrão = o IP da interface do roteador <b>na rede do host</b>, e não qualquer IP do roteador.</li>
+   <li>Os IPs de origem e destino não mudam no caminho; o que muda a cada salto são os <b>MACs</b> do quadro.</li>
+  </ul>
+  ${tbl(["Equipamento","Camada","Olha o quê","Trabalha com"], [
+    ["Hub","1 · Física","Nada: repete os bits","Bits"],
+    ["<b>Switch</b>","2 · Enlace","<b>MAC</b> de destino","Quadros"],
+    ["<b>Roteador</b>","3 · Rede","<b>IP</b> de destino","Pacotes"],
+  ])}
+  ${key(`O roteador decide pelo IP de <b>destino</b>, nunca pelo de origem. A máscara vem da <b>tabela de rotas</b>, não do cabeçalho do pacote: o cabeçalho IP não leva máscara.`)}`},
+
+ {id:"rotas", t:"Roteamento", hot:"caiu igual", b:`
+  <p class="sub-h">Lendo a tabela (<code>show ip route</code>)</p>
+  ${tbl(["Código","Significa"], [
+    ["<b>C</b>","Rede diretamente conectada a uma interface"],["<b>L</b>","Local: o IP da própria interface (/32)"],
+    ["<b>S</b>","Rota estática"],["<b>S*</b>","Rota padrão estática (0.0.0.0/0)"],["<b>R</b> · <b>O</b> · <b>D</b>","Aprendida por RIP · OSPF · EIGRP"],
+  ])}
+  <ol class="steps">
+   <li>Calcule a <b>faixa</b> de cada rota. Exemplo: 10.1.0.0/22 vai de 10.1.0.0 a 10.1.3.255.</li>
+   <li>Entre as que contêm o destino, ganha a de <b>maior prefixo</b>, a mais específica.</li>
+   <li>Nenhuma contém → vai pela <b>rota padrão</b>. Sem rota padrão → o pacote é <b>descartado</b>. Roteador não faz broadcast para procurar caminho.</li>
+  </ol>
+  <p>Em <code>[120/1]</code>, o primeiro número é a <b>distância administrativa</b> (a confiança na fonte) e o segundo é a <b>métrica</b>. Se duas fontes ensinam a mesma rede com o mesmo prefixo, ganha a de menor distância:</p>
+  ${tbl(["Conectada","Estática","EIGRP","OSPF","RIP"], [["0","1","90","110","120"]], "nums")}
+  ${tbl(["","Estático","Dinâmico"], [
+    ["Como entra na tabela","Configurado à mão (<code>ip route</code>)","Os roteadores trocam rotas por um <b>protocolo de roteamento</b>"],
+    ["Mudança na topologia","Não se adapta","Se ajusta sozinho"],
+    ["Custo","Leve, sem CPU extra","Gasta CPU, memória e banda; precisa de configuração inicial"],
+  ])}
+  ${tbl(["","Vetor de distância","Estado de enlace"], [
+    ["Exemplo","<b>RIP</b> (e EIGRP)","<b>OSPF</b>, IS-IS"],
+    ["Algoritmo","Bellman-Ford","<b>Dijkstra</b>"],
+    ["Conhece","Só o que os vizinhos contam","A topologia inteira"],
+    ["Atualização","Tabela inteira, <b>periódica</b> (30 s no RIP), só aos vizinhos","Só quando algo muda"],
+    ["Métrica","RIP: <b>saltos</b> (roteadores no caminho)","Custo (largura de banda)"],
+    ["Convergência","Lenta, com risco de loops","<b>Rápida</b>, com menos loops"],
+  ])}
+  <ul>
+   <li><b>Protocolo roteado</b> (IP) carrega os dados do usuário. <b>Protocolo de roteamento</b> (RIP, OSPF) monta as tabelas.</li>
+   <li><b>Sistema autônomo (AS)</b> = conjunto de redes sob uma mesma administração. <b>IGP</b> roteia dentro de um AS (RIP, OSPF, IS-IS); <b>EGP</b> roteia entre ASes (<b>BGP</b>). A divisão é por AS, não por rede local.</li>
+   <li><b>Convergência</b> = o tempo para as tabelas ficarem consistentes depois de uma mudança na topologia.</li>
+  </ul>`},
+
+ {id:"ios", t:"Comandos do roteador e do switch", hot:"3 ou 4 questões", b:`
+  <p class="sub-h">Os modos do Cisco IOS</p>
+  <div class="modes"><code>Router&gt;</code><span>enable →</span><code>Router#</code><span>configure terminal →</span><code>Router(config)#</code><span>interface g0/0 →</span><code>Router(config-if)#</code></div>
+  <p>Outros prompts: <code>(config-router)#</code> depois de <code>router ospf 10</code>, <code>(config-subif)#</code> numa subinterface e <code>(config-vlan)#</code> depois de <code>vlan 10</code>. Use <code>exit</code> para voltar um nível e <code>end</code> para voltar ao #.</p>
+  ${tbl(["Comando","Onde","Para quê"], [
+    ["<code>interface g0/0</code>","(config)#","Entra na interface"],
+    ["<code>ip address 192.168.1.1 255.255.255.0</code>","(config-if)#","Associa IP e máscara (por extenso) à interface"],
+    ["<code>no shutdown</code>","(config-if)#","<b>Liga</b> a interface: no roteador elas vêm desligadas"],
+    ["<code>clock rate 56000</code>","(config-if)#","Na serial do lado <b>DCE</b> do cabo"],
+    ["<code>ip route 172.16.0.0 255.255.0.0 s0/0/0</code>","(config)#","Rota estática: rede, máscara e <b>próximo salto ou interface de saída</b>"],
+    ["<code>ip route 0.0.0.0 0.0.0.0 200.1.1.1</code>","(config)#","Rota padrão"],
+    ["<code>show ip route</code>","#","Tabela de roteamento"],
+    ["<code>show ip interface brief</code>","#","Resumo: IP e status (up/down) de cada interface"],
+    ["<code>show interfaces</code>","#","Detalhe de cada interface (MAC, banda, erros)"],
+    ["<code>show running-config</code>","#","Configuração em uso (RAM)"],
+    ["<code>copy running-config startup-config</code>","<b>#</b>","Salva na NVRAM"],
+  ])}
+  <p class="sub-h">Switch e VLAN</p>
+  ${tbl(["Comando","Onde","Para quê"], [
+    ["<code>vlan 10</code>","(config)#","Cria a VLAN 10"],
+    ["<code>switchport mode access</code>","(config-if)#","Porta de acesso: uma VLAN só (PC, impressora)"],
+    ["<code>switchport access vlan 10</code>","(config-if)#","Coloca a porta na VLAN 10"],
+    ["<code>switchport mode trunk</code>","(config-if)#","Tronco: leva várias VLANs (switch↔switch, switch↔roteador)"],
+    ["<code>show vlan brief</code>","#","Lista as VLANs e as portas de cada uma"],
+  ])}
+  <p class="sub-h">Router-on-a-stick e OSPF (Relatório 5)</p>
+  <pre class="table">interface g0/1.10
+ encapsulation dot1q 10          ← associa a subinterface à VLAN 10
+ ip address 192.168.10.1 255.255.255.0   ← gateway da VLAN 10
+
+router ospf 10                   ← 10 = número do processo
+ network 192.168.10.0 0.0.0.255 area 0   ← wildcard = inverso da máscara
+ passive-interface g0/1          ← não manda hellos, mas anuncia a rede</pre>`},
+
+ {id:"eth", t:"Ethernet", b:`
+  <ul>
+   <li>Ethernet = <b>IEEE 802.3</b>, nas camadas <b>1 e 2</b>. A camada de enlace tem duas subcamadas: <b>LLC</b> (Logical Link Control, 802.2) e <b>MAC</b> (Media Access Control).</li>
+   <li>Endereço Ethernet = MAC, chamado de <b>endereço físico</b>, mas que pertence à camada de <b>enlace</b>.</li>
+  </ul>
+  <div class="frame"><span style="flex:7"><b>Preâmbulo</b>7 B</span><span style="flex:1.4"><b>SFD</b>1 B</span><span style="flex:6"><b>MAC destino</b>6 B</span><span style="flex:6"><b>MAC origem</b>6 B</span><span style="flex:2.4"><b>Tipo</b>2 B</span><span style="flex:12"><b>Dados</b>46–1500 B</span><span style="flex:4"><b>FCS</b>4 B</span></div>
+  <ul>
+   <li><b>Preâmbulo</b>: 7 bytes 10101010 para <b>sincronizar</b> o receptor. O <b>SFD</b> (10101011) marca o início do quadro. O <b>FCS</b> detecta erros.</li>
+   <li><b>CSMA/CD</b>: escuta o meio (CS), vários compartilham o meio (MA) e detecta colisão (CD). Na colisão, a <b>amplitude do sinal fica acima do normal</b>; a estação manda o sinal de <b>jam</b> e espera um tempo <b>aleatório</b> (backoff). Ninguém tem prioridade.</li>
+   <li>O Wi-Fi (<b>802.11</b>) usa CSMA/<b>CA</b>, que evita a colisão em vez de detectá-la. O <b>802.1Q</b> é a marcação de VLAN.</li>
+  </ul>`},
+
+ {id:"vlan", t:"VLAN", b:`
+  <ul>
+   <li>Agrupa hosts <b>logicamente</b>, pela função e não pelo lugar. Cada VLAN é uma rede e um <b>domínio de broadcast</b> separado.</li>
+   <li>De fábrica, todas as portas estão na <b>VLAN 1</b>, que não pode ser apagada nem renomeada.</li>
+   <li><b>Porta de acesso</b>: uma VLAN só (PC, impressora). <b>Tronco (trunk)</b>: várias VLANs no mesmo cabo, com a tag <b>802.1Q</b> (switch↔switch, switch↔roteador).</li>
+   <li>VLANs diferentes só se comunicam por <b>roteamento</b>, num roteador ou switch de camada 3. Um único roteador com um link trunk e subinterfaces atende todas: é o <b>router-on-a-stick</b>. Não precisa de um roteador por VLAN.</li>
+   <li>Benefícios: menos broadcast espalhado, segurança e organização. VLAN não reduz o número de portas nem regula a janela TCP.</li>
+  </ul>`},
+
+ {id:"transp", t:"Transporte: TCP e UDP", hot:"sempre cai", b:`
+  ${tbl(["","TCP","UDP"], [
+    ["Conexão","<b>Orientado à conexão</b> (handshake)","<b>Sem conexão</b> (datagrama)"],
+    ["Confiável?","Sim: ACK + <b>retransmissão</b>","Não: perdeu ou corrompeu, descarta"],
+    ["Ordem","Reordena pelo <b>número de sequência</b>","Não garante"],
+    ["Controle de fluxo","<b>Janela</b> deslizante","Não tem"],
+    ["Congestionamento","Controla","Não controla"],
+    ["Cabeçalho","20 bytes ou mais","<b>8 bytes</b>"],
+    ["Velocidade","Mais overhead","<b>Mais rápido</b>, menor latência"],
+    ["Usado em","Web (HTTP), e-mail, FTP, SSH","DNS, streaming, VoIP, jogos"],
+  ])}
+  <ul>
+   <li><b>Handshake de três vias</b>: SYN → SYN-ACK → ACK, antes de qualquer dado.</li>
+   <li>Os dois têm checksum. No UDP ele só detecta o erro: o segmento é descartado e ninguém retransmite.</li>
+   <li>Os dois cabeçalhos <b>começam</b> com porta de origem e porta de destino, <b>16 bits</b> cada (0 a 65535). Sequência, ACK e janela só existem no TCP.</li>
+  </ul>
+  <figure class="fig">${HDR_UDP}</figure>
+  ${tbl(["Portas","Faixa","Uso"], [
+    ["<b>Bem conhecidas</b>","0 – 1023","Serviços: 80, 53, 21…"],["Registradas","1024 – 49151","Aplicações registradas (1883 = MQTT)"],
+    ["<b>Dinâmicas</b> (efêmeras)","49152 – 65535","Sorteadas pelo <b>cliente</b> como porta de origem"],
+  ], "nums")}
+  <ul>
+   <li><b>Socket</b> = IP + porta. É a interface entre a <b>aplicação</b> e o <b>transporte</b>. Uma conexão é identificada pelo <b>par de sockets</b> (origem e destino), e não por uma porta só.</li>
+   <li>A <b>porta</b> identifica o <b>processo/serviço</b>; o dispositivo é identificado pelo IP. Com as portas, o transporte faz a <b>multiplexação</b>: várias aplicações ao mesmo tempo, no TCP e no UDP.</li>
+  </ul>
+  ${key(`<b>Quem é cliente e quem é servidor?</b> Porta bem conhecida no <b>destino</b> → o cliente está pedindo. Porta bem conhecida na <b>origem</b> → é a resposta do servidor. Na resposta, as portas se invertem.`)}`},
+
+ {id:"app", t:"Camada de aplicação", hot:"MQTT", b:`
+  ${tbl(["Protocolo","Porta","Transporte","Para quê"], [
+    ["<b>HTTP</b>","80","TCP","Páginas web (requisição/resposta)"],["<b>HTTPS</b>","443","TCP","HTTP seguro (TLS)"],
+    ["<b>DNS</b>","53","UDP","Nome → IP"],["DHCP","67/68","UDP","Entrega IP, máscara, gateway, DNS"],
+    ["FTP","20/21","TCP","Arquivos (20 dados, 21 controle)"],["SSH · Telnet","22 · 23","TCP","Acesso remoto (seguro · sem criptografia)"],
+    ["SMTP","25","TCP","Enviar e-mail"],["POP3 · IMAP","110 · 143","TCP","Receber e-mail"],
+    ["SNMP","161","UDP","Gerência de rede"],["<b>MQTT</b>","<b>1883</b> (8883 TLS)","TCP","Mensagens IoT"],
+  ], "nums")}
+  <ul>
+   <li><b>HTTP</b>: cliente/servidor, de <b>aplicação</b>, roda sobre <b>TCP</b>, então é orientado à conexão. É <i>stateless</i>, o que é diferente de “não orientado à conexão”.</li>
+   <li><b>DNS</b>: a consulta vai do servidor <b>raiz</b> ao <b>TLD</b> (.com, .br), que indica o servidor <b>autoritativo</b>, e é o autoritativo que devolve o IP.</li>
+  </ul>
+  ${key(`<b>MQTT</b>: modelo <b>publicação/assinatura</b>. Um cliente <b>publica</b> num <b>tópico</b> (casa/sala/temperatura) e quem <b>assinou</b> aquele tópico recebe. O <b>broker</b> é o intermediário: publicador e assinante não se conhecem nem falam direto. Leve (cabeçalho mínimo de 2 bytes), ideal para <b>IoT</b>. QoS 0 = no máximo uma vez, 1 = pelo menos uma vez, 2 = exatamente uma vez.`)}`},
+
+ {id:"dicas", t:"Na hora da prova", b:`
+  <p class="sub-h">Pegadinhas que o professor repete</p>
+  <ul>
+   <li><b>Palavras absolutas</b> (“garante”, “único”, “apenas”, “sempre”, “nunca”) costumam derrubar a alternativa.</li>
+   <li><b>A resposta certa não está entre as opções</b> (camada física, HTTP, enlace): marque “Nenhuma das anteriores”.</li>
+   <li><b>Conceitos trocados</b>: origem × destino, roteado × roteamento, físico × enlace, Dijkstra × Bellman-Ford, 802.1Q × Wi-Fi.</li>
+   <li><b>Terminar em .255 não basta</b>: só é broadcast se todos os bits de host forem 1. O 10.19.0.255/16 é host.</li>
+  </ul>
+  <p class="sub-h">Se for chutar (padrão do gabarito dele)</p>
+  ${tbl(["Tipo de questão","Chute","Na prova anterior"], [
+    ["4 alternativas, com d) Nenhuma das anteriores","<b>d)</b>","7 de 15 (47%)"],
+    ["5 alternativas, com e) n.d.a.","<b>c)</b> · evite a e)","c) 6 de 16 · e) só 2 de 16"],
+    ["Verdadeiro ou falso","<b>Falso</b>","3 de 4"],
+    ["Igual a uma da lista","<b>b)</b>","38 de 90 na lista"],
+  ])}
+  <p class="note" style="margin-top:8px">O padrão vem de uma prova e de uma lista: aumenta a chance no chute, mas não garante acerto. Elimine primeiro.</p>`},
+];
+const PV1_RESUMO = {id:"pv1-resumo", t:"Resumo", layer:"Matéria", kind:"summary"};
+
+/* ---------- treino de tabela de rotas ---------- */
+const ROTAS = {id:"rotas", t:"Tabela de rotas", layer:"show ip route", kind:"routes"};
+const IFN = {G0:"GigabitEthernet0/0", G1:"GigabitEthernet0/1", S0:"Serial0/0/0", S1:"Serial0/0/1"};
+const rtN = s => s.split(".").reduce((a,x) => a*256 + +x, 0);
+const rtIp = x => [Math.floor(x/16777216)%256, Math.floor(x/65536)%256, Math.floor(x/256)%256, x%256].join(".");
+const rtSize = p => 2**(32-p);
+const rtHas = (r, d) => { const n = rtN(r.net); return d >= n && d < n + rtSize(r.p); };
+const rtRnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const rtPick = a => a[rtRnd(0, a.length-1)];
+
+function genRT(){
+  const a = rtRnd(1,25)*10, b = a + 10, c = rtRnd(1,8), d = c + 1, k = rtRnd(1,9);
+  const n1 = `172.16.${c}.2`, n2 = `172.16.${d}.2`;
+  const R = [
+    {code:"C", net:`192.168.${a}.0`, p:24, ifc:"G0"}, {code:"L", net:`192.168.${a}.1`, p:32, ifc:"G0"},
+    {code:"C", net:`192.168.${b}.0`, p:24, ifc:"G1"}, {code:"L", net:`192.168.${b}.1`, p:32, ifc:"G1"},
+    {code:"C", net:`172.16.${c}.0`, p:30, ifc:"S0"}, {code:"L", net:`172.16.${c}.1`, p:32, ifc:"S0"},
+    {code:"C", net:`172.16.${d}.0`, p:30, ifc:"S1"}, {code:"L", net:`172.16.${d}.1`, p:32, ifc:"S1"},
+  ];
+  // rotas sobrepostas, como na prova: a mesma rede base com prefixos diferentes
+  const ps = rtPick([[24,23,22],[24,23,22],[24,22,21],[25,24,23]]);
+  const kinds = [["R",n1,"S0"],["O",n2,"S1"],["Sv",n1,"S0"],["Si",null,"S0"],["Si",null,"S1"],["Sv",n2,"S1"],["R",n2,"S1"]];
+  let prev = null;
+  ps.forEach(p => {
+    let kd; do { kd = rtPick(kinds); } while (prev && kd[2] === prev);
+    prev = kd[2];
+    const r = {net:`10.${k}.0.0`, p, ifc:kd[2]};
+    if (kd[0] === "R") Object.assign(r, {code:"R", nh:kd[1], m:rtRnd(1,3), tm:`00:00:${String(rtRnd(5,29)).padStart(2,"0")}`});
+    else if (kd[0] === "O") Object.assign(r, {code:"O", nh:kd[1], m:rtRnd(2,3)*64+1, tm:`00:0${rtRnd(1,9)}:${String(rtRnd(10,59))}`});
+    else if (kd[0] === "Sv") Object.assign(r, {code:"S", nh:kd[1]});
+    else Object.assign(r, {code:"S"});
+    R.push(r);
+  });
+  const def = Math.random() < .7 ? {nh: rtPick([n1,n2])} : null;
+  const T = {routes:R, def, ps, k, a, b, c, d};
+  T.dest = genDest(T);
+  T.ans = null;
+  return T;
+}
+
+function genDest(T){
+  const base = rtN(`10.${T.k}.0.0`), [p1,p2,p3] = T.ps;
+  const inRange = (lo, hi) => rtIp(base + rtRnd(lo, hi));
+  const r = Math.random();
+  if (r < .17) return inRange(1, rtSize(p1)-2);
+  if (r < .34) return inRange(rtSize(p1), rtSize(p2)-1);
+  if (r < .51) return inRange(rtSize(p2), rtSize(p3)-1);
+  if (r < .56) return rtIp(base + rtSize(p3) - 1);
+  if (r < .72) return rtPick([inRange(rtSize(p3), rtSize(p3)*3), `8.8.${rtRnd(4,8)}.${rtRnd(1,254)}`, `200.${rtRnd(1,250)}.${rtRnd(0,255)}.${rtRnd(1,254)}`, `172.20.${rtRnd(0,255)}.${rtRnd(1,254)}`]);
+  if (r < .86) return `192.168.${rtPick([T.a,T.b])}.${rtRnd(2,254)}`;
+  if (r < .93) return rtPick([`192.168.${T.a}.1`, `192.168.${T.b}.1`, `172.16.${T.c}.1`]);
+  return rtPick([`172.16.${T.c}.2`, `172.16.${T.d}.2`]);
+}
+
+// interface de saída: a da rota ou, se só tiver próximo salto, a da rede conectada que contém o salto
+function rtExit(T, r){
+  if (r.ifc && !(r.code === "S" && r.nh)) return r.ifc;
+  const h = rtN(r.nh), c = T.routes.find(x => x.code === "C" && rtHas(x, h));
+  return c ? c.ifc : null;
+}
+
+function rtLines(T){
+  const out = [`R1# show ip route`, `Codes: C - connected, L - local, S - static, R - RIP, O - OSPF`, `       * - candidate default`, ``,
+    T.def ? `Gateway of last resort is ${T.def.nh} to network 0.0.0.0` : `Gateway of last resort is not set`, ``];
+  const L = out.map(t => ({t}));
+  if (T.def) L.push({t:`S*    0.0.0.0/0 [1/0] via ${T.def.nh}`, r:"def"});
+  const major = net => { const o = +net.split(".")[0]; return o < 128 ? [net.split(".")[0]+".0.0.0", 8] : o < 192 ? [net.split(".").slice(0,2).join(".")+".0.0", 16] : [net.split(".").slice(0,3).join(".")+".0", 24]; };
+  const idx = T.routes.map((r,i) => i).sort((i,j) => rtN(T.routes[i].net) - rtN(T.routes[j].net) || T.routes[i].p - T.routes[j].p);
+  const groups = [];
+  idx.forEach(i => { const [m, mp] = major(T.routes[i].net), g = groups.find(x => x.m === m); g ? g.r.push(i) : groups.push({m, mp, r:[i]}); });
+  const body = r => r.code === "C" || r.code === "L" || (r.code === "S" && !r.nh) ? `is directly connected, ${IFN[r.ifc]}`
+    : r.code === "S" ? `[1/0] via ${r.nh}`
+    : `[${r.code === "R" ? 120 : 110}/${r.m}] via ${r.nh}, ${r.tm}, ${IFN[r.ifc]}`;
+  groups.forEach(g => {
+    const masks = new Set(g.r.map(i => T.routes[i].p)).size, sub = g.r.length > 1 || T.routes[g.r[0]].p !== g.mp;
+    if (sub) L.push({t:`      ${g.m}/${g.mp} is ${masks > 1 ? "variably subnetted" : "subnetted"}, ${g.r.length} subnets${masks > 1 ? `, ${masks} masks` : ""}`});
+    g.r.forEach(i => { const r = T.routes[i]; L.push({t:`${(r.code).padEnd(sub ? 9 : 5)}${r.net}/${r.p} ${body(r)}`, r:i}); });
+  });
+  return L;
+}
+
+// a análise: quais rotas contêm o destino e qual ganha
+function rtSolve(T, dest){
+  const d = rtN(dest);
+  const rows = T.routes.map((r,i) => ({i, r, has: rtHas(r, d)})).filter(x => x.r.code !== "L" || x.has);
+  const hits = rows.filter(x => x.has).sort((x,y) => y.r.p - x.r.p);
+  let win, key;
+  if (hits.length) { win = hits[0]; key = win.r.code === "L" ? "local" : "r"+win.i; }
+  else if (T.def) key = "def"; else key = "drop";
+  return {d, rows, hits, win, key};
+}
+
+function rtOptions(T){
+  const o = [];
+  T.routes.forEach((r,i) => {
+    if (r.code === "L") return;
+    const ex = rtExit(T, r);
+    o.push({key:"r"+i, t: r.code === "C" ? `Entrega direta pela ${IFN[r.ifc]} (rede ${r.net}/${r.p})`
+      : r.nh ? `Encaminha para ${r.nh}, pela ${IFN[ex]} (rota ${r.net}/${r.p})`
+      : `Encaminha pela ${IFN[r.ifc]} (rota ${r.net}/${r.p})`, net:rtN(r.net), p:r.p});
+  });
+  o.sort((x,y) => x.net - y.net || x.p - y.p);
+  if (T.def) o.push({key:"def", t:`Usa a rota padrão: para ${T.def.nh}, pela ${IFN[rtExit(T, T.def)]}`});
+  o.push({key:"local", t:"É para o próprio roteador (rota L): não encaminha"});
+  o.push({key:"drop", t:"Descarta o pacote"});
+  return o;
+}
+
+function rtExplain(T, dest){
+  const s = rtSolve(T, dest), D = `<code>${esc(dest)}</code>`;
+  const range = r => r.p === 32 ? r.net : `${r.net} – ${rtIp(rtN(r.net) + rtSize(r.p) - 1)}`;
+  let h = `<div class="tbl-w"><table class="tbl rt-tbl"><thead><tr><th>Rota</th><th>Faixa</th><th>Contém ${esc(dest)}?</th></tr></thead><tbody>`;
+  s.rows.filter(x => x.r.code !== "L" || x.has).forEach(x => {
+    const w = s.win && x.i === s.win.i;
+    h += `<tr class="${w ? "win" : x.has ? "hit" : ""}"><td><b>${x.r.code}</b> ${x.r.net}/${x.r.p}</td><td>${range(x.r)}</td><td>${x.has ? (w ? "✓ <b>ganha</b>" : "✓ mas é menos específica") : "✗"}</td></tr>`;
+  });
+  if (T.def) h += `<tr class="${s.key === "def" ? "win" : "hit"}"><td><b>S*</b> 0.0.0.0/0</td><td>qualquer endereço</td><td>${s.key === "def" ? "✓ <b>ganha</b> (só ela sobrou)" : "✓ mas só é usada se nenhuma outra servir"}</td></tr>`;
+  h += `</tbody></table></div><p class="rt-why">`;
+  if (s.win) {
+    const r = s.win.r, more = s.hits.length > 1 ? `Ele cabe em ${s.hits.length} rotas; ganha a de <b>maior prefixo</b>, /${r.p}, a mais específica. ` : `Só uma rota contém o destino. `;
+    if (r.code === "L") h += more + `É o IP da própria interface ${IFN[r.ifc]}: o pacote é <b>para o roteador</b> (um ping para ele, por exemplo) e não é encaminhado.`;
+    else if (r.code === "C") h += more + `A rede está <b>diretamente conectada</b> à ${IFN[r.ifc]}: o roteador entrega o pacote direto ao host, pelo MAC.`;
+    else if (r.nh && r.code === "S") h += more + `É uma rota estática com <b>próximo salto</b> ${r.nh}. Para saber a saída, o roteador procura ${r.nh} na tabela: ele está na rede conectada da <b>${IFN[rtExit(T,r)]}</b>.`;
+    else if (r.nh) h += more + `Rota aprendida por <b>${r.code === "R" ? "RIP" : "OSPF"}</b>: o pacote vai para ${r.nh}, pela <b>${IFN[r.ifc]}</b>.`;
+    else h += more + `Rota estática apontando a <b>interface de saída</b> ${IFN[r.ifc]} (“is directly connected” aqui não quer dizer rede conectada: é uma rota S configurada com a interface).`;
+  } else if (T.def) h += `Nenhuma rota contém ${D}. Ele vai pela <b>rota padrão</b> (S* 0.0.0.0/0, o “gateway of last resort”) para ${T.def.nh}, pela <b>${IFN[rtExit(T, T.def)]}</b>.`;
+  else h += `Nenhuma rota contém ${D} e <b>não há rota padrão</b> (“Gateway of last resort is not set”): o roteador <b>descarta</b> o pacote e avisa a origem com um ICMP de destino inalcançável.`;
+  return {html: h + `</p>`, s};
+}
+
+function rotasHTML(){
+  if (!S.rq) { S.rq = genRT(); save(); }
+  const {ok, n} = S.rt;
+  return `<div class="sec-head"><div><h2>Tabela de rotas</h2><p>Leia o <code>show ip route</code> e descubra o que acontece com o pacote · ${n ? `${ok}/${n} acertos` : "uma tabela nova a cada rodada"}</p></div></div>
+  <div data-anim>
+    <details class="card rt-how" style="--i:0" ${n < 3 ? "open" : ""}><summary><h3>Como ler uma linha da tabela</h3></summary>
+      <pre class="table rt-anat"><span class="a1">R</span>    <span class="a2">10.1.0.0/24</span> <span class="a3">[120/1]</span> via <span class="a4">192.168.2.1</span>, 00:00:12, <span class="a5">Serial0/0/1</span></pre>
+      <div class="rt-legend"><span><i class="a1"></i><b>Código</b>: C conectada · L o IP da própria interface · S estática · R RIP · O OSPF · S* rota padrão</span>
+      <span><i class="a2"></i><b>Rede de destino</b> e prefixo: dá a faixa que a rota cobre</span>
+      <span><i class="a3"></i><b>[distância administrativa / métrica]</b></span>
+      <span><i class="a4"></i><b>Próximo salto</b>: o roteador vizinho que recebe o pacote</span>
+      <span><i class="a5"></i><b>Interface de saída</b></span></div>
+      <ol class="steps"><li>Para cada rota, calcule a <b>faixa</b>: 10.1.0.0/22 vai de 10.1.0.0 a 10.1.3.255.</li>
+      <li>Entre as que contêm o destino, ganha a de <b>maior prefixo</b> (a mais específica).</li>
+      <li>Nenhuma contém → <b>rota padrão</b> (S*). Sem rota padrão → <b>descarta</b>.</li>
+      <li>Se o destino é o IP de uma interface do próprio roteador, a rota <b>L /32</b> ganha: o pacote é para ele.</li></ol>
+    </details>
+    <div class="card" style="--i:1" id="rtcard">${rtCardHTML()}</div>
+    <div class="card" style="--i:2"><h3>Testar outro destino nesta tabela</h3>
+      <p class="sub">Digite qualquer IP para ver a análise rota por rota.</p>
+      <input class="calc-in" id="rt-free" placeholder="ex.: 10.${S.rq.k}.2.10" autocomplete="off" spellcheck="false" value="${esc(S.rtFree || "")}">
+      <div id="rt-free-out"></div></div>
+  </div>
+  ${rtxHTML()}`;
+}
+
+function rtCardHTML(){
+  const T = S.rq, sol = rtSolve(T, T.dest), done = T.ans != null, right = done && T.ans === sol.key;
+  const lines = rtLines(T).map(l => {
+    const c = done && l.r != null ? ((sol.key === "r"+l.r || (sol.key === "local" && sol.win && sol.win.i === l.r) || (sol.key === "def" && l.r === "def")) ? "ln win" : (sol.hits.some(x => x.i === l.r) || (l.r === "def")) ? "ln hit" : "ln") : "ln";
+    return `<span class="${c}">${esc(l.t)}</span>`;
+  }).join("\n");
+  let h = `<h3>Um pacote com destino <code class="rt-dest">${esc(T.dest)}</code> chega ao R1. O que o roteador faz?</h3>
+    <pre class="table rt-pre">${lines}</pre><div class="opts ${done ? "locked" : ""}" role="radiogroup" aria-label="O que o roteador faz">`;
+  rtOptions(T).forEach((o,j) => {
+    let c = "opt", ic = "";
+    if (done && o.key === sol.key) { c += " right"; ic = ICO_OK; }
+    else if (done && o.key === T.ans) { c += " wrong"; ic = ICO_BAD; }
+    h += `<label class="${c}"><input type="radio" name="rtq" value="${o.key}" data-rt="${o.key}" ${done ? "disabled" : ""} ${T.ans === o.key ? "checked" : ""}>
+      <span class="dot">${ic}</span><span class="l">${"abcdefghijk"[j]}</span><span>${esc(o.t)}</span></label>`;
+  });
+  h += `</div>`;
+  if (done) h += `<div class="fb"><strong class="${right ? "v-ok" : "v-bad"}">${right ? "Correto." : "Não foi dessa vez."}</strong>${rtExplain(T, T.dest).html}</div>
+    <div class="acts-row"><button class="btn" type="button" id="rt-new">Nova tabela →</button><button class="btn ghost" type="button" id="rt-again">Outro destino nesta tabela</button></div>`;
+  return h;
+}
+
+function rtAnswer(key){
+  const T = S.rq; if (T.ans != null) return;
+  T.ans = key; const ok = key === rtSolve(T, T.dest).key;
+  S.rt.n++; if (ok) S.rt.ok++; save();
+  const c = $("#rtcard"); c.innerHTML = rtCardHTML();
+  c.classList.remove("just-ok","just-bad"); void c.offsetWidth; c.classList.add(ok ? "just-ok" : "just-bad");
+  NET.burst(ok ? "ok" : "bad", c);
+  renderTabs(); renderStat();
+  const p = document.querySelector(".sec-head p"); if (p) p.innerHTML = `Leia o <code>show ip route</code> e descubra o que acontece com o pacote · ${S.rt.ok}/${S.rt.n} acertos`;
+}
+
+function rtFreeRender(){
+  const el = $("#rt-free-out"); if (!el) return;
+  const v = (S.rtFree || "").trim();
+  if (!v) { el.innerHTML = ""; return; }
+  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(v) || v.split(".").some(x => +x > 255)) { el.innerHTML = `<p class="calc-err">Digite um IP completo, como 10.1.2.3.</p>`; return; }
+  el.innerHTML = rtExplain(S.rq, v).html;
+}
+
+/* exercícios de tabela de rotas que já existem nas outras abas (as respostas são as mesmas de lá) */
+const RT_EX = [
+  {t:"Para onde vai o pacote", d:"Lendo a tabela e o IP de destino, como no treino acima.",
+   q:[["pv1-prova",33],["pv1-sim",32],["pv1-sim",33],["pv1-sim",34],["rot",1],["rot",4],["rot",6],["pv1-lista",28]]},
+  {t:"Lendo a tabela: códigos e comandos", d:"O que cada letra quer dizer e qual rota entra na tabela.",
+   q:[["pv1-prova",37],["pv1-sim",30],["pv1-rel",10],["pv1-rel",11]]},
+  {t:"Rota padrão, sem rota e rota estática", d:"O que acontece quando nenhuma rota serve, e como se configura uma rota.",
+   q:[["rot",7],["pv1-lista",27],["pv1-lista",23],["pv1-prova",34],["pv1-prova",39],["pv1-prova",35],["pv1-lista",32],["pv1-rel",9]]},
+  {t:"Interfaces e redes conectadas", d:"Interpretar a configuração do roteador: qual rede está em qual interface (a última questão da PV1).",
+   q:[["pv1-sim",37],["pv1-sim",38],["pv1-sim",39],["pv1-sim",40]]},
+];
+const RT_SRC = {"rot":"Por assunto · Roteamento", "pv1-sim":"Simulado PV1", "pv1-prova":"Prova anterior", "pv1-lista":"Lista PV1", "pv1-rel":"Relatório 5"};
+const rtSrc = (T, i) => `${RT_SRC[T.id]} · questão ${i+1}`;
+function rtxStats(){
+  let n = 0, ans = 0, ok = 0;
+  RT_EX.forEach(g => g.q.forEach(([t,num]) => { const T = TABS[t], i = num-1, k = t+"-"+i; n++; if (k in S.ans) { ans++; if (S.ans[k] === T.qs[i].a) ok++; } }));
+  return {n, ans, ok};
+}
+function rtxCount(){
+  const el = $("#rtx-count"); if (!el) return;
+  const s = rtxStats(); el.textContent = `${s.n} questões das provas, das listas e do simulado · ${s.ans} ${s.ans===1?"respondida":"respondidas"} · ${s.ok} ${s.ok===1?"acerto":"acertos"}`;
+}
+function rtxHTML(){
+  const s = rtxStats();
+  let h = `<div class="sec-head rtx-head"><div><h2>Exercícios de tabela de rotas</h2><p id="rtx-count">${s.n} questões das provas, das listas e do simulado · ${s.ans} ${s.ans===1?"respondida":"respondidas"} · ${s.ok} ${s.ok===1?"acerto":"acertos"}</p></div></div>
+    <p class="intro">São as mesmas questões das outras abas, reunidas aqui: o que você responder aqui aparece respondido lá também, e vice-versa. A correção é sempre imediata.</p>`;
+  RT_EX.forEach((g, gi) => {
+    h += `<h3 class="rtx-g"><span>${gi+1}</span>${g.t}</h3><p class="rtx-d">${g.d}</p><div class="list" data-anim>`;
+    g.q.forEach(([t,num], n) => { const T = TABS[t]; h += cardHTML(T, num-1, n, rtSrc(T, num-1)); });
+    h += `</div>`;
+  });
+  return h;
+}
+
 /* ---------- fundo animado: uma rede com pacotes trafegando ---------- */
 const NET = (() => {
   const cv = document.getElementById("net"), cx = cv.getContext("2d");
@@ -1217,8 +1746,10 @@ const NET = (() => {
 const OLD_IDS = ["ip","rot","osi","eth","app","tcp"];
 PARTS.forEach((P,i) => { P.id = OLD_IDS[i]; P.kind = "quiz"; P.num = i+1; });
 const GROUPS = [
-  {id:"assunto", t:"Por assunto", tabs:PARTS},
-  {id:"pv1", t:"Prova PV1", badge:"novo", tabs:[PV1_GUIA, PV1_TREINO, PV1_SIM, PV1_PROVA, PV1_LISTA, PV1_REL]},
+  {id:"resumo", t:"Resumo", s:"Resumo", tabs:[PV1_RESUMO]},
+  {id:"rotas", t:"Tabela de rotas", s:"Rotas", badge:"novo", tabs:[ROTAS]},
+  {id:"assunto", t:"Por assunto", s:"Assuntos", tabs:PARTS},
+  {id:"pv1", t:"Prova PV1", s:"PV1", tabs:[PV1_GUIA, PV1_TREINO, PV1_SIM, PV1_PROVA, PV1_LISTA, PV1_REL]},
 ];
 const TABS = {};
 GROUPS.forEach(G => G.tabs.forEach(T => { TABS[T.id] = T; T.group = G.id; }));
@@ -1226,7 +1757,7 @@ const QUIZ_TOTAL = Object.values(TABS).reduce((a,T) => a + (T.qs ? T.qs.length :
 
 /* ---------- estado ---------- */
 const KEY = "simulado-redes-v2", OLD_KEY = "simulado-redes-v1";
-let S = { group:"pv1", tab:{assunto:"ip", pv1:"pv1-guia"}, mode:"estudo", ans:{}, checked:{}, filter:"todas", study:{}, train:{ok:0,n:0}, tq:null, calc:"" };
+let S = { group:"pv1", tab:{assunto:"ip", pv1:"pv1-guia"}, mode:"estudo", ans:{}, checked:{}, filter:"todas", study:{}, train:{ok:0,n:0}, tq:null, calc:"", rt:{ok:0,n:0}, rq:null, rtFree:"" };
 (function load(){
   try { const v = JSON.parse(localStorage.getItem(KEY)); if (v) { S = Object.assign(S, v); return; } } catch(e){}
   try { // migra o progresso da versão anterior (partes numeradas 0–5)
@@ -1237,8 +1768,8 @@ let S = { group:"pv1", tab:{assunto:"ip", pv1:"pv1-guia"}, mode:"estudo", ans:{}
     if (OLD_IDS[o.part]) S.tab.assunto = OLD_IDS[o.part];
   } catch(e){}
 })();
-if (!TABS[S.tab.assunto]) S.tab.assunto = "ip";
-if (!TABS[S.tab.pv1]) S.tab.pv1 = "pv1-guia";
+GROUPS.forEach(G => { if (!TABS[S.tab[G.id]] || TABS[S.tab[G.id]].group !== G.id) S.tab[G.id] = G.tabs[0].id; });
+S.rt ||= {ok:0, n:0};
 if (!GROUPS.some(G => G.id === S.group)) S.group = "pv1";
 (function fromHash(){ const h = decodeURIComponent(location.hash.slice(1)); if (TABS[h]) { S.group = TABS[h].group; S.tab[S.group] = h; } })();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
@@ -1259,7 +1790,8 @@ function flash(el){ el.classList.remove("flash"); void el.offsetWidth; el.classL
 function headerH(){ const h = $("header.top"); return getComputedStyle(h).position === "sticky" ? h.offsetHeight : 0; }
 
 /* ---------- placar ---------- */
-function revealed(T,i){ return S.mode === "estudo" ? (T.id+"-"+i) in S.ans : !!S.checked[T.id]; }
+const studyMode = () => S.mode === "estudo" || cur().kind === "routes";
+function revealed(T,i){ return studyMode() ? (T.id+"-"+i) in S.ans : !!S.checked[T.id]; }
 function status(T,i){
   const k = T.id+"-"+i; if (!(k in S.ans)) return "none";
   if (!revealed(T,i)) return "pending";
@@ -1275,9 +1807,17 @@ function tabStats(T){
     const s = stats(T);
     return {s, parts:[[s.ok/s.n,"ok"],[s.bad/s.n,"bad"],[s.pend/s.n,"warn"]], prog: s.done ? `${s.ok}/${s.n} acertos` : `${s.ans}/${s.n} respondidas`};
   }
+  if (T.kind === "summary") {
+    const d = SUMMARY.filter(x => S.study["sum-"+x.id]).length;
+    return {d, parts:[[d/SUMMARY.length,"acc"]], prog:`${d}/${SUMMARY.length} lidas`};
+  }
   if (T.kind === "guide") {
     const d = TOPICS.filter(t => S.study[t.id]).length;
     return {d, parts:[[d/TOPICS.length,"acc"]], prog:`${d}/${TOPICS.length} estudados`};
+  }
+  if (T.kind === "routes") {
+    const {ok, n} = S.rt;
+    return {ok, n, parts: n ? [[ok/n,"ok"],[(n-ok)/n,"bad"]] : [], prog: n ? `${ok}/${n} acertos` : "tabelas aleatórias"};
   }
   const {ok, n} = S.train;
   return {ok, n, parts: n ? [[ok/n,"ok"],[(n-ok)/n,"bad"]] : [], prog: n ? `${ok}/${n} acertos` : "contas aleatórias"};
@@ -1298,8 +1838,12 @@ function renderStat(){
     main = `<b>${s.ok}</b>/${s.n}<span class="w"> acertos</span>`;
     sub = `${s.ans} de ${s.n} respondidas` + (T.grade && s.done ? ` · nota ${fmt(s.ok*T.grade)}` : "") + (s.pend ? ` · ${s.pend} a corrigir` : "");
     pct = s.done ? Math.round(100*s.ok/s.done) + "%" : "–";
+  } else if (T.kind === "summary") {
+    main = `<b>${st.d}</b>/${SUMMARY.length}<span class="w"> seções</span>`; sub = "marcadas como lidas"; pct = Math.round(100*st.d/SUMMARY.length) + "%";
   } else if (T.kind === "guide") {
     main = `<b>${st.d}</b>/${TOPICS.length}<span class="w"> tópicos</span>`; sub = "marcados como estudados"; pct = Math.round(100*st.d/TOPICS.length) + "%";
+  } else if (T.kind === "routes") {
+    main = `<b>${st.ok}</b>/${st.n}<span class="w"> acertos</span>`; sub = "tabelas analisadas"; pct = st.n ? Math.round(100*st.ok/st.n) + "%" : "–";
   } else {
     main = `<b>${st.ok}</b>/${st.n}<span class="w"> acertos</span>`; sub = "contas conferidas"; pct = st.n ? Math.round(100*st.ok/st.n) + "%" : "–";
   }
@@ -1310,16 +1854,13 @@ function renderStat(){
 function renderNav(){
   $("#groups").innerHTML = GROUPS.map(G => {
     const n = G.tabs.reduce((a,T) => a + (T.qs ? T.qs.length : 0), 0);
-    return `<button class="grp" type="button" data-g="${G.id}" aria-pressed="${G.id===S.group}">${G.t}${G.badge ? `<i class="new">${G.badge}</i>` : `<span class="gn">${n}</span>`}</button>`;
+    return `<button class="grp" type="button" data-g="${G.id}" aria-pressed="${G.id===S.group}" title="${G.t}"><span class="gl">${G.t}</span><span class="gs">${G.s}</span>${G.badge ? `<i class="new">${G.badge}</i>` : n ? `<span class="gn">${n}</span>` : ""}</button>`;
   }).join("");
   renderTabs();
-  const T = cur();
-  $("#mode").hidden = T.kind !== "quiz";
-  $("#m-estudo").setAttribute("aria-pressed", S.mode==="estudo");
-  $("#m-prova").setAttribute("aria-pressed", S.mode==="prova");
 }
 function renderTabs(){
   const G = GROUPS.find(g => g.id === S.group);
+  $("#tabs").hidden = G.tabs.length < 2;
   $("#tabs").innerHTML = G.tabs.map(T => {
     const st = tabStats(T);
     return `<button class="tab" role="tab" type="button" data-t="${T.id}" aria-selected="${T.id===S.tab[S.group]}">${T.t}<span class="meta"><span class="layer">${T.layer}</span> · ${st.prog}</span><span class="bar">${st.parts.map(([f,c]) => `<i class="b-${c}" style="width:${(f*100).toFixed(1)}%"></i>`).join("")}</span></button>`;
@@ -1335,9 +1876,10 @@ function render(anim = true){
 }
 function renderMain(anim = true){
   const T = cur(), m = $("#main");
-  m.innerHTML = T.kind === "guide" ? guideHTML() : T.kind === "train" ? trainHTML() : quizHTML(T);
+  m.innerHTML = T.kind === "routes" ? rotasHTML() : T.kind === "summary" ? summaryHTML() : T.kind === "guide" ? guideHTML() : T.kind === "train" ? trainHTML() : quizHTML(T);
   if (anim) m.querySelectorAll("[data-anim]").forEach(el => el.classList.add("enter"));
   if (T.kind === "train") calcRender();
+  if (T.kind === "routes") rtFreeRender();
   updateFab();
 }
 function go(id, top = true){
@@ -1353,8 +1895,10 @@ function quizHTML(T){
   const head = T.group === "assunto" ? `Parte ${T.num} · ${T.t}` : T.t;
   const meta = `${T.qs.length} questões` + (T.pts ? ` · ${T.pts} pontos cada na prova original` : "") + (T.grade ? ` · ${fmt(T.grade)} pontos cada` : "");
   let h = `<div class="sec-head"><div><h2>${head}</h2><p>${meta}</p></div>
+    <div class="sec-ctl"><div class="mode" role="group" aria-label="Modo">
+      <button id="m-estudo" type="button" aria-pressed="${S.mode==="estudo"}">Correção imediata</button><button id="m-prova" type="button" aria-pressed="${S.mode==="prova"}">Modo prova</button></div>
     <div class="filters" role="group" aria-label="Filtro">${[["todas","Todas"],["pendentes","Sem resposta"],["erradas","Erradas"]].map(([k,t]) =>
-      `<button class="chip" type="button" data-f="${k}" aria-pressed="${flt===k}">${t}</button>`).join("")}</div></div>`;
+      `<button class="chip" type="button" data-f="${k}" aria-pressed="${flt===k}">${t}</button>`).join("")}</div></div></div>`;
   if (T.intro) h += `<p class="intro">${T.intro}</p>`;
   h += `<div class="list" data-anim>`;
   if (!items.length) h += `<p class="empty">${flt==="erradas" ? "Nenhuma questão errada aqui." : "Todas as questões desta aba foram respondidas."}</p>`;
@@ -1362,11 +1906,11 @@ function quizHTML(T){
   return h + `</div><div id="foot">${footHTML(T)}</div>`;
 }
 
-function cardHTML(T, i, n = 0){
+function cardHTML(T, i, n = 0, src = ""){
   const Q = T.qs[i], k = T.id+"-"+i, chosen = S.ans[k], s = status(T,i), rev = revealed(T,i) && chosen !== undefined;
-  const locked = S.mode === "estudo" ? chosen !== undefined : !!S.checked[T.id];
+  const locked = studyMode() ? chosen !== undefined : !!S.checked[T.id];
   const cls = rev ? s : (chosen !== undefined ? "pending" : "");
-  const tags = (Q.tag ? `<span class="hot${Q.tag==="parecida" ? " alt" : ""}">${Q.tag==="igual" ? "Caiu igual na PV1" : "Caiu parecida na PV1"}</span>` : "")
+  const tags = (src ? `<span class="src">${src}</span>` : "") + (Q.tag ? `<span class="hot${Q.tag==="parecida" ? " alt" : ""}">${Q.tag==="igual" ? "Caiu igual na PV1" : "Caiu parecida na PV1"}</span>` : "")
              + (Q.flag ? `<span class="flag">${Q.flag}</span>` : "");
   let h = `<article class="q ${cls} ${locked ? "locked" : ""}" id="q-${k}" data-s="${s}" style="--i:${Math.min(n,12)}">
     <div class="q-top"><span class="num">${String(i+1).padStart(2,"0")}</span><div>
@@ -1407,21 +1951,23 @@ function footHTML(T){
 }
 
 function answer(k, i, v){
-  const T = cur(); S.ans[k] = v; save();
+  const T = TABS[k.slice(0, k.lastIndexOf("-"))], inRt = cur().kind === "routes";
+  S.ans[k] = v; save();
   const s = status(T, i), tmp = document.createElement("div");
-  tmp.innerHTML = cardHTML(T, i);
+  tmp.innerHTML = cardHTML(T, i, 0, inRt ? rtSrc(T, i) : "");
   const nu = tmp.firstElementChild;
   nu.classList.add("settled");
   if (s === "ok") nu.classList.add("just-ok"); else if (s === "bad") nu.classList.add("just-bad");
   document.getElementById("q-"+k).replaceWith(nu);
   if (s === "ok" || s === "bad") NET.burst(s, nu);
   if (s === "pending") document.getElementById(`r${k}-${v}`)?.focus({preventScroll:true});
-  $("#foot").innerHTML = footHTML(T);
+  if ($("#foot")) $("#foot").innerHTML = footHTML(T);
+  if (inRt) rtxCount();
   renderTabs(); renderStat(); updateFab();
 }
 
 function updateFab(){
-  const has = cur().kind === "quiz" && document.querySelector('.q[data-s="none"]');
+  const has = (cur().kind === "quiz" || cur().kind === "routes") && document.querySelector('.q[data-s="none"]');
   $("#fab").classList.toggle("off", !has);
 }
 function nextUnanswered(){
@@ -1455,10 +2001,26 @@ function toggleStudy(id){
   S.study[id] = !S.study[id]; save();
   const b = document.querySelector(`[data-study="${id}"]`);
   b.setAttribute("aria-pressed", S.study[id]);
-  $("#tp-"+id).classList.toggle("done", S.study[id]);
-  const d = TOPICS.filter(t => S.study[t.id]).length;
-  $("#gd-count").textContent = `Relato de quem acabou de fazer a prova · ${d}/${TOPICS.length} tópicos estudados`;
+  document.getElementById("tp-"+id)?.classList.toggle("done", S.study[id]);
+  const d = TOPICS.filter(t => S.study[t.id]).length, gd = $("#gd-count");
+  if (gd) gd.textContent = `Relato de quem acabou de fazer a prova · ${d}/${TOPICS.length} tópicos estudados`;
+  const sd = SUMMARY.filter(x => S.study["sum-"+x.id]).length, sc = $("#sm-count");
+  if (sc) sc.textContent = `Toda a matéria da PV1, em ${SUMMARY.length} seções · ${sd}/${SUMMARY.length} lidas`;
+  document.querySelector(`[data-sec="${id.slice(4)}"]`)?.classList.toggle("read", !!S.study[id]);
   renderTabs(); renderStat();
+}
+
+/* ---------- resumo ---------- */
+function summaryHTML(){
+  const d = SUMMARY.filter(x => S.study["sum-"+x.id]).length;
+  return `<div class="sec-head"><div><h2>Resumo da matéria</h2><p id="sm-count">Toda a matéria da PV1, em ${SUMMARY.length} seções · ${d}/${SUMMARY.length} lidas</p></div></div>
+  <div data-anim><nav class="sum-nav" style="--i:0" aria-label="Seções do resumo">${SUMMARY.map((x,j) =>
+    `<button class="sum-chip${S.study["sum-"+x.id] ? " read" : ""}" type="button" data-sec="${x.id}"><i>${j+1}</i>${x.t}</button>`).join("")}</nav></div>
+  <div class="topics" data-anim>${SUMMARY.map((x,j) => `<section class="topic sum${S.study["sum-"+x.id] ? " done" : ""}" style="--i:${Math.min(j+1,8)}" id="tp-sum-${x.id}">
+    <div class="topic-h"><div><h3><span class="sn">${j+1}</span>${x.t}</h3>${x.hot ? `<span class="hot">${x.hot}</span>` : ""}</div>
+    <button class="studied" type="button" data-study="sum-${x.id}" aria-pressed="${!!S.study["sum-"+x.id]}"><span class="box">${CHECK}</span>Li</button></div>
+    ${x.b}</section>`).join("")}</div>
+  <p class="note">Resumo montado a partir das provas, da lista, dos relatórios e do relato da PV1.</p>`;
 }
 
 /* ---------- treino de contas ---------- */
@@ -1562,10 +2124,12 @@ function calcRender(){
 /* ---------- eventos ---------- */
 document.addEventListener("change", e => {
   const t = e.target; if (t.dataset && t.dataset.k) answer(t.dataset.k, +t.dataset.i, +t.value);
+  else if (t.dataset && t.dataset.rt) rtAnswer(t.dataset.rt);
 });
 document.addEventListener("input", e => {
   const t = e.target;
   if (t.id === "calc") { S.calc = t.value; save(); calcRender(); }
+  else if (t.id === "rt-free") { S.rtFree = t.value; save(); rtFreeRender(); }
   else if (t.dataset && t.dataset.tf && S.tq) { (S.tq.vals ||= {})[t.dataset.tf] = t.value; save(); }
 });
 document.addEventListener("keydown", e => {
@@ -1585,6 +2149,8 @@ document.addEventListener("click", e => {
     return;
   }
   const f = e.target.closest("[data-f]"); if (f) { S.filter = f.dataset.f; save(); renderMain(); return; }
+  const sc = e.target.closest("[data-sec]");
+  if (sc) { const el = document.getElementById("tp-sum-"+sc.dataset.sec); if (el) { window.scrollTo({top: el.getBoundingClientRect().top + scrollY - headerH() - 14, behavior: reduced() ? "auto" : "smooth"}); flash(el); } return; }
   const st = e.target.closest("[data-study]"); if (st) { toggleStudy(st.dataset.study); return; }
   if (e.target.closest("[data-cancel]")) { confirming = null; $("#confirm-all").hidden = true; const c = $("#confirm-part"); if (c) c.hidden = true; return; }
   const id = e.target.closest("button")?.id;
@@ -1599,12 +2165,18 @@ document.addEventListener("click", e => {
     confirming = confirming === "part" ? null : "part"; const c = $("#confirm-part"); c.hidden = confirming !== "part";
     if (confirming) { c.scrollIntoView({block:"nearest"}); $("#do-reset").focus(); } return;
   }
-  if (id === "do-reset-all") { confirming = null; Object.assign(S, {ans:{}, checked:{}, study:{}, train:{ok:0,n:0}, tq:null, filter:"todas"}); save(); render(); window.scrollTo(0,0); return; }
+  if (id === "do-reset-all") { confirming = null; Object.assign(S, {ans:{}, checked:{}, study:{}, train:{ok:0,n:0}, tq:null, rt:{ok:0,n:0}, rq:null, rtFree:"", filter:"todas"}); save(); render(); window.scrollTo(0,0); return; }
   if (id === "do-reset") {
     const T = cur(); confirming = null; T.qs.forEach((_,i) => delete S.ans[T.id+"-"+i]); delete S.checked[T.id]; S.filter = "todas";
     save(); render(); window.scrollTo(0,0); return;
   }
   if (id === "t-check") { checkTQ(); return; }
+  if (id === "rt-new" || id === "rt-again") {
+    if (id === "rt-new") S.rq = genRT(); else { let d; do { d = genDest(S.rq); } while (d === S.rq.dest); S.rq.dest = d; S.rq.ans = null; }
+    save(); const c = $("#rtcard"); c.innerHTML = rtCardHTML(); c.classList.remove("just-ok","just-bad");
+    c.scrollIntoView({block:"nearest", behavior: reduced() ? "auto" : "smooth"});
+    const f = $("#rt-free"); if (f) f.placeholder = `ex.: 10.${S.rq.k}.2.10`; rtFreeRender(); return;
+  }
   if (id === "t-new" || id === "t-skip") { S.tq = newTQ(); save(); paintTQ(false); $("#tcard input")?.focus(); return; }
   if (id === "fab") { nextUnanswered(); return; }
 });

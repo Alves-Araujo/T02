@@ -14,7 +14,7 @@
   </a>
 </p>
 
-> **Do bit ao HTTP, em 252 questões.**
+> **Do bit ao HTTP, em 252 questões e um resumo.**
 
 Simulado de estudo para **Redes de Dados I** (T02/T202 · Inatel), montado a partir
 das questões das provas, da lista de exercícios e do relato de quem fez a PV1. Cada
@@ -26,7 +26,17 @@ JavaScript puro, servido pelo GitHub Pages.
 
 ## O que tem dentro
 
-O site tem duas seções: **Prova PV1**, que abre por padrão, e **Por assunto**.
+O site tem quatro seções no topo: **Resumo**, **Tabela de rotas**, **Por assunto** e **Prova PV1**, que abre por padrão.
+
+### Resumo
+
+Toda a matéria em 10 seções: modelos OSI e TCP/IP, endereçamento IPv4 (tabela de máscaras e o passo a passo de rede/broadcast), gateway, roteamento, comandos do roteador e do switch, Ethernet, VLAN, TCP e UDP, camada de aplicação e dicas para a hora da prova. Tem índice clicável e um botão “Li” em cada seção.
+
+### Tabela de rotas
+
+Treino de leitura do `show ip route`: cada rodada gera uma tabela nova (C, L, S, R, O, rota padrão e rotas sobrepostas /22, /23, /24, como na prova) e um IP de destino. Você escolhe o que o roteador faz (sai por qual interface, usa a rota padrão, descarta ou é para o próprio roteador) e vê a análise rota por rota: a faixa de cada uma, se contém o destino e qual ganha pelo maior prefixo, com a linha vencedora destacada na tabela. Dá para testar qualquer outro destino na mesma tabela.
+
+Embaixo do treino ficam os **24 exercícios de tabela de rotas** que já existem nas provas, nas listas, no simulado e no Relatório 5, em quatro blocos: para onde vai o pacote, lendo a tabela, rota padrão e rota estática, e interfaces e redes conectadas. São as mesmas questões das outras abas, então a resposta dada num lugar aparece no outro.
 
 ### Prova PV1
 
@@ -65,7 +75,7 @@ com o pacote em cada caso.
 | Recurso | O que faz |
 | --- | --- |
 | **✅&nbsp;Correção&nbsp;imediata** | Marcou, corrigiu: a alternativa certa fica verde, a errada vermelha, e o comentário aparece logo abaixo. A resposta trava para não dar para "chutar de novo". |
-| **📝&nbsp;Modo&nbsp;prova** | Responde a parte inteira sem ver nada e só corrige no fim, com o botão **Corrigir parte**. Dá para trocar de modo a qualquer momento. |
+| **📝&nbsp;Modo&nbsp;prova** | Responde a parte inteira sem ver nada e só corrige no fim, com o botão **Corrigir parte**. O seletor de modo fica no topo de cada lista de questões, e dá para trocar a qualquer momento. |
 | **💬&nbsp;Comentários** | Toda questão tem explicação. As de conta (máscara, broadcast, binário) mostram a conta passo a passo. |
 | **🔎&nbsp;Filtros** | **Todas**, **Sem resposta** ou **Erradas**. O filtro de erradas é o jeito rápido de revisar antes da prova. |
 | **⚠️&nbsp;Questões&nbsp;marcadas** | Cinco questões têm um selo amarelo: redação ambígua, foto cortada ou pegadinha. O comentário diz qual é a resposta mais provável e qual seria a alternativa se o professor ler de outro jeito. |
