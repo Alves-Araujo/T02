@@ -152,6 +152,7 @@ pre.table{margin:0;background:var(--code-bg);color:var(--code-ink);font:12.5px/1
 .dg-v20 .dg-n,.dg-v20 .dg-i{stroke:var(--hot)}
 .dg-hl .dg-n{fill:var(--accent-soft)}
 .hdr{min-width:320px;font-size:12px}
+.hdr.wide{min-width:560px}
 .hdr-row{display:grid;grid-template-columns:repeat(32,1fr)}
 .hdr-ruler{display:grid;grid-template-columns:repeat(32,1fr);font:500 10px var(--mono);color:var(--muted);margin-bottom:3px}
 .hdr-ruler span:nth-child(2n){text-align:right}
@@ -401,6 +402,19 @@ details.how summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent)
   #reset-all{padding:6px 9px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+/* PV2: questões abertas e treino */
+.openq{margin:10px 0 4px;display:grid;gap:10px}
+.open-in{width:100%;min-height:92px;resize:vertical;font:14px/1.5 var(--sans);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.open-in:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.openq .btn{justify-self:start}
+.model{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:10px 14px;font-size:14px;overflow-x:auto}
+.model>strong{display:block;font-family:var(--display);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.model p{margin:6px 0}
+.model .tbl-w{margin:8px 0}
+.self{margin:0;font-size:13px;color:var(--muted)}
+.t2p{margin:2px 0 12px;line-height:1.6}
+.t2p code{font-size:13px}
+#t2card .steps .tbl-w{margin:6px 0 2px}
 </style>
 </head>
 <body>
@@ -1651,17 +1665,21 @@ function resetUnits(){
     const s = stats(T), any = s.ans > 0 || !!S.checked[T.id];
     return {id:"q:"+T.id, tab:T.id, label: T.group === "assunto" ? `Parte ${T.num} · ${T.t}` : T.t,
       info: any ? `${s.ans}/${s.n} respondidas` : "nada respondido", has: any,
-      apply: () => { T.qs.forEach((_,i) => delete S.ans[T.id+"-"+i]); delete S.checked[T.id]; }};
+      apply: () => { T.qs.forEach((_,i) => { const k = T.id+"-"+i; delete S.ans[k]; delete S.shown[k]; delete S.txt[k]; }); delete S.checked[T.id]; }};
   };
-  const sumD = SUMMARY.filter(x => S.study["sum-"+x.id]).length;
+  const sumU = T => { const d = T.sections.filter(x => S.study[T.pre+x.id]).length;
+    return {id:"sum:"+T.id, tab:T.id, short:`${T.t} (seções lidas)`, label:`${T.t} · seções lidas`, info:`${d}/${T.sections.length} lidas`, has: d > 0,
+      apply: () => T.sections.forEach(x => delete S.study[T.pre+x.id])}; };
+  const guiaU = T => { const d = T.topics.filter(t => S.study[t.id]).length;
+    return {id:"guia:"+T.id, tab:T.id, short:`${T.title} (marcados)`, label:`${T.t} · tópicos marcados`, info:`${d}/${T.topics.length} marcados`, has: d > 0,
+      apply: () => T.topics.forEach(t => delete S.study[t.id])}; };
+  const t2Any = S.train2.n > 0 || !!S.t2?.res || !!(S.t2 && Object.values(S.t2.vals || {}).some(Boolean));
   const topD = TOPICS.filter(t => S.study[t.id]).length;
   const rx = [], rxTabs = {};
   RT_EX.forEach(g => g.q.forEach(([t,n]) => { const k = t+"-"+(n-1); if (k in S.ans) { rx.push(k); rxTabs[t] = (rxTabs[t] || 0) + 1; } }));
   const rtAny = S.rt.n > 0 || (S.rq && S.rq.ans != null) || !!S.rtFree;
   return [
-    {g:"resumo", t:"Resumo", items:[
-      {id:"sum", tab:"pv1-resumo", short:"Resumo (seções lidas)", label:"Seções marcadas como lidas", info:`${sumD}/${SUMMARY.length} lidas`, has: sumD > 0,
-       apply: () => SUMMARY.forEach(x => delete S.study["sum-"+x.id])}]},
+    {g:"resumo", t:"Resumo", items:[sumU(PV1_RESUMO), sumU(PV2_RESUMO)]},
     {g:"rotas", t:"Tabela de rotas", items:[
       {id:"rt", tab:"rotas", short:"treino da tabela de rotas", label:"Treino (placar e tabela atual)", info: S.rt.n ? `${S.rt.ok}/${S.rt.n} acertos` : rtAny ? "tabela em andamento" : "nada feito", has: rtAny,
        apply: () => { S.rt = {ok:0, n:0}; S.rq = null; S.rtFree = ""; }},
@@ -1676,6 +1694,11 @@ function resetUnits(){
        has: S.train.n > 0 || !!S.tq?.res || !!S.calc || !!(S.tq && Object.values(S.tq.vals || {}).some(Boolean)),
        apply: () => { S.train = {ok:0, n:0}; S.tq = null; S.calc = ""; }},
       ...[PV1_SIM, PV1_PROVA, PV1_LISTA, PV1_REL].map(quiz)]},
+    {g:"pv2", t:"Prova PV2", items:[
+      guiaU(PV2_GUIA),
+      {id:"treino2", tab:"pv2-treino", short:"Treino de contas da PV2", label:"Treino de contas", info: S.train2.n ? `${S.train2.ok}/${S.train2.n} acertos` : t2Any ? "em andamento" : "nada feito",
+       has: t2Any, apply: () => { S.train2 = {ok:0, n:0}; S.t2 = null; }},
+      ...[PV2_SIM, PV2_LISTA, PV2_SUB, PV2_ATIV].map(quiz), guiaU(PV2_LAB), quiz(PV2_LABQ)]},
   ];
 }
 
@@ -1872,14 +1895,846 @@ const NET = (() => {
   return {burst};
 })();
 
+
+/* =====================================================================
+   PV2: sub-redes, VLSM, IPv4/ICMP, IPv6/ICMPv6, cibersegurança e lab
+   ===================================================================== */
+
+/* ---------- PV2: figuras ---------- */
+const hdrW = (rows, cap) => hdr(rows, cap).replace('<div class="hdr">', '<div class="hdr wide">');  // cabeçalho IPv4: rola de lado no celular
+const FIG_HDR_L = hdrW([[["Versão",4,"4"],["HLEN",4,"5"],["Tipo de serviço",8,"50"],["Comprimento total",16,"3500"]],
+  [["Identificação",16,"1958"],["Flags",3,"X 0 0"],["Deslocamento do fragmento",13,"0"]],
+  [["TTL",8,"250"],["Protocolo",8,"XX"],["Checksum do cabeçalho",16,"XX"]],
+  [["Endereço IP de origem",32,"190.18.2.58"]],[["Endereço IP de destino",32,"200.10.5.63"]]],
+  "Flags, da esquerda para a direita: bit reservado · DF (não fragmentar) · MF (mais fragmentos)");
+const FIG_HDR_A9 = hdrW([[["Versão",4,"4"],["HLEN",4,"6"],["Tipo de serviço",8,"50"],["Comprimento total",16,"1044"]],
+  [["Identificação",16,"1110"],["Flags",3,"X 1 0"],["Deslocamento do fragmento",13,"92"]],
+  [["TTL",8,"230"],["Protocolo",8,"XX"],["Checksum do cabeçalho",16,"XX"]],
+  [["Endereço IP de origem",32,"200.20.2.2"]],[["Endereço IP de destino",32,"200.10.4.10"]]],
+  "Flags: bit reservado · DF · MF");
+const FIG_HDR_SA = hdrW([[["Versão",4,"4"],["HLEN",4,"5"],["Tipo de serviço",8,"0"],["Comprimento total",16,"1500"]],
+  [["Identificação",16,"7201"],["Flags",3,"0 0 1"],["Deslocamento do fragmento",13,"185"]],
+  [["TTL",8,"64"],["Protocolo",8,"17"],["Checksum do cabeçalho",16,"XX"]],
+  [["Endereço IP de origem",32,"172.16.5.10"]],[["Endereço IP de destino",32,"200.18.7.3"]]],
+  "Flags: bit reservado · DF · MF");
+const FIG_HDR_SB = hdrW([[["Versão",4,"4"],["HLEN",4,"5"],["Tipo de serviço",8,"0"],["Comprimento total",16,"540"]],
+  [["Identificação",16,"7201"],["Flags",3,"0 0 0"],["Deslocamento do fragmento",13,"370"]],
+  [["TTL",8,"64"],["Protocolo",8,"17"],["Checksum do cabeçalho",16,"XX"]],
+  [["Endereço IP de origem",32,"172.16.5.10"]],[["Endereço IP de destino",32,"200.18.7.3"]]],
+  "Flags: bit reservado · DF · MF");
+
+const TBL_P2 =
+"R1# show ip route\nGateway of last resort is 200.5.5.1 to network 0.0.0.0\n\n"+
+"     172.16.0.0/16 is variably subnetted, 4 subnets, 4 masks\n"+
+"C       172.16.1.0/24 is directly connected, GigabitEthernet0/0\n"+
+"L       172.16.1.1/32 is directly connected, GigabitEthernet0/0\n"+
+"O       172.16.0.0/22 [110/65] via 10.0.0.2, 00:12:44, Serial0/0/0\n"+
+"O       172.16.4.0/23 [110/129] via 10.0.0.6, 00:12:44, Serial0/0/1\n"+
+"     10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks\n"+
+"C       10.0.0.0/30 is directly connected, Serial0/0/0\n"+
+"L       10.0.0.1/32 is directly connected, Serial0/0/0\n"+
+"C       10.0.0.4/30 is directly connected, Serial0/0/1\n"+
+"L       10.0.0.5/32 is directly connected, Serial0/0/1\n"+
+"     200.5.5.0/24 is variably subnetted, 2 subnets, 2 masks\n"+
+"C       200.5.5.0/30 is directly connected, GigabitEthernet0/1\n"+
+"L       200.5.5.2/32 is directly connected, GigabitEthernet0/1\n"+
+"S*   0.0.0.0/0 [1/0] via 200.5.5.1";
+
+const FIG_LAB = dg(760, 300, [
+  {id:"r1", t:"router", x:250, y:56, l:"R1", lp:"t"},
+  {id:"r2", t:"router", x:600, y:56, l:"R2", lp:"t"},
+  {id:"s1", t:"switch", x:120, y:150, l:"SW1", l2:"192.168.10.0/24", lp:"r"},
+  {id:"s2", t:"switch", x:400, y:150, l:"SW2", l2:"192.168.20.0/24", lp:"r"},
+  {id:"s3", t:"switch", x:600, y:150, l:"SW3", l2:"192.168.30.0/24", lp:"r"},
+  {id:"p1", t:"pc", x:44, y:236, l:"PC-1", l2:"192.168.10.3"},
+  {id:"pf", t:"server", x:140, y:236, l:"pfSense", l2:"WAN .10.2"},
+  {id:"cl", t:"pc", x:236, y:236, l:"VM Cliente", l2:"DHCP 192.168.40.x", c:"hl"},
+  {id:"p2", t:"pc", x:350, y:236, l:"PC-2", l2:"192.168.20.3"},
+  {id:"sv", t:"server", x:456, y:236, l:"VM Servidor", l2:"192.168.20.2"},
+  {id:"p3", t:"pc", x:600, y:236, l:"PC-3", l2:"192.168.30.3"},
+], [["r1","r2",{serial:true, m:"172.16.13.0/30", a:"S0/0/0 · .1", at:.2, as:1, b:"S0/0/0 · .2", bt:.8, bs:1}],
+    ["r1","s1",{a:"G0/0 · .10.1", at:.38, as:-1}], ["r1","s2",{a:"G0/1 · .20.1", at:.38, as:1}], ["r2","s3",{a:"G0/0 · .30.1", at:.45, as:-1}],
+    ["s1","p1"], ["s1","pf"], ["pf","cl",{m:"LAN .40.1", ms:-1}], ["s2","p2"], ["s2","sv"], ["s3","p3"]]);
+
+const OPEN_O = ["Acertei: minha resposta bate com o gabarito","Errei, ou faltou alguma parte"];
+const OPEN_E = "Questão aberta: você mesmo compara a sua resposta com o gabarito e marca.";
+
+/* ---------- PV2: lista de exercícios (gabarito oficial) ---------- */
+const PV2_LISTA = { id:"pv2-lista", t:"Lista PV2", layer:"Gabarito", kind:"quiz", jl:"Lista",
+ intro:"A <b>Lista de exercícios PV2 (passadas)</b> do Prof. Edson, com o gabarito oficial e um comentário em cada questão. As de 36 e 37 são de resolver (na folha de gabarito elas aparecem como 42 e 43). Selo rosa: segundo quem fez a PV2 da outra turma, a <b>primeira questão da prova</b> foi praticamente igual às do cabeçalho IPv4 (32 a 35).",
+ qs:[
+ {q:"A sub-rede de uma planta industrial precisa acomodar no máximo 14 dispositivos simultâneos. Qual a máscara VLSM que atende a essa demanda com máxima economia de endereços?", o:["255.255.255.224","255.255.255.192","255.255.255.240","255.255.255.248","Nenhuma das anteriores"], a:2,
+  e:"14 hosts + rede + broadcast = 16 endereços = 2<sup>4</sup> → 4 bits de host → /28 = <b>255.255.255.240</b> (16 endereços, 14 hosts). A /29 (248) só dá 6 hosts; a /27 (224) daria 30, desperdiçando."},
+ {q:"Durante o planejamento de uma rede de telecomunicações, fazendo uso de VLSM, você precisou configurar um link WAN ponto-a-ponto entre dois roteadores. Qual é a máscara mais eficiente para economizar endereços IP nesse link específico?", o:["/8","/32","/16","/24","Nenhuma das anteriores"], a:4,
+  e:"Um enlace ponto a ponto tem só 2 hosts (um roteador em cada ponta): a máscara certa é <b>/30</b> (4 endereços: rede, 2 hosts, broadcast). Como /30 não está entre as opções, a resposta é <b>e</b>. A /32 é um endereço único, sem espaço para dois roteadores."},
+ {q:"Considere a sub-rede 10.0.0.128/26, resultante de um esquema VLSM. Qual é o endereço de broadcast correspondente a essa sub-rede?", o:["10.0.0.192","10.0.0.190","10.0.0.191","10.0.0.255","Nenhuma das anteriores"], a:2,
+  e:"/26 → bloco de 64. A sub-rede vai de 10.0.0.128 a 10.0.0.191: o broadcast é o último, <b>10.0.0.191</b>. O .190 é o último host e o .192 já é a próxima sub-rede."},
+ {q:"O uso da técnica VLSM (Variable Length Subnet Mask) trouxe como principal benefício para a Internet global:", o:["Eliminação do uso de portas lógicas TCP e UDP na camada de transporte.","Redução do desperdício de endereços IP.","Garantia de diminuição da latência nas transmissões.","Possibilidade de coexistência de redes IPv4 e redes IPv6.","Nenhuma das anteriores"], a:1,
+  e:"Com VLSM cada sub-rede recebe uma máscara do tamanho da sua necessidade (um /30 para o enlace WAN, um /25 para a LAN grande), em vez de todas com o mesmo tamanho. Resultado: <b>menos endereços desperdiçados</b>."},
+ {q:"Fazendo uso de VLSM, deseja-se dividir o bloco de endereços IP 192.168.10.0/24 para atender a três departamentos: Desenvolvimento: 60 hosts, Infraestrutura: 28 hosts e Recursos Humanos: 12 hosts. Considerando a alocação de endereços otimizada da maior para a menor rede, qual será o endereço de rede/máscara atribuídos ao departamento de Infraestrutura?", o:["192.168.10.64/27","192.168.10.128/27","192.168.10.64/26","192.168.10.32/28","Nenhuma das anteriores"], a:0,
+  e:"Da maior para a menor: Desenvolvimento (60 → 64 endereços, /26) fica com 192.168.10.0 a .63. Infraestrutura (28 → 32 endereços, /27) começa logo depois: <b>192.168.10.64/27</b> (.64 a .95). RH (12 → 16, /28) fica com 192.168.10.96/28."},
+ {q:"O protocolo ICMP (Internet Control Message Protocol) opera integrado a qual camada do Modelo OSI e qual é o seu principal propósito na rede?", o:["Camada de Transporte (Camada 4), garantindo a entrega confiável e retransmissão de segmentos perdidos.","Camada de Rede (Camada 3), atuando no fornecimento de mensagens de erros e mensagens de controle operacional sobre o envio de pacotes.","Camada Física (Camada 1), controlando a modulação elétrica das portas de fibra óptica.","Camada de Aplicação (Camada 7), gerenciando bancos de dados de sites web remotos.","Nenhuma das anteriores"], a:1,
+  e:"O ICMP é companheiro do IP, na <b>camada de rede</b>: leva mensagens de <b>erro</b> (destino inalcançável, TTL expirado) e de <b>controle</b> (echo request/reply do ping). As mensagens ICMP vão encapsuladas dentro de pacotes IP."},
+ {q:"Quando um pacote IPv4 precisa ser fragmentado, porque excede a MTU da interface, quais dos campos do cabeçalho IPv4 indicados são alterados ou utilizados para gerenciar a remontagem correta desse pacote no destino?", o:["Total Length, Version e Padding.","TTL, Protocol e Type of Service.","Identification, Flags e Fragment Offset.","Source IP, Destination IP e IHL.","Nenhuma das anteriores"], a:2,
+  e:"<b>Identificação</b>: todos os fragmentos do mesmo pacote têm o mesmo número. <b>Flags</b>: o bit MF diz se ainda vêm fragmentos. <b>Deslocamento do fragmento</b>: a posição dos dados no pacote original, em unidades de 8 bytes."},
+ {q:"Um cabeçalho típico do protocolo IPv4 possui um tamanho típico de quantos bytes?", o:["128 bytes","40 bytes","20 bytes","60 bytes","Nenhuma das anteriores"], a:2, tag:"parecida",
+  e:"Sem opções, o cabeçalho IPv4 tem <b>20 bytes</b> (HLEN = 5 palavras de 4 bytes). Com opções, chega a 60 (HLEN = 15). 40 bytes é o cabeçalho fixo do IPv6."},
+ {q:"O que ocorre quando um roteador decrementa o campo TTL de um pacote IPv4 e este valor atinge o valor 0?", o:["O valor zero indica que o pacote chegou ao seu destino final; o pacote é lido pela interface do dispositivo.","O pacote é encaminhado para o próximo salto, utilizando o caminho de menor custo (custo zero).","O pacote é descartado pelo roteador e uma mensagem ICMP é enviada ao host origem do pacote.","O pacote é enviado à camada de transporte imediatamente, para verificação de possíveis erros.","Nenhuma das anteriores"], a:2,
+  e:"Cada roteador tira 1 do TTL. Se chegar a 0, o pacote é <b>descartado</b> e o roteador manda à origem um ICMP <b>Time Exceeded</b> (tipo 11). Isso evita que um pacote fique rodando para sempre num laço de roteamento; é também o princípio do traceroute."},
+ {q:"Qual é a utilidade do campo Type of Service (ToS) no cabeçalho básico do IPv4?", o:["Auxiliar o processo de fragmentação e remontagem do pacote, se necessário.","Indicar ao roteador destino o “comprimento” do pacote IPv4.","Identificar o número de saltos máximo permitido para o pacote.","Implementar mecanismos de Qualidade de Serviço (QoS)","Nenhuma das anteriores"], a:3,
+  e:"O Tipo de Serviço (8 bits) marca a <b>prioridade</b> do pacote, base do <b>QoS</b> (hoje chamado de Serviços Diferenciados). Fragmentação é Identificação/Flags/Deslocamento; comprimento é o Comprimento Total; saltos é o TTL."},
+ {q:"Com relação ao cabeçalho base do IPv6, é correto afirmar:", o:["Possui comprimento fixo de 40 bytes","Possui comprimento variável de 40 bytes a 60 bytes.","Possui comprimento variável de 20 bytes a 60 bytes.","Possui comprimento fixo de 128 bytes","Nenhuma das anteriores"], a:0,
+  e:"O cabeçalho base do IPv6 é <b>fixo, com 40 bytes</b> e só 8 campos. As opções foram para os cabeçalhos de extensão. 20 a 60 bytes é o cabeçalho IPv4; 128 é o número de <b>bits</b> do endereço IPv6."},
+ {q:"Qual das seguintes alternativas apresenta a forma mais compactada válida do endereço IPv6: 2001:0db8:0000:0000:0000:0000:1428:57ab?", o:["2001:db8:1428:57ab","2001:db8::1428:57ab","2001:db8::0::1428:57ab","2001:0db8:0:0:0:0:1428:57ab","Nenhuma das anteriores"], a:1,
+  e:"Tira os zeros à esquerda (0db8 → db8) e troca a sequência de grupos 0000 por <b>::</b>, uma vez só: <b>2001:db8::1428:57ab</b>. A a) perdeu os zeros sem o ::; a c) usa :: duas vezes (ambíguo); a d) não está compactada ao máximo."},
+ {q:"Uma das mudanças conceituais marcantes ocorridas no IPv6, em relação ao IPv4, foi a alteração no esquema de endereçamento das redes. Um tipo de endereço padrão nas redes IPv4 foi excluído no endereçamento IPv6. Qual tipo de endereço IPv4 deixou de existir no IPv6?", o:["Endereço Multicast","Endereço Unicast","Endereço de Broadcast","Endereço de Loopback","Nenhuma das anteriores"], a:2,
+  e:"O IPv6 <b>não tem broadcast</b>. Os tipos são unicast, anycast e multicast; o que antes era feito por broadcast passa a usar multicast (por exemplo, FF02::1 = todos os nós do enlace). Loopback continua existindo (::1)."},
+ {q:"Qual prefixo identifica endereços Link-Local, endereços atribuídos automaticamente pelo sistema de seu dispositivo?", o:["FE80::/10","FC00::/7","2000::/3","FF00::/8","Nenhuma das anteriores"], a:0,
+  e:"<b>FE80::/10</b> = link-local, configurado automaticamente e válido só no enlace (não é roteado). 2000::/3 = global unicast (público); FC00::/7 = unique local (privado); FF00::/8 = multicast."},
+ {q:"O que ocorre quando um roteador intermediário recebe um pacote IPv6 cujo tamanho excede a MTU (Maximum Transmission Unit) da interface de saída?", o:["O pacote é colocado em uma fila de espera infinita até que a MTU dessa interface seja alterada.","O roteador altera o cabeçalho base do pacote diminuindo seu tamanho, de modo a ser compatível com a MTU da interface de saída.","O roteador realiza a fragmentação do pacote, gerando pacotes de tamanhos compatíveis com a MTU da interface de saída.","O roteador envia o pacote através da sua interface de maior MTU.","Nenhuma das alterações."], a:4,
+  e:"No IPv6, roteador <b>não fragmenta</b>: a fragmentação e a remontagem acontecem só na origem e no destino. O roteador <b>descarta</b> o pacote e avisa a origem com um ICMPv6 <b>Packet Too Big</b> (é a descoberta do Path MTU). Nenhuma alternativa diz isso → <b>e</b>."},
+ {q:"A Tríade CIA (Confidencialidade, Integridade e Disponibilidade) representa os três pilares fundamentais da segurança da informação. Qual das seguintes alternativas descreve uma quebra direta do pilar Integridade?", o:["Um ataque de negação de serviço (DoS) deixa o site de e-commerce de uma empresa fora do ar por horas.","Um usuário esquece sua senha de acesso e é bloqueado temporariamente pelo sistema corporativo.","Um ataque intercepta e altera o valor de uma transação financeira antes que ela chegue ao banco.","Um funcionário não autorizado consegue ler um arquivo confidencial de recursos humanos.","Nenhuma das anteriores"], a:2,
+  e:"<b>Integridade</b> = o dado não pode ser alterado sem autorização. Alterar o valor da transação quebra a integridade. O DoS quebra a <b>disponibilidade</b>; ler o arquivo sem permissão quebra a <b>confidencialidade</b>."},
+ {q:"Um ataque do tipo Ransomware causa um impacto severo nas organizações. Qual ação maliciosa define a operação típica desse tipo de malware?", o:["Exibir anúncios publicitários irritantes em pop-ups a cada clique feito pelo usuário no navegador.","Criptografar os arquivos locais do sistema e exigir o pagamento de um resgate (geralmente em criptomoedas) para fornecer a chave de liberação.","Monitorar e registrar secretamente todas as teclas digitadas no teclado físico para capturar credenciais bancárias.","Formatar completamente o disco rígido apagando os registros master de inicialização sem deixar avisos.","Nenhuma das anteriores"], a:1,
+  e:"Ransomware <b>sequestra</b> os dados (criptografa) e cobra resgate. Anúncios = adware; registrar teclas = spyware (keylogger)."},
+ {q:"Qual é a principal diferença entre um vírus e um worm (verme) em termos de propagação?", o:["O worm se replica de forma independente explorando vulnerabilidades, enquanto o vírus requer a execução de um arquivo pelo usuário.","O vírus ataca apenas o hardware, enquanto o worm ataca exclusivamente softwares de rede.","O vírus criptografa os dados para resgate, enquanto o worm apenas espiona o usuário.","Worms são sempre inofensivos e vírus são sempre destrutivos.","Nenhuma das anteriores"], a:0,
+  e:"O <b>vírus</b> vem anexado a um executável e precisa que alguém o execute. O <b>worm</b> se espalha <b>sozinho</b> pela rede, explorando vulnerabilidades, e deixa a rede lenta."},
+ {q:"Um ataque de negação de serviço distribuído (DDoS) utiliza qual estrutura para sobrecarregar um alvo?", o:["A manipulação de mecanismos de busca para direcionar usuários a sites falsos.","Um único supercomputador capaz de gerar trilhões de requisições por segundo.","Uma botnet composta por vários hosts infectados chamados de zumbis.","O uso de engenharia social para convencer administradores a desligarem os servidores.","Nenhuma das anteriores"], a:2,
+  e:"DDoS = muitas origens ao mesmo tempo: uma <b>botnet</b> de máquinas infectadas (<b>zumbis</b>) comandadas pelo atacante. Manipular busca é envenenamento de SEO; um único computador seria DoS."},
+ {q:"Um ataque de 'Phishing' é caracterizado principalmente por:", o:["A interceptação física de cabos de fibra óptica para captura de dados.","A quebra de senhas de redes Wi-Fi através de ataques de dicionário.","A criação de backdoors em sistemas operacionais através de rootkits.","O uso de e-mails fraudulentos disfarçados de fontes confiáveis para enganar o usuário.","Nenhuma das anteriores"], a:3,
+  e:"Phishing = <b>e-mail falso</b> que se passa por fonte confiável para fazer o usuário clicar num link, instalar malware ou entregar dados."},
+ {q:"Qual dispositivo de segurança tem como função principal detectar, registrar e relatar tentativas de ataque, sem necessariamente bloqueá-los de forma ativa?", o:["VPN (Virtual Private Network)","IDS (Intrusion Detection System)","Nenhuma das anteriores.","Firewall ou ACLs","IPS (Intrusion Prevention System)"], a:1,
+  e:"<b>IDS</b> = detecção: detecta, registra e relata, mas <b>não impede</b>. O <b>IPS</b> = prevenção: bloqueia. Firewall filtra por regras; VPN cria um túnel criptografado. Na lista as letras estão nessa ordem mesmo, com a c) no meio."},
+ {q:"Uma prática para proteger dados corporativos confidenciais que trafegam através da internet pública é o uso de:", o:["Protocolos de roteamento dinâmico sem autenticação baseados em RIPv1.","Configuração do navegador de internet local no modo de navegação anônima.","Cabos de rede trançados sem blindagem estendidos pelas vias urbanas públicos.","VPN (Virtual Private Network) corporativa com criptografia ponta a ponta.","Nenhuma das anteriores"], a:3,
+  e:"A <b>VPN</b> cria um túnel criptografado sobre a internet pública. Navegação anônima só não guarda histórico local; não protege o tráfego."},
+ {q:"Os endereços IPv6 são formados por 128 bits, representados na forma hexadecimal, agrupados em 8 campos de 4 bytes cada campo.", o:VF, a:1,
+  e:"São 8 campos de <b>16 bits (2 bytes)</b>, cada um com 4 dígitos hexadecimais: 8 × 16 = 128. Com 4 bytes por campo seriam 256 bits."},
+ {q:"Uma rede IP que necessite endereçar 30 hosts poderá fazer uso de uma máscara /30.", o:VF, a:1,
+  e:"/30 = 4 endereços, só <b>2 hosts</b> (serve para enlace ponto a ponto). Para 30 hosts, /27 (32 endereços, 30 hosts)."},
+ {q:"Uma rede IP que necessite endereçar 128 hosts poderá fazer uso de uma máscara /25.", o:VF, a:1,
+  e:"/25 = 128 endereços, mas só <b>126 hosts</b> (tirando rede e broadcast). Para 128 hosts precisa de /24."},
+ {q:"O endereço de rede, utilizado para identificar uma rede, deve ser colocado na interface do roteador que esta rede está conectada.", o:VF, a:1,
+  e:"O endereço de rede (o primeiro da faixa) <b>não</b> vai em interface nenhuma: ele só identifica a rede. A interface do roteador recebe um endereço de <b>host</b> (normalmente o .1), que vira o gateway da rede."},
+ {q:"Uma rede IPv4 necessita de endereçar 56 hosts, no máximo. A máscara de rede /24 pode ser utilizada?", o:VF, a:0,
+  e:"<b>Pode</b>: /24 tem 254 hosts, mais que 56. Só não é a mais econômica (a /26, com 62 hosts, bastaria). A pergunta é se pode, não se é a melhor."},
+ {q:"Uma placa de rede com endereço 192.168.10.10/25 pertence à rede 192.168.10.0/25, com endereço de broadcast 192.168.10.255.", o:VF, a:1,
+  e:"A rede está certa (192.168.10.0/25 vai de .0 a .127), mas o broadcast é <b>192.168.10.127</b>. O .255 é o broadcast da outra metade (192.168.10.128/25)."},
+ {q:"Uma rede /22 permite endereçar no máximo 1024 hosts.", o:VF, a:1,
+  e:"/22 = 10 bits de host = 1024 <b>endereços</b>, mas <b>1022 hosts</b> (tirando rede e broadcast)."},
+ {q:"Dentre as várias características que diferem o endereço IPv6 do endereço IPv4 tem-se no IPv6 um maior cabeçalho, tornando assim seu processamento mais complexo.", o:VF, a:1,
+  e:"O cabeçalho é maior (40 bytes contra 20), mas o processamento fica <b>mais simples</b>: tamanho fixo, só 8 campos, sem checksum e sem fragmentação nos roteadores. É a parte que o gabarito risca."},
+ {q:"O endereço IPv6 2001:cafe::abcd é um endereço IPv6 válido; já o endereço 2001:cafe::efgh é um endereço inválido.", o:VF, a:0,
+  e:"Hexadecimal só vai de 0 a 9 e de <b>a a f</b>. “cafe” e “abcd” são válidos; “efgh” tem g e h, que não existem em hexa."},
+ {q:"Com base no cabeçalho IP da figura: o cabeçalho desse pacote possui 5 bytes.", fig:FIG_HDR_L, o:VF, a:1, tag:"parecida",
+  e:"HLEN = 5 conta palavras de <b>32 bits (4 bytes)</b>: 5 × 4 = <b>20 bytes</b>."},
+ {q:"Com base no cabeçalho IP da figura: o payload (carga útil ou dados) desse pacote é igual a 3500 bytes.", fig:FIG_HDR_L, o:VF, a:1, tag:"parecida",
+  e:"3500 é o <b>comprimento total</b> (cabeçalho + dados). Dados = 3500 − 20 = <b>3480 bytes</b>."},
+ {q:"Com base no cabeçalho IP da figura: o comprimento total desse pacote é de 1958 bytes.", fig:FIG_HDR_L, o:VF, a:1, tag:"parecida",
+  e:"1958 está no campo <b>Identificação</b> (o número que liga os fragmentos de um mesmo pacote). O comprimento total é o campo da primeira linha: <b>3500 bytes</b>."},
+ {q:"Com base no cabeçalho IP da figura: este pacote é o último fragmento de um pacote original que foi fragmentado.", fig:FIG_HDR_L, o:VF, a:1, tag:"parecida",
+  e:"MF = 0 <b>e</b> deslocamento = 0: não vem nada depois e não veio nada antes. É um pacote <b>inteiro, não fragmentado</b>. O último fragmento teria MF = 0 com deslocamento <b>diferente</b> de 0."},
+ {q:"(Resolver) De posse do bloco de endereços 192.168.24.0/22, deseja-se subdividir esse bloco em quatro novas sub-redes. Identifique a nova máscara a ser utilizada e os endereços de rede de cada uma dessas quatro novas sub-redes.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`<p>4 sub-redes = 2<sup>2</sup> → +2 bits: /22 + 2 = <b>/24</b> (255.255.255.0).</p>
+  ${tbl(["Sub-rede","Endereço de rede","Faixa de hosts","Broadcast"],[["SR1","192.168.24.0/24",".24.1 a .24.254","192.168.24.255"],["SR2","192.168.25.0/24",".25.1 a .25.254","192.168.25.255"],["SR3","192.168.26.0/24",".26.1 a .26.254","192.168.26.255"],["SR4","192.168.27.0/24",".27.1 a .27.254","192.168.27.255"]])}
+  <p>A /22 cobre 192.168.24.0 a 192.168.27.255 (bloco de 4 no 3º octeto). Cada /24 ocupa um valor do 3º octeto.</p>`},
+ {q:"(Resolver) Dado o bloco de endereços 200.10.10.0/24, deseja-se dividir o mesmo em cinco sub-redes, para atender às seguintes exigências: SR1 – 20 hosts; SR2 – 40 hosts; SR3 – 50 hosts; SR4 – 50 hosts e SR5 – 16 hosts. Defina um esquema de endereçamento para essas redes, indicando a máscara e o endereço de rede de cada uma das sub-redes.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`<p>VLSM: ordene da maior para a menor e dê a cada uma a menor potência de 2 que caiba hosts + 2.</p>
+  ${tbl(["Sub-rede","Hosts","Endereços","Rede/máscara","Broadcast"],[["SR3","50","64","200.10.10.0/26","200.10.10.63"],["SR4","50","64","200.10.10.64/26","200.10.10.127"],["SR2","40","64","200.10.10.128/26","200.10.10.191"],["SR1","20","32","200.10.10.192/27","200.10.10.223"],["SR5","16","32","200.10.10.224/27","200.10.10.255"]])}
+  <p>Atenção à SR5: 16 hosts + 2 = 18 endereços, que não cabem em 16 → precisa de 32 (/27). O bloco fecha exato: 64+64+64+32+32 = 256.</p>`},
+]};
+
+/* ---------- PV2: lista de sub-redes (aula 07) ---------- */
+const SR10 = "Enlaces WAN da topologia (seriais): R1–R2, R1–R11, R1–R3, R2–R21, R2–R22, R3–R31, R3–R32\nLAN 10 (R1) · LAN 20 (R2) · LAN 30 (R3) · LAN 111 (R11) · LAN 211/212 (R21)\nLAN 221 (R22) · LAN 311/312 (R31) · LAN 321/322 (R32)";
+const PV2_SUB = { id:"pv2-sub", t:"Lista de sub-redes", layer:"Aula 07", kind:"quiz", jl:"Sub-redes",
+ intro:"A <b>Lista de exercícios: IPv4 – cálculo de sub-redes</b> (aula 07). A lista não tem gabarito; as respostas aqui foram calculadas e conferidas. Os itens de conta viraram múltipla escolha; as tabelas (exercícios 3c, 8, 9 e 10) são abertas, com a resolução completa para você comparar. No fim, a Atividade 7 da aula (VLSM do ENADE).",
+ qs:[
+ {q:"1a) A empresa recebeu o bloco 197.15.22.0/24 e quer 8 sub-redes. Qual máscara usar nessas sub-redes?", o:["255.255.255.224 (/27)","255.255.255.240 (/28)","255.255.255.192 (/26)","255.255.255.248 (/29)","Nenhuma das anteriores"], a:0,
+  e:"8 = 2<sup>3</sup> → empresta 3 bits: /24 + 3 = <b>/27</b>. No último octeto, 11100000 = 128 + 64 + 32 = 224."},
+ {q:"1b) Com essa divisão (197.15.22.0/24 em 8), quantos endereços no total há em cada sub-rede?", o:["32","30","64","8","Nenhuma das anteriores"], a:0,
+  e:"/27 deixa 5 bits de host: 2<sup>5</sup> = <b>32 endereços</b>."},
+ {q:"1c) E quantos endereços de host em cada sub-rede?", o:["32","30","62","6","Nenhuma das anteriores"], a:1,
+  e:"32 endereços − rede − broadcast = <b>30 hosts</b>."},
+ {q:"1d) 197.15.22.63 é um endereço de host válido para esta empresa?", o:["Sim, é um host da 2ª sub-rede","Não: é o broadcast da 2ª sub-rede (197.15.22.32/27)","Não: é o endereço de rede da 3ª sub-rede","Nenhuma das anteriores"], a:1,
+  e:"Blocos de 32: .0–.31, <b>.32–.63</b>, .64–.95… O .63 é o último do 2º bloco, ou seja, o <b>broadcast</b> de 197.15.22.32/27. Não pode ir num host."},
+ {q:"1e) 197.15.22.160 é um endereço de host válido para esta empresa?", o:["Sim, é um host da 6ª sub-rede","Não: é o broadcast da 5ª sub-rede","Não: é o endereço de rede da 6ª sub-rede (197.15.22.160/27)","Nenhuma das anteriores"], a:2,
+  e:"160 = 5 × 32: é o <b>início</b> de um bloco (.160–.191), ou seja, o endereço de <b>rede</b> da 6ª sub-rede. O broadcast da 5ª é o .159."},
+ {q:"2a) A máscara 255.255.240.0 foi aplicada ao bloco 10.0.0.0/16. Quantas sub-redes foram criadas?", o:["4","8","16","4096","Nenhuma das anteriores"], a:2,
+  e:"255.255.240.0 = /20. De /16 para /20 são 4 bits de sub-rede: 2<sup>4</sup> = <b>16 sub-redes</b>."},
+ {q:"2b) Quantos endereços estão disponíveis para hosts em cada sub-rede?", o:["4096","4094","254","16","Nenhuma das anteriores"], a:1,
+  e:"/20 deixa 12 bits de host: 2<sup>12</sup> = 4096 endereços, menos 2 = <b>4094 hosts</b>."},
+ {q:"2c) Qual o endereço de rede da segunda sub-rede criada?", o:["10.0.1.0","10.0.16.0","10.0.32.0","10.0.15.0","Nenhuma das anteriores"], a:1,
+  e:"240 no 3º octeto → bloco de 256 − 240 = 16. Sub-redes: 10.0.0.0, <b>10.0.16.0</b>, 10.0.32.0…"},
+ {q:"2d) Qual o endereço de broadcast da segunda sub-rede criada?", o:["10.0.31.255","10.0.16.255","10.0.32.255","10.0.15.255","Nenhuma das anteriores"], a:0,
+  e:"A 2ª sub-rede vai de 10.0.16.0 até antes da 3ª (10.0.32.0): broadcast = <b>10.0.31.255</b>."},
+ {q:"2e) O endereço 10.0.63.255 identifica rede, broadcast ou host?", o:["Rede","Host","Broadcast","Nenhuma das anteriores"], a:2,
+  e:"Blocos de 16 no 3º octeto: …, 32–47, <b>48–63</b>. 10.0.63.255 é o último endereço de 10.0.48.0/20: <b>broadcast</b>."},
+ {q:"3a) A Classical Academy recebeu 172.16.0.0/21 e quer 8 sub-redes, uma por filial. Qual a máscara?", o:["255.255.255.0 (/24)","255.255.248.0 (/21)","255.255.252.0 (/22)","255.255.255.128 (/25)","Nenhuma das anteriores"], a:0,
+  e:"8 = 2<sup>3</sup> → /21 + 3 = <b>/24</b> = 255.255.255.0."},
+ {q:"3b) Quantos hosts utilizáveis existem em cada sub-rede?", o:["254","256","2046","126","Nenhuma das anteriores"], a:0,
+  e:"/24 → 8 bits de host: 256 − 2 = <b>254</b>."},
+ {q:"3c) (Tabela) Complete, para as 8 sub-redes de 172.16.0.0/21: endereço da sub-rede, intervalo dos hosts e broadcast.", o:OPEN_O, a:0, e:OPEN_E,
+  open:tbl(["Sub-rede","Endereço","Intervalo de hosts","Broadcast"],[0,1,2,3,4,5,6,7].map(i => [i+1,`172.16.${i}.0`,`172.16.${i}.1 a 172.16.${i}.254`,`172.16.${i}.255`]))},
+ {q:"4a) Um bloco /8 deve ser dividido em no mínimo 515 sub-redes. Qual a máscara?", o:["/17","/18","/19","/10","Nenhuma das anteriores"], a:1,
+  e:"2<sup>9</sup> = 512 não basta; 2<sup>10</sup> = 1024 ≥ 515. São 10 bits de sub-rede: /8 + 10 = <b>/18</b> (255.255.192.0)."},
+ {q:"4b) Após essa divisão, quantos endereços no total e quantos de hosts há em cada sub-rede?", o:["16384 endereços, 16382 hosts","32768 endereços, 32766 hosts","8192 endereços, 8190 hosts","1024 endereços, 1022 hosts","Nenhuma das anteriores"], a:0,
+  e:"/18 deixa 14 bits de host: 2<sup>14</sup> = <b>16384</b> endereços e <b>16382</b> hosts."},
+ {q:"4c) Usando 10.0.0.0/8 como exemplo (a lista não fixa o bloco), quais as três primeiras sub-redes?", o:["10.0.0.0, 10.0.64.0 e 10.0.128.0","10.0.0.0, 10.1.0.0 e 10.2.0.0","10.0.0.0, 10.0.32.0 e 10.0.64.0","10.0.0.0, 10.64.0.0 e 10.128.0.0","Nenhuma das anteriores"], a:0,
+  e:"/18 → o 3º octeto tem 2 bits de rede (máscara 192), bloco de 64: <b>10.0.0.0, 10.0.64.0, 10.0.128.0</b>, 10.0.192.0, 10.1.0.0…"},
+ {q:"5a) Dado 192.168.10.64/26, quantos endereços de host há nessa rede?", o:["64","62","30","126","Nenhuma das anteriores"], a:1,
+  e:"/26 → 6 bits de host: 64 − 2 = <b>62 hosts</b>."},
+ {q:"5b) Para dividir 192.168.10.64/26 em quatro novas sub-redes, qual a nova máscara?", o:["/27","/28","/29","/30","Nenhuma das anteriores"], a:1,
+  e:"4 = 2<sup>2</sup> → /26 + 2 = <b>/28</b> (255.255.255.240), 16 endereços cada."},
+ {q:"5c) Quais os endereços de rede dessas quatro sub-redes?", o:["192.168.10.64, .80, .96 e .112","192.168.10.64, .96, .128 e .160","192.168.10.0, .16, .32 e .48","192.168.10.64, .72, .80 e .88","Nenhuma das anteriores"], a:0,
+  e:"Começa no .64 e anda de 16 em 16: <b>.64, .80, .96, .112</b>. A última termina no .127, o fim do /26 original."},
+ {q:"6a) Um bloco /24 deve ser dividido para que cada sub-rede acomode até 32 hosts. Qual a máscara?", o:["/27 (255.255.255.224)","/26 (255.255.255.192)","/28 (255.255.255.240)","/25 (255.255.255.128)","Nenhuma das anteriores"], a:1, flag:"Pegadinha do 32",
+  e:"32 hosts + rede + broadcast = 34 endereços. A /27 tem 32 endereços, mas só <b>30 hosts</b>: não cabe. Precisa de 64 endereços → <b>/26</b> (62 hosts). Se o professor quis dizer “32 endereços”, seria /27."},
+ {q:"6b) Com essa nova máscara, quantas sub-redes foram criadas?", o:["8","4","2","16","Nenhuma das anteriores"], a:1,
+  e:"De /24 para /26 são 2 bits: 2<sup>2</sup> = <b>4 sub-redes</b> (de 64 endereços)."},
+ {q:"6c) Quais os endereços das sub-redes criadas (no 4º octeto)?", o:[".0, .64, .128 e .192",".0, .32, .64, .96, .128, .160, .192 e .224",".0 e .128",".1, .65, .129 e .193","Nenhuma das anteriores"], a:0,
+  e:"Blocos de 64: <b>.0, .64, .128, .192</b>. A d) lista o primeiro host de cada uma, não a rede."},
+ {q:"7a) O bloco 192.168.0.0/26 será dividido em oito sub-redes. Qual a máscara de cada uma?", o:["/29 (255.255.255.248)","/28 (255.255.255.240)","/30 (255.255.255.252)","/27 (255.255.255.224)","Nenhuma das anteriores"], a:0,
+  e:"8 = 2<sup>3</sup> → /26 + 3 = <b>/29</b>: 8 endereços (6 hosts) em cada."},
+ {q:"7b) Quais os endereços de rede e de broadcast da segunda sub-rede criada?", o:["Rede 192.168.0.8, broadcast 192.168.0.15","Rede 192.168.0.16, broadcast 192.168.0.23","Rede 192.168.0.8, broadcast 192.168.0.16","Rede 192.168.0.4, broadcast 192.168.0.7","Nenhuma das anteriores"], a:0,
+  e:"Blocos de 8: .0–.7, <b>.8–.15</b>, .16–.23… A 2ª sub-rede é 192.168.0.8, com broadcast .15."},
+ {q:"7c) Qual a faixa de endereços de hosts da última sub-rede criada?", o:["192.168.0.57 a 192.168.0.62","192.168.0.56 a 192.168.0.63","192.168.0.49 a 192.168.0.54","192.168.0.249 a 192.168.0.254","Nenhuma das anteriores"], a:0,
+  e:"A 8ª sub-rede é 192.168.0.56/29 (.56 a .63). Tirando rede (.56) e broadcast (.63): <b>.57 a .62</b>. A b) inclui a rede e o broadcast; a d) esquece que o bloco original é /26 (vai só até .63)."},
+ {q:"8) (Tabela) A empresa XYZ tem 192.168.1.0/24 e cinco departamentos: TIC 30 hosts, Produção 80, Finanças 10, RH 10 e Varejo 56. Defina o prefixo (rede/máscara) de cada departamento.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`${tbl(["Departamento","Hosts","Endereços","Rede/máscara","Broadcast"],[["Produção","80","128","192.168.1.0/25","192.168.1.127"],["Varejo","56","64","192.168.1.128/26","192.168.1.191"],["TIC","30","32","192.168.1.192/27","192.168.1.223"],["Finanças","10","16","192.168.1.224/28","192.168.1.239"],["RH","10","16","192.168.1.240/28","192.168.1.255"]])}
+  <p>Da maior para a menor. TIC: 30 hosts cabem exatos numa /27 (32 − 2 = 30). O bloco fecha exato: 128 + 64 + 32 + 16 + 16 = 256.</p>`},
+ {q:"9) (Tabela) Dado 200.10.10.0/24, defina máscara e rede para: SR1 20 hosts, SR2 40, SR3 50, SR4 50 e SR5 16. (É a mesma da Lista PV2.)", o:OPEN_O, a:0, e:OPEN_E,
+  open:`${tbl(["Sub-rede","Hosts","Rede/máscara"],[["SR3","50","200.10.10.0/26"],["SR4","50","200.10.10.64/26"],["SR2","40","200.10.10.128/26"],["SR1","20","200.10.10.192/27"],["SR5","16","200.10.10.224/27"]])}
+  <p>SR5: 16 + 2 = 18 endereços → /27 (32), não /28.</p>`},
+ {q:"10) (Tabela) Provedor DKW TIC: partindo de 172.30.0.0/16, endereçe a topologia (11 LANs e 7 enlaces WAN). Hosts: LAN 10 = 50, LAN 20 = 200, LAN 30 = 130, LAN 111 = 80, LAN 211 = 150, LAN 212 = 200, LAN 221 = 80, LAN 311 = 60, LAN 312 = 200, LAN 321 = 150, LAN 322 = 90.", pre:SR10, o:OPEN_O, a:0, e:OPEN_E,
+  open:`<p>Primeiro o tamanho de cada uma: até 126 hosts → /25; de 127 a 254 → /24 (130 e 150 <b>não</b> cabem em /25); até 62 → /26; enlace WAN → /30.</p>
+  ${tbl(["Rede","Hosts","Rede/máscara"],[["LAN 20","200","172.30.0.0/24"],["LAN 212","200","172.30.1.0/24"],["LAN 312","200","172.30.2.0/24"],["LAN 211","150","172.30.3.0/24"],["LAN 321","150","172.30.4.0/24"],["LAN 30","130","172.30.5.0/24"],["LAN 322","90","172.30.6.0/25"],["LAN 111","80","172.30.6.128/25"],["LAN 221","80","172.30.7.0/25"],["LAN 311","60","172.30.7.128/26"],["LAN 10","50","172.30.7.192/26"],["7 enlaces WAN","2 cada","172.30.8.0/30, .8.4/30, .8.8/30, .8.12/30, .8.16/30, .8.20/30, .8.24/30"]])}
+  <p>A ordem entre redes do mesmo tamanho pode mudar; o que importa é alocar da maior para a menor e não sobrepor. Se o professor não contar os enlaces WAN, a tabela termina na LAN 10.</p>`},
+ {q:"Atividade 7 da aula (ENADE): 200.10.10.0/24, cinco departamentos: Produção 10, Compras 25, Vendas 40, Pessoal 100 e Pesquisa 8. Os maiores ficam no início do bloco. Dê máscara, rede e broadcast de cada um.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`${tbl(["Departamento","Hosts","Máscara","Rede","Broadcast"],[["Pessoal","100","/25 (255.255.255.128)","200.10.10.0","200.10.10.127"],["Vendas","40","/26 (255.255.255.192)","200.10.10.128","200.10.10.191"],["Compras","25","/27 (255.255.255.224)","200.10.10.192","200.10.10.223"],["Produção","10","/28 (255.255.255.240)","200.10.10.224","200.10.10.239"],["Pesquisa","8","/28 (255.255.255.240)","200.10.10.240","200.10.10.255"]])}`},
+]};
+const A9_QS = [
+ {q:"É um formato válido para um endereço IPv6: ::1", o:["Verdade", "Falso"], a:0,
+  e:"::1 é o endereço de loopback do IPv6 (0:0:0:0:0:0:0:1 abreviado com ::)."},
+ {q:"Um dos problemas graves do IPv4 é: Sua não implementação nos novos dispositivos e redes que são incorporadas à rede mundial.", o:["Verdade", "Falso"], a:1,
+  e:"O IPv4 continua implementado em praticamente todos os dispositivos; o problema grave é o esgotamento de endereços."},
+ {q:"É um formato válido para um endereço IPv6: FE80:abcd::abcd::12fe", o:["Verdade", "Falso"], a:1,
+  e:"O '::' só pode aparecer uma vez no endereço; aqui aparece duas vezes, tornando-o ambíguo."},
+ {q:"Considerando um pacote IPv4 com o cabeçalho mostrado na figura. O tamanho do cabeçalho, em bytes é:", fig:FIG_HDR_A9, o:["6", "20", "24", "50"], a:2,
+  e:"IHL = 6 palavras de 32 bits → 6 × 4 = 24 bytes."},
+ {q:"Quantos bits existem em um endereço IP versão 4 (IPv4)?", o:["8", "32", "48", "128"], a:1,
+  e:"Um endereço IPv4 tem 4 octetos = 32 bits."},
+ {q:"Um pacote IP com carga útil de 16384 bytes deverá ser encapsulada em quadros Ethernet para sua transmissão pela rede. Considerando que a MTU da interface é de 1500 bytes, quantos quadros Ethernet serão necessários para a transmissão desse pacote? Obs.: considere que o IP trabalha com cabeçalho padrão (20 bytes).", o:["2", "4", "8", "12"], a:3,
+  e:"Cada fragmento leva no máximo 1500 − 20 = 1480 bytes de dados. 16384 / 1480 = 11,07 → 12 fragmentos (11 × 1480 = 16280; o último leva 104 bytes)."},
+ {q:"Dentre as várias características que diferem o endereço IPv6 do endereço IPv4 tem-se: Número maior de bits, proporcionando um número bem maior de endereços em cada rede.", o:["Verdade", "Falso"], a:0,
+  e:"IPv6 usa 128 bits contra 32 do IPv4."},
+ {q:"Considerando um pacote IPv4 com o cabeçalho mostrado na figura. O tamanho do payload (dados), em bytes é:", fig:FIG_HDR_A9, o:["255", "1020", "1024", "1044"], a:1,
+  e:"Comprimento total (1044) − cabeçalho (24) = 1020 bytes."},
+ {q:"Considerando um pacote IPv4 com o cabeçalho mostrado na figura. O tamanho total do pacote IP, em bytes, é:", fig:FIG_HDR_A9, o:["255", "1024", "1044", "8352"], a:2,
+  e:"É o valor do campo Comprimento Total (Total Length), que já é medido em bytes."},
+ {q:"Qual protocolo, que contém diversas mensagem padronizadas, e que podem ser utilizadas pelos dispositivos de rede para enviar informações de controle e/ou possíveis erros.", o:["IP", "TCP", "UDP", "ICMP"], a:3,
+  e:"O ICMP (Internet Control Message Protocol) transporta mensagens de controle e erro (ex.: echo request/reply, destination unreachable)."},
+ {q:"É um formato válido para um endereço IPv6: 2001:bce4:0:0:16:f2ff:fffe:34e1", o:["Verdade", "Falso"], a:0,
+  e:"São 8 grupos de até 4 dígitos hexadecimais válidos; zeros à esquerda podem ser omitidos."},
+ {q:"Dentre as várias características que diferem o endereço IPv6 do endereço IPv4 tem-se: Uma mesma placa pode possuir diferentes tipos de endereço IPv6.", o:["Verdade", "Falso"], a:0,
+  e:"Uma interface IPv6 normalmente tem vários endereços ao mesmo tempo (link-local, global unicast, multicast etc.)."},
+ {q:"Um dos problemas graves do IPv4 é: Um protocolo ultrapassado, uma vez que os novos protocolos de enlace se tornaram incompatíveis com ele.", o:["Verdade", "Falso"], a:1,
+  e:"O IPv4 funciona sobre os protocolos de enlace atuais (Ethernet, Wi-Fi etc.); o problema é a falta de endereços."},
+ {q:"Quantos bits existem em um endereço IP versão 6 (IPv6)?", o:["8", "32", "48", "128"], a:3,
+  e:"Um endereço IPv6 tem 128 bits (8 grupos de 16 bits)."},
+ {q:"É um formato válido para um endereço IPv6: 2001:db8:abcd::efgh", o:["Verdade", "Falso"], a:1,
+  e:"'g' e 'h' não são dígitos hexadecimais (só 0-9 e a-f)."},
+ {q:"Considerando um pacote IPv4 com o cabeçalho mostrado na figura. O host de onde o pacote foi enviado tem como endereço:", fig:FIG_HDR_A9, o:["200.20.2.0", "200.20.2.2", "200.20.4.0", "200.20.4.10"], a:1,
+  e:"O campo Endereço de Origem (4ª linha do cabeçalho) é 200.20.2.2."},
+ {q:"Dentre as várias características que diferem o endereço IPv6 do endereço IPv4 tem-se: Maior cabeçalho, tornando o processamento do mesmo mais complexo.", o:["Verdade", "Falso"], a:1,
+  e:"O cabeçalho IPv6 é fixo (40 bytes) e simplificado (sem checksum, opções em cabeçalhos de extensão), o que torna o processamento mais simples, não mais complexo."},
+ {q:"Um dos problemas graves do IPv4 é: Não compatibilidade com a nova versão IPv6, tornando as duas redes (IPv4 e IPV6) totalmente incompatíveis.", o:["Verdade", "Falso"], a:1,
+  e:"IPv4 e IPv6 coexistem por mecanismos de transição (pilha dupla, túneis, tradução), e isso não é um 'problema grave do IPv4'."},
+ {q:"Um dos problemas graves do IPv4 é: Dificuldade de seu uso em novos serviços que necessitam grande número de dispositivos, tais como aplicações e IoT, por exemplo.", o:["Verdade", "Falso"], a:0,
+  e:"Com apenas ~4,3 bilhões de endereços, o IPv4 não comporta a escala de dispositivos de IoT."},
+ {q:"Um roteador recebe um pacote (datagrama) IP cuja carga útil (payload) é de 1000 bytes, e deseja enviar o mesmo por uma interface cuja MTU é de 500 bytes. Sabendo que os pacotes IP possuem cabeçalho padrão (20 bytes), qual o número de pacotes enviados, resultante do processo de fragmentação?", o:["2", "3", "4", "5"], a:1,
+  e:"Cada fragmento leva até 500 − 20 = 480 bytes de dados (múltiplo de 8). 480 + 480 + 40 = 1000 → 3 pacotes."},
+];
+const A10_QS = [
+ {q:"Um sistema de informação pode ser considerado “seguro” se atende a três requisitos básicos: confidencialidade, integridade e disponibilidade.", o:["Verdade", "Falso"], a:0,
+  e:"É a tríade CID (CIA): confidencialidade, integridade e disponibilidade são os pilares da segurança da informação."},
+ {q:"Uma empresa deve proteger não somente seus dados críticos, mas também os de seus colaborados e clientes.", o:["Verdade", "Falso"], a:0,
+  e:"Dados pessoais de funcionários e clientes também precisam de proteção (inclusive por lei, como a LGPD)."},
+ {q:"Trojan, ou cavalo de Tróia, é um tipo de malware que vem anexado à um arquivo inofensivo, que visa realizar operações mal-intencionadas no sistema.", o:["Verdade", "Falso"], a:0,
+  e:"O cavalo de Troia se disfarça de (ou vem junto com) um programa/arquivo legítimo para executar ações maliciosas."},
+ {q:"São exemplos de recursos utilizados para minimizar os acessos não autorizados ao seu sistema: firewall, antivírus e antispyware.", o:["Verdade", "Falso"], a:0,
+  e:"São ferramentas básicas de proteção contra acessos e softwares não autorizados."},
+ {q:"DDoS é um tipo de ataque em que diferentes dispositivos, espalhados na internet, atacam de maneira sincronizada um único sistema.", o:["Verdade", "Falso"], a:0,
+  e:"Negação de serviço distribuída: muitos dispositivos (geralmente uma botnet) sobrecarregam o mesmo alvo ao mesmo tempo."},
+ {q:"Ransomware é um tipo de malwares que visa “abrir” uma porta de entrada para o acesso indevido de um usuário mal-intencionado.", o:["Verdade", "Falso"], a:1,
+  e:"Isso descreve um backdoor. O ransomware criptografa/bloqueia os dados e exige um resgate para liberá-los."},
+ {q:"Um parâmetro importante na política de segurança de uma organização é o tempo de resposta a um incidente; quanto menor esse tempo, menores serão os impactos negativos causados pelo incidente de segurança.", o:["Verdade", "Falso"], a:0,
+  e:"Detectar e responder rápido limita o alcance e o dano de um incidente."},
+ {q:"Exploit é um tipo de malware utilizado para rastrear as atividades de um usuário em seu dispositivo.", o:["Verdade", "Falso"], a:1,
+  e:"Isso descreve um spyware. Exploit é um código que aproveita uma vulnerabilidade de software para obter acesso ou executar ações."},
+ {q:"Chamamos “malware” a qualquer “software malicioso” que pode ser utilizado para comprometer um sistema.", o:["Verdade", "Falso"], a:0,
+  e:"Malware = malicious software: vírus, worms, trojans, ransomware, spyware etc."},
+ {q:"Denomina-se identidade on-line aos dados que uma pessoa utiliza para se identificar no espaço cibernético.", o:["Verdade", "Falso"], a:0,
+  e:"Identidade on-line é o conjunto de informações (usuário, perfis, e-mail etc.) com que a pessoa se apresenta na internet."},
+ {q:"A segurança cibernética é o esforço contínuo realizado pelos governos para evitarem a invasão de seus territórios por tropas inimigas.", o:["Verdade", "Falso"], a:1,
+  e:"Segurança cibernética é o esforço contínuo para proteger sistemas, redes e dados contra uso não autorizado ou danos, e não defesa territorial militar."},
+ {q:"Engenharia social denomina um ataque em que o atacante usa de persuasão para obter informações privilegiadas do atacado.", o:["Verdade", "Falso"], a:0,
+  e:"Engenharia social manipula pessoas (persuasão, enganação) para obter informações ou acesso."},
+ {q:"Autenticação de dois fatores tem como objetivo filtrar o tráfego que entra e sai de uma rede ligada à internet.", o:["Verdade", "Falso"], a:1,
+  e:"Filtrar tráfego é função do firewall. A autenticação de dois fatores exige duas formas de comprovar a identidade (ex.: senha + código)."},
+ {q:"As ameaças externas são sempre mais preocupantes, pois possuem, de modo geral, maior potencial de causar danos às informações e recursos da organização.", o:["Verdade", "Falso"], a:1,
+  e:"Ameaças internas costumam ter maior potencial de dano, porque quem está dentro já tem acesso e conhece os sistemas. Além disso, 'sempre' torna a afirmação falsa."},
+ {q:"Dentre alguns sintomas de que um sistema está infectado destacam-se: diminuição no uso da CPU, aumento na velocidade do computador, modificação de arquivos aleatoriamente, entre outros.", o:["Verdade", "Falso"], a:1,
+  e:"Os sintomas são o contrário: aumento no uso da CPU e diminuição da velocidade do computador (a modificação de arquivos é, sim, um sintoma)."},
+];
+
+/* ---------- PV2: simulado novo ---------- */
+const PV2_SIM = { id:"pv2-sim", t:"Simulado PV2", layer:"Novo", kind:"quiz", grade:2.5, jl:"Simulado",
+ intro:"Montado a partir do relato de quem fez a PV2 da outra turma: <b>começa pelo cabeçalho IPv4</b>, muito <b>deslocamento de fragmento</b>, sub-redes e binário, IPv6 e transição, ICMP, umas três de <b>tabela de rotas</b> (matéria da PV1), um bloco de verdadeiro/falso de cibersegurança e uma de criptografia. Termina com as <b>4 abertas</b> que caíram: duas de divisão de rede, o que o ICMP faz e o que o ping faz. São 40 questões novas, de 2,5 pontos.",
+ qs:[
+ {q:"Considerando o pacote IPv4 cujo cabeçalho aparece na figura, quantos bytes tem o cabeçalho?", fig:FIG_HDR_SA, o:["5 bytes","20 bytes","40 bytes","1500 bytes","Nenhuma das anteriores"], a:1,
+  e:"HLEN = 5 palavras de 32 bits (4 bytes): 5 × 4 = <b>20 bytes</b>, o cabeçalho sem opções."},
+ {q:"No mesmo pacote, qual o tamanho do payload (dados)?", fig:FIG_HDR_SA, o:["1500 bytes","1480 bytes","1520 bytes","185 bytes","Nenhuma das anteriores"], a:1,
+  e:"Comprimento total − cabeçalho = 1500 − 20 = <b>1480 bytes</b>."},
+ {q:"O que os campos Flags e Deslocamento do fragmento dizem sobre esse pacote?", fig:FIG_HDR_SA, o:["É um pacote que não foi fragmentado","É o primeiro fragmento de um pacote maior","É um fragmento do meio: ainda vêm fragmentos depois dele","É o último fragmento do pacote original","Nenhuma das anteriores"], a:2,
+  e:"MF = 1 → <b>ainda vêm fragmentos</b>. Deslocamento 185 ≠ 0 → <b>não é o primeiro</b>. Então é um fragmento do meio."},
+ {q:"A partir de qual byte dos dados originais começa a carga desse fragmento?", fig:FIG_HDR_SA, o:["Byte 185","Byte 1480","Byte 1500","Byte 0","Nenhuma das anteriores"], a:1,
+  e:"O deslocamento é contado em blocos de <b>8 bytes</b>: 185 × 8 = <b>1480</b>. Antes dele veio um fragmento com os bytes 0 a 1479."},
+ {q:"O campo Protocolo desse pacote vale 17. Isso indica que ele transporta:", fig:FIG_HDR_SA, o:["TCP","ICMP","UDP","OSPF","Nenhuma das anteriores"], a:2,
+  e:"Números de protocolo: 1 = ICMP, 6 = TCP, <b>17 = UDP</b>, 89 = OSPF."},
+ {q:"Com base no cabeçalho da figura (mesma identificação 7201 da questão anterior): este pacote é o último fragmento de um pacote original que foi fragmentado.", fig:FIG_HDR_SB, o:VF, a:0,
+  e:"MF = 0 (não vem mais nada) e deslocamento 370 ≠ 0 (veio coisa antes): é o <b>último fragmento</b>. Compare com a Lista PV2, onde MF = 0 e deslocamento = 0 indicam um pacote inteiro."},
+ {q:"Quantos bytes de dados tinha o pacote original, antes da fragmentação?", fig:FIG_HDR_SB, o:["520 bytes","2960 bytes","3480 bytes","3500 bytes","Nenhuma das anteriores"], a:2,
+  e:"Antes deste fragmento vieram 370 × 8 = 2960 bytes. Este traz 540 − 20 = 520. Total de dados: 2960 + 520 = <b>3480</b>. O pacote original, com o cabeçalho de 20, tinha 3500 bytes."},
+ {q:"Um datagrama de 4000 bytes (3980 de dados + 20 de cabeçalho) deve sair por uma interface com MTU de 1500 bytes. Quantos fragmentos serão gerados?", o:["2","3","4","5","Nenhuma das anteriores"], a:1,
+  e:"Cada fragmento leva no máximo 1500 − 20 = 1480 bytes de dados (1480 é múltiplo de 8). 3980 = 1480 + 1480 + 1020 → <b>3 fragmentos</b>. É o Exemplo 2 da aula."},
+ {q:"No exemplo anterior, qual é o valor do campo Deslocamento do fragmento no terceiro fragmento?", o:["2960","370","185","1020","Nenhuma das anteriores"], a:1,
+  e:"Antes do 3º fragmento vieram 2 × 1480 = 2960 bytes. Em unidades de 8: 2960 ÷ 8 = <b>370</b>. Os deslocamentos são 0, 185 e 370."},
+ {q:"Um datagrama de 1220 bytes (1200 de dados + 20 de cabeçalho) passa por uma interface com MTU de 500 bytes. Quantos bytes de dados vão no último fragmento?", o:["480","240","220","500","Nenhuma das anteriores"], a:1,
+  e:"Máximo por fragmento: 500 − 20 = 480. 1200 = 480 + 480 + <b>240</b>. É o Exemplo 1 da aula: deslocamentos 0, 60 e 120."},
+ {q:"Um pacote com cabeçalho de 24 bytes (HLEN = 6) precisa ser fragmentado para uma MTU de 500 bytes. Qual o máximo de bytes de dados em cada fragmento, exceto o último?", o:["476","480","472","500","Nenhuma das anteriores"], a:2, flag:"Detalhe que pega",
+  e:"500 − 24 = 476, mas até o penúltimo fragmento os dados precisam ser <b>múltiplo de 8</b> (o deslocamento é contado em blocos de 8). O múltiplo de 8 logo abaixo de 476 é <b>472</b>."},
+ {q:"Onde acontece a remontagem de um datagrama IPv4 fragmentado?", o:["Em cada roteador do caminho","No primeiro roteador depois da origem","Somente no host de destino","No roteador com a menor MTU","Nenhuma das anteriores"], a:2,
+  e:"No IPv4, a fragmentação pode acontecer na origem ou em qualquer roteador, mas a <b>remontagem só no destino</b>. Os fragmentos podem até seguir caminhos diferentes."},
+ {q:"Qual é a representação binária da máscara 255.255.255.224?", o:["11111111.11111111.11111111.11100000","11111111.11111111.11111111.11110000","11111111.11111111.11111111.11000000","11111111.11111111.11111110.00000000","Nenhuma das anteriores"], a:0,
+  e:"255 = 11111111. 224 = 128 + 64 + 32 = <b>11100000</b>. Ao todo, 27 bits 1: /27."},
+ {q:"A máscara 255.255.248.0 corresponde a qual prefixo?", o:["/19","/20","/21","/22","Nenhuma das anteriores"], a:2,
+  e:"248 = 11111000 (5 bits 1). 8 + 8 + 5 = <b>/21</b>."},
+ {q:"O bloco 172.16.0.0/16 foi dividido em 8 sub-redes de mesmo tamanho. Qual a nova máscara?", o:["/18","/19","/20","/24","Nenhuma das anteriores"], a:1,
+  e:"8 = 2<sup>3</sup> → /16 + 3 = <b>/19</b> (255.255.224.0)."},
+ {q:"Nessa divisão (172.16.0.0/16 em 8), qual é o endereço da terceira sub-rede?", o:["172.16.32.0","172.16.64.0","172.16.96.0","172.16.3.0","Nenhuma das anteriores"], a:1,
+  e:"/19 → máscara 224 no 3º octeto, bloco de 32: 172.16.0.0, 172.16.32.0, <b>172.16.64.0</b>…"},
+ {q:"Uma sub-rede precisa de 25 hosts. Qual a máscara que atende com a máxima economia?", o:["/26","/27","/28","/25","Nenhuma das anteriores"], a:1,
+  e:"25 + 2 = 27 endereços → próxima potência de 2 é 32 → <b>/27</b> (30 hosts). A /28 só tem 14 hosts."},
+ {q:"Com VLSM, da maior para a menor rede, o bloco 192.168.50.0/24 atende: Vendas 100 hosts, Suporte 50 hosts e Diretoria 20 hosts. Qual a rede/máscara da Diretoria?", o:["192.168.50.192/27","192.168.50.160/27","192.168.50.128/26","192.168.50.192/26","Nenhuma das anteriores"], a:0,
+  e:"Vendas: 100 → /25 (192.168.50.0 a .127). Suporte: 50 → /26 (.128 a .191). Diretoria: 20 → /27, começando no .192: <b>192.168.50.192/27</b>."},
+ {q:"O endereço 10.0.47.255/20 é um endereço de:", o:["Rede","Host","Broadcast","Nenhuma das anteriores"], a:2,
+  e:"/20 → máscara 240 no 3º octeto, bloco de 16: 0–15, 16–31, <b>32–47</b>. 10.0.47.255 é o último endereço de 10.0.32.0/20: <b>broadcast</b>."},
+ {q:"Qual a forma mais compactada válida do endereço 2001:0db8:0000:0000:0000:0abc:0000:0001?", o:["2001:db8::abc::1","2001:db8::abc:0:1","2001:db8:0:abc::1","2001:db8:::abc:0:1","Nenhuma das anteriores"], a:1,
+  e:"Tira os zeros à esquerda e troca a <b>maior</b> sequência de zeros (três grupos seguidos) por ::, uma vez só: <b>2001:db8::abc:0:1</b>. A a) usa :: duas vezes; a c) poria o abc no lugar errado."},
+ {q:"O cabeçalho base do IPv6 tem:", o:["20 bytes fixos","De 20 a 60 bytes","40 bytes fixos","128 bytes fixos","Nenhuma das anteriores"], a:2,
+  e:"<b>40 bytes fixos</b>, com 8 campos. O IPv4 é que varia de 20 a 60."},
+ {q:"No IPv6, o equivalente ao endereço de loopback 127.0.0.1 do IPv4 é:", o:["::/128","::1/128","FE80::1","FF02::1","Nenhuma das anteriores"], a:1,
+  e:"<b>::1</b> = loopback. :: (tudo zero) é o “não especificado”, como o 0.0.0.0; FE80:: é link-local; FF02::1 é o multicast de todos os nós."},
+ {q:"Um endereço IPv6 que começa com FE80 é:", o:["Global unicast (público)","Link-local, válido só no enlace","Multicast","Loopback","Nenhuma das anteriores"], a:1,
+  e:"FE80::/10 = <b>link-local</b>: configurado automaticamente e não passa de roteador. Global unicast começa com 2 ou 3 (2000::/3); multicast, com FF."},
+ {q:"O que um roteador IPv6 faz com um pacote maior que a MTU da interface de saída?", o:["Fragmenta o pacote","Descarta o pacote e envia à origem uma mensagem ICMPv6 Packet Too Big","Envia o pacote pela interface de maior MTU","Reduz o tamanho do cabeçalho base","Nenhuma das anteriores"], a:1,
+  e:"No IPv6 o roteador <b>não fragmenta</b>: descarta e avisa a origem com <b>Packet Too Big</b>. Quem fragmenta é a própria origem (descoberta do Path MTU)."},
+ {q:"Qual mecanismo de transição transmite pacotes IPv6 dentro de pacotes IPv4, aproveitando a infraestrutura IPv4 que já existe?", o:["Pilha dupla","Tunelamento","Tradução","NAT","Nenhuma das anteriores"], a:1,
+  e:"<b>Tunelamento</b> (6to4, ISATAP, Teredo, GRE…): encapsula o IPv6 dentro do IPv4. Pilha dupla = o dispositivo fala os dois; tradução = converte entre um e outro."},
+ {q:"Um dispositivo tem endereço IPv4 e IPv6 e fala com cada nó no protocolo que ele entende. Isso é:", o:["Pilha dupla","Tunelamento 6to4","Tradução (SIIT)","Nenhuma das anteriores"], a:0,
+  e:"<b>Pilha dupla</b>: os dois protocolos no mesmo dispositivo, com um endereço de cada."},
+ {q:"Qual mensagem ICMP o roteador envia à origem quando o TTL de um pacote chega a zero?", o:["Echo Reply","Destination Unreachable","Time Exceeded","Redirect","Nenhuma das anteriores"], a:2,
+  e:"<b>Time Exceeded</b> (tipo 11). O pacote é descartado e a origem é avisada. O traceroute usa justamente isso."},
+ {q:"O comando ping usa quais mensagens ICMP?", o:["Echo Request e Echo Reply","Time Exceeded","Destination Unreachable","Router Advertisement","Nenhuma das anteriores"], a:0,
+  e:"O ping manda <b>Echo Request</b> (tipo 8) e espera o <b>Echo Reply</b> (tipo 0)."},
+ {q:"Pela tabela de rotas, para onde o R1 encaminha um pacote com destino 172.16.2.10?", pre:TBL_P2, o:["GigabitEthernet0/0, direto (rede conectada)","Via 10.0.0.2, pela Serial0/0/0","Via 10.0.0.6, pela Serial0/0/1","Pela rota padrão, via 200.5.5.1","Nenhuma das anteriores"], a:1,
+  e:"Faixas: 172.16.1.0/24 = 1.0–1.255 (não); 172.16.0.0/22 = 0.0–3.255 (<b>sim</b>); 172.16.4.0/23 = 4.0–5.255 (não). Só a /22 contém: <b>via 10.0.0.2, Serial0/0/0</b>."},
+ {q:"E um pacote com destino 172.16.6.1?", pre:TBL_P2, o:["GigabitEthernet0/0, direto (rede conectada)","Via 10.0.0.2, pela Serial0/0/0","Via 10.0.0.6, pela Serial0/0/1","Pela rota padrão, via 200.5.5.1","Nenhuma das anteriores"], a:3,
+  e:"A /23 vai só até 172.16.5.255 e a /22 até 172.16.3.255. Nenhuma rota contém 172.16.6.1 → <b>rota padrão</b> (S* via 200.5.5.1). Sem a rota padrão, o pacote seria descartado e a origem receberia um ICMP Destination Unreachable."},
+ {q:"E um pacote com destino 172.16.1.77?", pre:TBL_P2, o:["GigabitEthernet0/0, direto (rede conectada)","Via 10.0.0.2, pela Serial0/0/0","Via 10.0.0.6, pela Serial0/0/1","Pela rota padrão, via 200.5.5.1","Nenhuma das anteriores"], a:0,
+  e:"Duas rotas contêm: 172.16.0.0/22 e 172.16.1.0/24. Ganha a de <b>maior prefixo</b>, a /24: rede conectada, sai pela <b>GigabitEthernet0/0</b> direto para o host."},
+ {q:"O IDS (Intrusion Detection System) bloqueia ativamente os ataques que detecta.", o:VF, a:1,
+  e:"O IDS <b>detecta, registra e relata</b>, mas não impede. Quem bloqueia é o <b>IPS</b>."},
+ {q:"Um ataque que intercepta e altera o valor de uma transação durante o trânsito quebra o pilar da integridade.", o:VF, a:0,
+  e:"Integridade = o dado chega sem alteração. Alterou em trânsito → quebrou a integridade."},
+ {q:"O worm precisa que o usuário execute um arquivo para se propagar.", o:VF, a:1,
+  e:"Quem depende da execução pelo usuário é o <b>vírus</b>. O worm se replica <b>sozinho</b>, explorando vulnerabilidades da rede."},
+ {q:"As ameaças internas têm potencial de causar mais dano que as externas, porque o usuário interno já tem acesso e conhece a rede.", o:VF, a:0,
+  e:"É o que diz a aula (e a Atividade 10, questão 14, cobra o contrário como falso): o usuário interno tem acesso quase direto à infraestrutura e conhece a rede e os dados."},
+ {q:"A criptografia dos dados impede que:", o:["Os dados sejam interceptados","Uma pessoa não autorizada leia o conteúdo, mesmo que intercepte","O computador seja infectado por vírus","A rede sofra ataques DDoS","Nenhuma das anteriores"], a:1,
+  e:"A criptografia <b>não impede a interceptação</b>: impede que quem interceptou <b>leia</b> o conteúdo. Foi o que se viu no Wireshark do Relatório 5: com TLS, o pacote aparece, mas ilegível."},
+ {q:"(Aberta) De posse do bloco 10.20.0.0/22, deseja-se dividi-lo em 4 sub-redes iguais. Indique a nova máscara e os endereços de rede e de broadcast de cada sub-rede.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`<p>4 = 2<sup>2</sup> → /22 + 2 = <b>/24</b> (255.255.255.0).</p>
+  ${tbl(["Sub-rede","Rede","Hosts","Broadcast"],[0,1,2,3].map(i => [`SR${i+1}`,`10.20.${i}.0/24`,`10.20.${i}.1 a 10.20.${i}.254`,`10.20.${i}.255`]))}`},
+ {q:"(Aberta) Com VLSM, divida 192.168.40.0/24 para: LAN A 100 hosts, LAN B 50 hosts, LAN C 25 hosts e um enlace WAN ponto a ponto. Indique a máscara e o endereço de rede de cada sub-rede.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`${tbl(["Rede","Hosts","Endereços","Rede/máscara","Broadcast"],[["LAN A","100","128","192.168.40.0/25","192.168.40.127"],["LAN B","50","64","192.168.40.128/26","192.168.40.191"],["LAN C","25","32","192.168.40.192/27","192.168.40.223"],["WAN","2","4","192.168.40.224/30","192.168.40.227"]])}
+  <p>Da maior para a menor, cada uma começando onde a anterior terminou. Sobram endereços de 192.168.40.228 a .255.</p>`},
+ {q:"(Aberta) O que faz o protocolo ICMP? Cite exemplos de mensagens.", o:OPEN_O, a:0, e:OPEN_E,
+  open:`<p>O <b>ICMP</b> (Internet Control Message Protocol, RFC 792) é um protocolo da <b>camada de rede</b>, que trabalha junto com o IP. Serve para enviar <b>mensagens de erro e de controle</b> sobre a entrega dos pacotes: avisa a origem quando algo deu errado no caminho e permite testar a rede. As mensagens vão <b>encapsuladas em pacotes IP</b>.</p>
+  <p>Exemplos: <b>Echo Request / Echo Reply</b> (usadas pelo ping); <b>Destination Unreachable</b> (rede, host, protocolo ou porta inalcançável); <b>Time Exceeded</b> (TTL chegou a zero, usado pelo traceroute).</p>`},
+ {q:"(Aberta) O que faz o comando ping e como ele funciona?", o:OPEN_O, a:0, e:OPEN_E,
+  open:`<p>O <b>ping</b> testa a <b>conectividade</b> entre dois dispositivos na rede. Ele envia mensagens <b>ICMP Echo Request</b> ao destino; se o destino estiver alcançável, responde com <b>ICMP Echo Reply</b>.</p>
+  <p>Com as respostas, o ping mostra se há comunicação, o <b>tempo de ida e volta</b> (RTT, em ms), o TTL recebido e a <b>perda de pacotes</b>. Se não houver resposta, ou se vier um Destination Unreachable, há problema no caminho (rota faltando, host desligado, firewall bloqueando ICMP).</p>`},
+]};
+
+/* ---------- PV2: atividades do Teams ---------- */
+const PV2_ATIV = { id:"pv2-ativ", t:"Atividades 9 e 10", layer:"Teams", kind:"quiz", jl:"Atividade",
+ intro:"As atividades do Teams sobre a matéria da PV2: a <b>Atividade 9 – Protocolos IP</b> (questões 1 a 20) e a <b>Atividade 10 – Conceitos de cibersegurança</b> (questões 21 a 35). As respostas e os comentários são os que montamos quando você fez as atividades.",
+ qs:[...A9_QS, ...A10_QS]};
+
+/* ---------- PV2: laboratório ---------- */
+const PV2_LABQ = { id:"pv2-labq", t:"Questões do lab", layer:"Relatórios", kind:"quiz", jl:"Lab",
+ intro:"Questões sobre os relatórios do laboratório (1, 2, 3, consolidação, 5 e 6) e a prova do lab. Na turma que fez hoje, caíram o <b>roteamento dinâmico (OSPF)</b> e a parte do <b>Relatório 6 (pfSense)</b>.",
+ qs:[
+ {q:"No Relatório 1, o VirtualBox é um hipervisor de qual tipo?", o:["Tipo 1 (bare metal), roda direto no hardware","Tipo 2 (hospedado), roda como aplicativo sobre um sistema operacional","É um contêiner, como o Docker","Nenhuma das anteriores"], a:1,
+  e:"O VirtualBox é <b>Tipo 2</b>: instala-se num Windows/Linux/macOS já existente. Tipo 1 roda direto no hardware (servidores e nuvem)."},
+ {q:"No modo de rede NAT do VirtualBox, a VM:", o:["Acessa a internet, mas não pode ser acessada diretamente por outros dispositivos da rede","Fica isolada, falando só com outras VMs","Recebe um IP da rede local, como se fosse um PC físico","Nenhuma das anteriores"], a:0,
+  e:"<b>NAT</b>: sai para a internet usando o host como roteador (IP 10.0.2.15), mas ninguém de fora inicia conexão com ela. Rede Interna = isolada entre VMs; Bridge = IP da rede local."},
+ {q:"Duas VMs em modo Rede Interna, com o mesmo nome de rede (intnet), conseguem:", o:["Acessar a internet","Comunicar-se entre si, mas sem acesso à rede externa","Receber IP do roteador da casa por DHCP","Nenhuma das anteriores"], a:1,
+  e:"A Rede Interna cria uma rede isolada só entre as VMs. Sem DHCP, os IPs foram postos à mão (192.168.0.2 e .3)."},
+ {q:"Qual modo de rede faz a VM se comportar como mais um dispositivo físico da rede local, com IP dessa rede?", o:["NAT","Rede Interna","Placa em modo Bridge","NAT Network"], a:2,
+  e:"<b>Bridge</b>: a VM usa a placa do host para se ligar direto à rede local e recebe um IP dela (no Relatório 2, 192.168.137.x do hotspot)."},
+ {q:"Qual a principal diferença entre um contêiner Docker e uma máquina virtual?", o:["O contêiner virtualiza o hardware e precisa de um SO completo","O contêiner compartilha o kernel do sistema hospedeiro, por isso é mais leve e inicia em segundos","A VM inicia em segundos e o contêiner em minutos","Nenhuma das anteriores"], a:1,
+  e:"VM virtualiza o <b>hardware</b> (SO completo, GBs, minutos). Contêiner virtualiza o <b>sistema operacional</b>: compartilha o kernel, usa MBs e sobe em segundos."},
+ {q:"No comando docker run -d -p 80:80 --name meu-nginx nginx, o que faz o -p 80:80?", o:["Define a prioridade do contêiner","Mapeia a porta 80 do hospedeiro para a porta 80 do contêiner","Limita o contêiner a 80 MB de memória","Nenhuma das anteriores"], a:1,
+  e:"<b>-p host:contêiner</b> publica a porta. -d roda em segundo plano; --name dá o nome."},
+ {q:"Na Atividade de Consolidação, por que foi preciso editar o mosquitto.conf com “listener 1883 0.0.0.0” e “allow_anonymous true”?", o:["Para o Mosquitto aceitar conexões vindas de outras máquinas, e não só do localhost","Para trocar a porta do MQTT para 8883","Para ativar o TLS","Nenhuma das anteriores"], a:0,
+  e:"Por padrão o Mosquitto só aceita conexões locais. O listener em 0.0.0.0 abre para qualquer IP, e o allow_anonymous permite clientes sem usuário e senha."},
+ {q:"No Relatório 5, ao capturar o tráfego com o Wireshark, o que se vê no acesso via HTTPS (porta 443)?", o:["O HTML da página em texto claro","Só o handshake TLS (ClientHello, ServerHello, certificado) e dados cifrados","Nada: o TLS esconde até os pacotes","Nenhuma das anteriores"], a:1,
+  e:"Com TLS os pacotes continuam aparecendo, mas o conteúdo vira <b>Application Data</b> ilegível. Só o handshake fica visível. Em HTTP (porta 80), o GET e o HTML aparecem em texto claro."},
+ {q:"Por que o comando curl -vk https://… usa a opção -k no Relatório 5?", o:["Para usar a porta 443","Para aceitar o certificado autoassinado do servidor","Para mostrar os cabeçalhos","Nenhuma das anteriores"], a:1,
+  e:"O certificado foi gerado com openssl e é <b>autoassinado</b>; sem o -k o curl recusaria a conexão. O -v (verbose) é que mostra os detalhes."},
+ {q:"No pfSense, as regras de firewall de uma interface são avaliadas:", o:["Todas, e vale a mais restritiva","De cima para baixo, e a primeira que casa com o pacote decide","De baixo para cima","Nenhuma das anteriores"], a:1,
+  e:"De <b>cima para baixo</b>, a primeira compatível decide. Por isso as regras de bloqueio ficam <b>acima</b> da regra “allow LAN to any”."},
+ {q:"No Relatório 6, por que o pfSense precisa de duas placas de rede na VM?", o:["Uma WAN (saída, via NAT do VirtualBox) e uma LAN (Rede Interna, onde fica a VM cliente)","Uma para IPv4 e outra para IPv6","Uma para o HTTP e outra para o HTTPS","Nenhuma das anteriores"], a:0,
+  e:"O pfSense é o <b>gateway</b> entre duas redes: a WAN (lado de fora) e a LAN (rede interna dos clientes). Ele faz NAT da LAN para a WAN e filtra o tráfego entre elas."},
+ {q:"Na regra BLOCK_LAN_ICMP_INTERNET, o destino foi “LAN subnets” com a opção Inverted marcada. O que isso significa?", o:["Bloquear ICMP só dentro da LAN","Bloquear ICMP para qualquer destino que não seja a LAN (internet), mantendo o ping ao gateway","Bloquear tudo menos ICMP","Nenhuma das anteriores"], a:1,
+  e:"Inverted = “tudo, <b>menos</b> LAN subnets”. Assim o ping para 8.8.8.8 é bloqueado, mas o ping para 192.168.1.1 (o próprio pfSense) continua funcionando."},
+ {q:"Na prova do lab, qual comando OSPF anuncia a rede 192.168.10.0/24 no R1 (processo 10, área 0)?", o:["network 192.168.10.0 255.255.255.0 area 0","network 192.168.10.0 0.0.0.255 area 0","ip route 192.168.10.0 255.255.255.0 area 0","Nenhuma das anteriores"], a:1,
+  e:"Dentro de <code>router ospf 10</code>, o comando network usa a <b>wildcard</b> (o inverso da máscara): /24 → 0.0.0.255; /30 → 0.0.0.3."},
+ {q:"Qual a wildcard para anunciar o enlace 172.16.13.0/30 no OSPF?", o:["0.0.0.3","255.255.255.252","0.0.0.252","0.0.0.4"], a:0,
+  e:"Wildcard = 255.255.255.255 − máscara. 255.255.255.255 − 255.255.255.252 = <b>0.0.0.3</b>."},
+ {q:"Para conferir se R1 e R2 formaram vizinhança OSPF, qual comando usar?", o:["show ip ospf neighbor","show vlan brief","show running-config ospf","Nenhuma das anteriores"], a:0,
+  e:"<b>show ip ospf neighbor</b> lista os vizinhos (estado FULL = adjacência formada). Depois, <b>show ip route</b> deve mostrar as rotas com O."},
+ {q:"Na tabela de rotas do R1 da prova do lab, como aparece a rede 192.168.30.0/24 depois que o OSPF funciona?", o:["Com C (diretamente conectada)","Com O, via 172.16.13.2","Com S, rota estática","Não aparece"], a:1,
+  e:"Ela é aprendida do R2 pelo OSPF: <b>O 192.168.30.0/24 [110/…] via 172.16.13.2</b>, pela serial."},
+ {q:"O IDS citado na introdução da prova do lab difere de um firewall porque:", o:["Ele filtra tráfego por porta","Ele detecta e alerta sobre ataques, mas não bloqueia","Ele cria túneis criptografados","Nenhuma das anteriores"], a:1,
+  e:"Firewall filtra (permite/bloqueia por regra). <b>IDS</b> monitora, detecta e alerta. IPS detecta e bloqueia. VPN cria túnel."},
+]};
+
+/* ---------- PV2: guia "o que caiu" (relato da outra turma) ---------- */
+const TOPICS2 = [
+ {id:"p2-formato", t:"Como foi a prova", hot:"relato de hoje",
+  b:`<ul><li><b>4 questões abertas</b>: 2 de <b>divisão de rede</b>, 1 perguntando <b>o que o ICMP faz</b> e 1 perguntando <b>o que o ping faz</b>.</li>
+  <li><b>Uns 8 verdadeiro/falso</b>, sendo que uma questão era um bloco de uns 7 V/F de <b>cibersegurança</b>.</li>
+  <li>O resto, de alternativas. Pelo relato, uns <b>2/3 de sub-redes e IPv4</b> e <b>1/3 de IPv6</b>.</li>
+  <li>“Mais fácil que a primeira, mas continua difícil: tem muito detalhe.”</li></ul>`},
+ {id:"p2-cab", t:"1ª questão: cabeçalho IPv4", hot:"igual à lista",
+  b:`<p>A primeira questão foi “praticamente idêntica” à do cabeçalho da lista (questões 32 a 35): “quantos bytes”, payload, comprimento total. Leia assim:</p><ul>
+  <li><b>HLEN × 4</b> = tamanho do cabeçalho em bytes (5 → 20; 6 → 24; máximo 15 → 60).</li>
+  <li><b>Comprimento total</b> = cabeçalho + dados, já em bytes. Payload = total − cabeçalho.</li>
+  <li><b>Identificação</b> é só um número que liga os fragmentos; não é tamanho nenhum (a pegadinha do 1958).</li>
+  <li><b>Flags</b>: reservado · DF · <b>MF</b>. <b>Deslocamento</b> × 8 = posição dos dados no pacote original.</li>
+  <li>MF = 0 e deslocamento = 0 → pacote inteiro. MF = 1 → vêm mais. MF = 0 e deslocamento ≠ 0 → último fragmento.</li>
+  <li><b>Protocolo</b>: 1 ICMP, 6 TCP, 17 UDP, 89 OSPF. <b>TTL</b>: −1 a cada roteador; em 0, descarta.</li></ul>`},
+ {id:"p2-frag", t:"Deslocamento de fragmento", hot:"caiu bastante", go:["pv2-treino","Treinar fragmentação →"],
+  b:`<ol class="steps"><li>Dados = comprimento total − cabeçalho.</li>
+  <li>Máximo de dados por fragmento = MTU − cabeçalho, <b>arredondado para baixo até um múltiplo de 8</b> (com cabeçalho de 20 e MTU 1500 dá 1480, que já é múltiplo).</li>
+  <li>Vai enchendo os fragmentos com esse máximo; o último leva o que sobrar.</li>
+  <li><b>Deslocamento</b> de cada fragmento = bytes de dados que vieram antes ÷ 8. O primeiro é sempre 0.</li>
+  <li><b>MF = 1</b> em todos, menos no último (MF = 0). Comprimento total de cada fragmento = dados + cabeçalho.</li></ol>
+  <p>Exemplo da aula: 3980 de dados, MTU 1500 → 1480 + 1480 + 1020, deslocamentos <b>0, 185 e 370</b>.</p>`},
+ {id:"p2-div", t:"Divisão de rede (as abertas)", hot:"2 abertas", go:["pv2-treino","Treinar divisão e VLSM →"],
+  b:`<p><b>Em N sub-redes iguais</b>: ache o menor n com 2<sup>n</sup> ≥ N; a nova máscara é o prefixo + n. Bloco = 256 − valor da máscara no octeto que “quebra”; as redes andam de bloco em bloco.</p>
+  <p><b>VLSM (por número de hosts)</b>: ordene da maior para a menor; para cada uma, a menor potência de 2 ≥ hosts + 2; vá alocando em sequência, cada rede começando onde a anterior terminou.</p>
+  ${tbl(["Hosts até","Endereços","Prefixo","Máscara"],[["2","4","/30","255.255.255.252"],["6","8","/29","255.255.255.248"],["14","16","/28","255.255.255.240"],["30","32","/27","255.255.255.224"],["62","64","/26","255.255.255.192"],["126","128","/25","255.255.255.128"],["254","256","/24","255.255.255.0"],["510","512","/23","255.255.254.0"],["1022","1024","/22","255.255.252.0"]],"nums")}
+  <p>Na resposta aberta, escreva <b>máscara e endereço de rede</b> de cada sub-rede (de preferência com broadcast também).</p>`},
+ {id:"p2-bin", t:"Binário das máscaras", hot:"pegou gente",
+  b:`<p>Quem fez disse que se ferrou na “transformação de 255 em binário”. Decore os pesos e os valores possíveis de um octeto de máscara:</p>
+  ${tbl(["128","64","32","16","8","4","2","1"],[["1","1","1","1","1","1","1","1"]],"nums")}
+  ${tbl(["Bits 1","Binário","Decimal"],[["1","10000000","128"],["2","11000000","192"],["3","11100000","224"],["4","11110000","240"],["5","11111000","248"],["6","11111100","252"],["7","11111110","254"],["8","11111111","255"]],"nums")}
+  <p>Para converter qualquer número: vá subtraindo os pesos da esquerda para a direita. 200 = 128 + 64 + 8 → 11001000.</p>`},
+ {id:"p2-icmp", t:"O que o ICMP faz · o que o ping faz", hot:"2 abertas",
+  b:`<p><b>ICMP</b>: protocolo da camada de rede, junto com o IP, que envia <b>mensagens de erro e de controle</b> sobre a entrega dos pacotes. Exemplos: Echo Request/Reply (ping), Destination Unreachable, Time Exceeded (TTL zerou). As mensagens vão dentro de pacotes IP.</p>
+  <p><b>Ping</b>: testa a <b>conectividade</b> entre dois hosts. Envia <b>ICMP Echo Request</b>; o destino responde <b>Echo Reply</b>. Mostra se há comunicação, o tempo de ida e volta e a perda de pacotes.</p>
+  <p class="note">O amigo respondeu “ping testa comunicação entre dispositivos usando envio de pacotes”. Para garantir a nota, cite o <b>ICMP</b> e o <b>Echo Request/Reply</b>.</p>`},
+ {id:"p2-ipv6", t:"IPv6", hot:"1/3 da prova",
+  b:`<ul><li><b>128 bits</b>, 8 grupos de 16 bits (4 dígitos hexa). Abreviar: tira zeros à esquerda e troca uma sequência de grupos zero por <b>::</b>, <b>uma vez só</b>.</li>
+  <li>Cabeçalho <b>fixo de 40 bytes</b>, 8 campos; Limite de Saltos = TTL; Próximo Cabeçalho = Protocolo.</li>
+  <li><b>Sem broadcast</b>: unicast, anycast e multicast.</li>
+  <li>Prefixos: <b>FE80::/10</b> link-local · <b>2000::/3</b> global · <b>FF00::/8</b> multicast · <b>::1</b> loopback · 2001:db8::/32 documentação.</li>
+  <li>Roteador <b>não fragmenta</b>: descarta e manda ICMPv6 Packet Too Big; só a origem fragmenta.</li>
+  <li>ICMPv6 faz a descoberta de vizinhança (substitui o <b>ARP</b>) e o gerenciamento de multicast (substitui o <b>IGMP</b>).</li></ul>`},
+ {id:"p2-trans", t:"Transição IPv4 ↔ IPv6", hot:"1 ou 2 questões",
+  b:`<ul><li><b>Pilha dupla</b>: o dispositivo roda IPv4 e IPv6 ao mesmo tempo, com um endereço de cada.</li>
+  <li><b>Tunelamento</b>: IPv6 encapsulado dentro de IPv4, usando a rede IPv4 existente (6to4, ISATAP, Teredo, GRE, tunnel brokers).</li>
+  <li><b>Tradução</b>: faz um nó só IPv6 falar com um nó só IPv4 (SIIT, BIS, BIA, TRT).</li></ul>`},
+ {id:"p2-ciber", t:"Cibersegurança", hot:"~7 V/F + 1 de criptografia", go:["pv2-ativ","Atividade 10 →"],
+  b:`<ul><li><b>CID</b>: confidencialidade (só quem pode lê), integridade (não é alterado), disponibilidade (está lá quando precisa).</li>
+  <li>Malware: <b>vírus</b> (precisa ser executado), <b>worm</b> (se espalha sozinho), <b>trojan</b> (disfarçado de algo útil), <b>ransomware</b> (criptografa e pede resgate), <b>spyware</b> (espiona), <b>adware</b> (anúncios), <b>rootkit</b> (cria backdoor), <b>scareware</b> (assusta).</li>
+  <li>Ataques: <b>phishing</b> (e-mail falso), <b>DDoS</b> (botnet de zumbis), engenharia social, MITM, envenenamento de SEO.</li>
+  <li>Defesa: <b>firewall</b> filtra; <b>IPS</b> bloqueia; <b>IDS</b> só detecta e relata; <b>VPN</b> faz túnel criptografado.</li>
+  <li><b>Criptografia</b> não impede a interceptação, impede a <b>leitura</b>. Ameaças <b>internas</b> têm potencial de causar mais dano.</li></ul>
+  <p>A Atividade 10 (15 V/F) é o melhor treino para o bloco de V/F.</p>`},
+ {id:"p2-rotas", t:"Tabela de rotas (matéria da PV1!)", hot:"~3 questões", go:["rotas","Treinar tabela de rotas →"],
+  b:`<p>O professor cobrou umas 3 de “para onde o roteador manda esse pacote”, com destino e máscara. É a mesma regra da PV1:</p><ul>
+  <li>Calcule a <b>faixa</b> de cada rota; veja quais contêm o destino.</li>
+  <li>Ganha a de <b>maior prefixo</b>. Nenhuma contém → <b>rota padrão</b>. Sem rota padrão → descarta (e manda ICMP Destination Unreachable).</li></ul>`},
+ {id:"p2-lab", t:"Prova do lab", hot:"OSPF + Relatório 6", go:["pv2-lab","Roteiro da prova do lab →"],
+  b:`<p>Da prova prática, quem fez lembrou do <b>roteamento dinâmico (OSPF)</b>, que foi a maior parte, e da parte do <b>Relatório 6 (pfSense)</b>. O grupo se dividiu, então o resto não ficou claro. O roteiro com os comandos está na aba Prova do lab.</p>`},
+];
+const JUMPS2 = [
+ ["1ª questão: cabeçalho IPv4 · lista", [8,32,33,34,35].map(n => ["pv2-lista",n,n!==8?0:1])],
+ ["Fragmentação · lista e simulado", [["pv2-lista",7],["pv2-sim",8],["pv2-sim",9],["pv2-sim",11]]],
+ ["Divisão de rede · lista", [1,3,5,36,37].map(n => ["pv2-lista",n,1])],
+ ["ICMP e ping · lista e simulado", [["pv2-lista",6],["pv2-lista",9],["pv2-sim",39],["pv2-sim",40]]],
+ ["Cibersegurança · lista", [16,17,18,19,20,21,22].map(n => ["pv2-lista",n,1])],
+];
+const PV2_GUIA = {id:"pv2-guia", t:"O que caiu", layer:"Relato", kind:"guide", topics:TOPICS2, jumps:JUMPS2, title:"O que caiu na PV2",
+ lead:`<div class="callout" style="--i:0"><h3>Resumo do relato</h3><ul>
+  <li>Quem fez de manhã achou <b>mais fácil que a PV1, mas cheia de detalhe</b>.</li>
+  <li>A <b>primeira questão</b> foi quase igual à do cabeçalho da lista; caiu <b>bastante deslocamento de fragmento</b>.</li>
+  <li><b>4 abertas</b>: 2 de divisão de rede, o que o ICMP faz, o que o ping faz. Uns 8 V/F (um bloco de ~7 de cibersegurança).</li>
+  <li>Bastante IPv4 e IPv6, 1 ou 2 de transição v4/v6, só 1 de criptografia e umas <b>3 de tabela de rotas</b> (matéria da PV1).</li></ul>
+  <blockquote><b>Dica de quem fez:</b> “se fizer a lista dele e estudar direitinho, dá certo.”</blockquote></div>`};
+
+/* ---------- PV2: resumo ---------- */
+const SUMMARY2 = [
+ {id:"sub", t:"Sub-redes (máscara fixa)", b:`
+  <p>Dividir um bloco em N sub-redes iguais: <b>empresta bits do host</b>, a partir do mais significativo. Com n bits emprestados, 2<sup>n</sup> sub-redes.</p>
+  <ol class="steps"><li>Menor n com 2<sup>n</sup> ≥ N. Nova máscara = prefixo + n.</li>
+  <li>Bits de host que sobram = 32 − novo prefixo → 2<sup>h</sup> endereços, 2<sup>h</sup> − 2 hosts.</li>
+  <li>No octeto onde a máscara “quebra”: bloco = 256 − valor da máscara. As redes andam de bloco em bloco.</li>
+  <li>Broadcast de cada uma = próxima rede − 1.</li></ol>
+  <p>Exemplo (aula): 172.16.0.0/16 em 4 → /18 (255.255.192.0), bloco de 64 no 3º octeto: 172.16.0.0, .64.0, .128.0, .192.0.</p>
+  ${key("Se o número de sub-redes não for potência de 2, arredonde para cima (5 sub-redes → 8 → 3 bits). Sobram sub-redes sem uso.")}`},
+ {id:"vlsm", t:"VLSM", b:`
+  <p>Máscaras de tamanhos diferentes no mesmo bloco, cada uma do tamanho da necessidade. Economiza endereços.</p>
+  <ol class="steps"><li>Ordene as redes da <b>maior para a menor</b>.</li>
+  <li>Para cada uma: menor potência de 2 ≥ hosts + 2. Enlace ponto a ponto = /30.</li>
+  <li>Aloque em sequência: cada rede começa no endereço seguinte ao broadcast da anterior.</li></ol>
+  ${tbl(["Rede","Hosts","Máscara","Rede","Broadcast"],[["LAN1","60","/26","192.168.10.0","192.168.10.63"],["LAN4","28","/27","192.168.10.64","192.168.10.95"],["LAN2","12","/28","192.168.10.96","192.168.10.111"],["LAN3","12","/28","192.168.10.112","192.168.10.127"],["WAN1–3","2","/30",".128, .132, .136",".131, .135, .139"]])}
+  ${key("Hosts “no limite”: 30 hosts cabem em /27 (32 − 2); 32 hosts não cabem (precisa de /26). 126 cabem em /25; 128 ou 130 já pedem /24.")}`},
+ {id:"bin", t:"Binário", b:`
+  ${tbl(["2⁷","2⁶","2⁵","2⁴","2³","2²","2¹","2⁰"],[["128","64","32","16","8","4","2","1"]],"nums")}
+  <p>Decimal → binário: subtraia os pesos da esquerda para a direita (bit 1 se couber). 172 = 128 + 32 + 8 + 4 → <code>10101100</code>.</p>
+  <p>Máscara: <code>/n</code> = n bits 1 seguidos. /21 = 11111111.11111111.11111<b>000</b>.00000000 = 255.255.248.0.</p>
+  ${tbl(["Octeto","128","192","224","240","248","252","254","255"],[["Bits 1","1","2","3","4","5","6","7","8"]],"nums")}`},
+ {id:"ipv4", t:"Cabeçalho IPv4", b:`
+  ${tbl(["Campo","Bits","O que é"],[
+   ["Versão","4","4 para IPv4"],["HLEN","4","Tamanho do cabeçalho em palavras de 4 bytes: 5 (20 B) a 15 (60 B)"],
+   ["Tipo de serviço","8","Prioridade → QoS (Serviços Diferenciados)"],["Comprimento total","16","Cabeçalho + dados, em bytes (máx. 65535)"],
+   ["Identificação","16","Número que liga os fragmentos do mesmo pacote"],["Flags","3","Reservado · DF (não fragmentar) · MF (mais fragmentos)"],
+   ["Deslocamento","13","Posição dos dados, em unidades de 8 bytes"],["TTL","8","−1 por roteador; em 0, descarta e manda ICMP Time Exceeded"],
+   ["Protocolo","8","1 ICMP · 2 IGMP · 6 TCP · 17 UDP · 89 OSPF"],["Checksum","16","Verifica erros só no cabeçalho"],
+   ["Origem / Destino","32 cada","Endereços IP"],["Opções","variável","Testes e depuração (record route, timestamp…)"]])}
+  ${key("IP é <b>melhor esforço</b>, não orientado à conexão e não confiável (RFC 791). Cabeçalho típico: <b>20 bytes</b>.")}`},
+ {id:"frag", t:"Fragmentação IPv4", b:`
+  <p>Se o pacote é maior que a <b>MTU</b> da interface de saída, ele é fragmentado (na origem ou em qualquer roteador). A <b>remontagem é só no destino</b>. A fragmentação é sobre os <b>dados</b>; cada fragmento ganha um cabeçalho.</p>
+  <p>Exemplo 2 da aula: 4000 bytes (3980 de dados + 20), MTU 1500 → máximo de 1480 de dados por fragmento.</p>
+  ${tbl(["Fragmento","Dados","Comprimento total","Deslocamento","MF"],[["1","1480","1500","0","1"],["2","1480","1500","185","1"],["3","1020","1040","370","0"]],"nums")}
+  ${key("Deslocamento = bytes anteriores ÷ 8. Os dados de todo fragmento, menos o último, têm de ser <b>múltiplo de 8</b>: com cabeçalho de 24 e MTU 500, o máximo é 472, e não 476.")}`},
+ {id:"icmp", t:"ICMP", b:`
+  <p>Mensagens de <b>erro e controle</b> da camada de rede (RFC 792), encapsuladas em IP.</p>
+  ${tbl(["Mensagem","Tipo","Quando"],[["Echo Reply","0","Resposta do ping"],["Destination Unreachable","3","Roteador não consegue entregar (código: 0 rede, 1 host, 2 protocolo, 3 porta, 4 precisa fragmentar mas DF = 1)"],["Echo Request","8","Pergunta do ping"],["Time Exceeded","11","TTL zerou (base do traceroute)"]])}
+  <p><b>Ping</b>: Echo Request → Echo Reply; mede conectividade, tempo de ida e volta e perda. <b>Traceroute</b>: manda pacotes com TTL 1, 2, 3… e cada roteador que zera o TTL se revela com um Time Exceeded.</p>`},
+ {id:"ipv6", t:"IPv6", b:`
+  <p>128 bits, 8 grupos de 16 bits em hexa. <b>Regras de abreviação</b>: maiúscula ou minúscula; omitir zeros à esquerda; trocar zeros contínuos por <b>::</b> uma única vez (2001:db8::130f::140b é inválido, ambíguo).</p>
+  ${tbl(["","IPv4","IPv6"],[["Endereço","32 bits","128 bits"],["Cabeçalho","20 a 60 bytes, 12 campos","40 bytes fixos, 8 campos"],["Fragmentação","Origem e roteadores","Só na origem"],["Checksum no cabeçalho","Sim","Não"],["Broadcast","Sim","Não (usa multicast)"],["TTL","TTL","Limite de Saltos"],["Protocolo","Protocolo","Próximo Cabeçalho"],["Tipo de serviço","ToS","Classe de Tráfego (+ Rótulo de Fluxo, 20 bits)"]])}
+  ${tbl(["Endereço","Prefixo"],[["Global unicast (público)","2000::/3"],["Link-local (automático, não roteia)","FE80::/10"],["Unique local (privado)","FC00::/7"],["Multicast","FF00::/8"],["Loopback","::1/128"],["Não especificado","::/128"],["IPv4 mapeado","::FFFF:192.168.100.1"],["Documentação","2001:db8::/32"]])}
+  <p>Tipos: <b>unicast</b> (um para um), <b>anycast</b> (para o mais próximo de um grupo), <b>multicast</b> (para todos do grupo). <b>ICMPv6</b>: erros de 1 a 127, informação de 128 a 255; faz descoberta de vizinhança (no lugar do ARP), multicast (no lugar do IGMP) e descoberta do Path MTU.</p>`},
+ {id:"trans", t:"Transição IPv4 / IPv6", b:`
+  ${tbl(["Mecanismo","Como funciona","Exemplos"],[["Pilha dupla","O nó roda IPv4 e IPv6; fala IPv6 com quem é IPv6 e IPv4 com quem é IPv4","Endereço de cada versão"],["Tunelamento","Encapsula o pacote IPv6 dentro de um IPv4 para atravessar a rede IPv4","6to4, ISATAP, Teredo, GRE, tunnel brokers"],["Tradução","Converte para um nó só IPv6 falar com um só IPv4","SIIT, BIS, BIA, TRT"]])}`},
+ {id:"ciber", t:"Cibersegurança", b:`
+  ${tbl(["Pilar","Garante","Quebra típica"],[["Confidencialidade","Só quem tem permissão lê (criptografia, senha, 2FA)","Funcionário lê arquivo sigiloso"],["Integridade","Dado preciso e sem alteração (permissões, versão, backup)","Alterar transação em trânsito"],["Disponibilidade","Acesso quando precisa (manutenção, backup, recuperação)","DoS/DDoS derruba o site"]])}
+  ${tbl(["Malware","O que faz"],[["Vírus","Anexado a executável; ativado pelo usuário"],["Worm","Se replica sozinho pela rede, explorando vulnerabilidades"],["Trojan","Disfarçado de arquivo útil"],["Ransomware","Criptografa os dados e pede resgate"],["Spyware","Espiona e rastreia o usuário"],["Adware","Mostra anúncios"],["Scareware","Assusta para o usuário agir"],["Rootkit","Modifica o SO e abre backdoor"]])}
+  ${tbl(["Ataque","Como"],[["Phishing","E-mail falso de fonte “confiável”"],["DoS / DDoS","Sobrecarga; no DDoS, botnet de zumbis"],["Engenharia social","Manipula pessoas para obter informação"],["MITM / MITMO","Intercepta a comunicação (ou o celular)"],["Envenenamento de SEO","Site malicioso no topo da busca"]])}
+  <p><b>Defesa</b>: firewall (filtra por regras/ACL), <b>IPS</b> (bloqueia), <b>IDS</b> (detecta e relata, não bloqueia), <b>VPN</b> (túnel criptografado), antivírus, atualizações, backup, 2FA, senhas fortes, WPA2. Sintomas de malware: CPU <b>mais alta</b>, computador <b>mais lento</b>, arquivos alterados.</p>
+  ${key("Exploit = programa que aproveita uma vulnerabilidade; ataque = usar o exploit. Ameaças <b>internas</b> têm potencial de dano maior que as externas.")}`},
+ {id:"dicas", t:"Dicas para a prova", b:`
+  <ul><li>Na figura do cabeçalho, comece pelo <b>HLEN × 4</b> e pelo <b>comprimento total</b>; o resto sai disso.</li>
+  <li>Em fragmentação, monte a tabela <b>dados · total · deslocamento · MF</b>: responde qualquer pergunta.</li>
+  <li>Em divisão de rede, confira se a soma dos blocos cabe no bloco original e se nenhuma rede começa no meio de outra.</li>
+  <li>Nas abertas de ICMP e ping, use as palavras-chave: <b>camada de rede</b>, <b>mensagens de erro e controle</b>, <b>Echo Request / Echo Reply</b>, <b>conectividade</b>.</li>
+  <li>Reveja a <b>tabela de rotas</b> da PV1: maior prefixo vence; nenhuma serve → rota padrão; sem rota padrão → descarta.</li></ul>`},
+];
+const PV2_RESUMO = {id:"pv2-resumo", t:"Resumo PV2", layer:"Matéria", kind:"summary", sections:SUMMARY2, pre:"sum2-", title:"Resumo da PV2",
+ sub:"Sub-redes, VLSM, IPv4, ICMP, IPv6 e cibersegurança"};
+
+/* ---------- PV2: roteiro da prova do lab ---------- */
+const CMD_R1 = `enable
+configure terminal
+hostname R1
+interface g0/0
+ ip address 192.168.10.1 255.255.255.0
+ no shutdown
+interface g0/1
+ ip address 192.168.20.1 255.255.255.0
+ no shutdown
+interface s0/0/0
+ ip address 172.16.13.1 255.255.255.252
+ clock rate 2000000        ! só se esta ponta for DCE
+ no shutdown
+router ospf 10
+ network 192.168.10.0 0.0.0.255 area 0
+ network 192.168.20.0 0.0.0.255 area 0
+ network 172.16.13.0 0.0.0.3 area 0
+end`;
+const CMD_R2 = `enable
+configure terminal
+hostname R2
+interface g0/0
+ ip address 192.168.30.1 255.255.255.0
+ no shutdown
+interface s0/0/0
+ ip address 172.16.13.2 255.255.255.252
+ no shutdown
+router ospf 10
+ network 192.168.30.0 0.0.0.255 area 0
+ network 172.16.13.0 0.0.0.3 area 0
+end`;
+const CMD_TLS = `sudo a2enmod ssl
+sudo a2ensite default-ssl
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \\
+  -keyout /etc/ssl/private/apache.key -out /etc/ssl/certs/apache.crt \\
+  -subj "/C=BR/ST=MG/L=Inatel/O=Lab/OU=NetSec/CN=192.168.20.2"
+sudo sed -i 's#SSLCertificateFile .*#SSLCertificateFile /etc/ssl/certs/apache.crt#' /etc/apache2/sites-available/default-ssl.conf
+sudo sed -i 's#SSLCertificateKeyFile .*#SSLCertificateKeyFile /etc/ssl/private/apache.key#' /etc/apache2/sites-available/default-ssl.conf
+sudo systemctl restart apache2
+ss -tulpn | grep :443`;
+const LAB_TOPICS = [
+ {id:"lb-topo", t:"Topologia e endereços", hot:"Atividade Integradora II",
+  b:`<figure class="fig">${FIG_LAB}</figure>
+  ${tbl(["Dispositivo","Interface","Endereço","Gateway"],[["PC-1","Ethernet","192.168.10.3/24","192.168.10.1"],["PC-2","Ethernet","192.168.20.3/24","192.168.20.1"],["PC-3","Ethernet","192.168.30.3/24","192.168.30.1"],["R1","G0/0 · G0/1 · S0/0/0","192.168.10.1 · 192.168.20.1 · 172.16.13.1","—"],["R2","G0/0 · S0/0/0","192.168.30.1 · 172.16.13.2","—"],["pfSense","WAN (Bridge) · LAN (Rede Interna)","192.168.10.2/24 · 192.168.40.1/24","192.168.10.1"],["VM Cliente","Rede Interna LAN_PFS","DHCP (192.168.40.x)","192.168.40.1"],["VM Servidor","Bridge (SW2)","192.168.20.2/24","192.168.20.1"]])}
+  <p>Grupos de 3. Etapas 1 e 2 valem 25 pontos; 3, 4 e 5 valem 20 (total 110, nota máxima 100). Chame o monitor ao fim de cada etapa.</p>`},
+ {id:"lb-0", t:"Etapa 0 · Pré-requisitos",
+  b:`<ul><li>Nos PCs com Windows: <b>desligue o Wi-Fi</b> e deixe o adaptador “Ethernet 2” em IP automático (DHCP) antes de configurar.</li>
+  <li>PC-1: importe <code>debian.ova</code> (renomeie para “cliente”) e <code>pfsense.ova</code> (Arquivo → Importar Appliance → Documents/T02-Atividade-Pratica-2).</li>
+  <li>PC-2: importe <code>debian.ova</code> e renomeie para “servidor”.</li>
+  <li>Enquanto importa, siga para a etapa 1.</li></ul>`},
+ {id:"lb-1", t:"Etapa 1 · Topologia e interfaces", hot:"25 pts",
+  b:`<ul><li>Cabos: PCs e VMs nos switches, switches nos roteadores (SW1 G0/1 → R1 G0/0, SW2 G0/1 → R1 G0/1, SW3 G0/1 → R2 G0/0) e a serial R1 S0/0/0 ↔ R2 S0/0/0.</li>
+  <li>IP, máscara e gateway nos PCs (Windows: Configurações de rede → Ethernet → IPv4 manual).</li>
+  <li>Interfaces dos roteadores: os comandos estão na etapa 2 (a parte de <code>interface</code>). Confira com <code>show ip interface brief</code>: tudo <b>up/up</b>.</li>
+  <li><b>Validação</b>: cada PC pinga o seu gateway; no R1, <code>ping 172.16.13.2</code>.</li></ul>
+  <p class="note">Se a serial ficar down, veja qual ponta é DCE com <code>show controllers s0/0/0</code> e ponha o <code>clock rate</code> nela.</p>`},
+ {id:"lb-2", t:"Etapa 2 · OSPF", hot:"caiu",
+  b:`<p>Processo <b>10</b>, <b>área 0</b>. No R1, anuncie 192.168.10.0/24, 192.168.20.0/24 e 172.16.13.0/30; no R2, 192.168.30.0/24 e 172.16.13.0/30. O comando <code>network</code> usa <b>wildcard</b>: /24 → 0.0.0.255, /30 → 0.0.0.3.</p>
+  <p class="sub-h">R1</p><pre class="table">${esc(CMD_R1)}</pre>
+  <p class="sub-h">R2</p><pre class="table">${esc(CMD_R2)}</pre>
+  <ul><li><code>show ip ospf neighbor</code> → o vizinho aparece em <b>FULL</b>.</li>
+  <li><code>show ip route</code> → no R1, <b>O 192.168.30.0/24 via 172.16.13.2</b>; no R2, O 192.168.10.0/24 e O 192.168.20.0/24 via 172.16.13.1.</li>
+  <li><b>Validação</b>: do PC-1, <code>ping 192.168.20.3</code> e <code>ping 192.168.30.3</code>.</li></ul>
+  <p class="note">Se o ping de PC para PC falhar com o OSPF certo, o culpado costuma ser o firewall do Windows bloqueando ICMP.</p>`},
+ {id:"lb-3", t:"Etapa 3 · Máquinas virtuais", hot:"20 pts",
+  b:`<p><b>pfSense (PC-1)</b>: placa 1 = <b>Bridge</b> (WAN), placa 2 = <b>Rede Interna LAN_PFS</b> (LAN). No console:</p>
+  <ol class="steps"><li>Opção <b>1</b> (Assign Interfaces): VLANs → n; WAN = a placa cujo MAC é o da Bridge, LAN = a da Rede Interna; confirme com y.</li>
+  <li>Opção <b>2</b> → WAN: DHCP? <b>n</b>; IP <b>192.168.10.2</b>; bits <b>24</b>; upstream gateway <b>192.168.10.1</b>; IPv6 n.</li>
+  <li>Opção <b>2</b> → LAN: DHCP? n; IP <b>192.168.40.1</b>; bits <b>24</b>; gateway vazio (Enter); IPv6 n; servidor DHCP na LAN? <b>y</b>; faixa, por exemplo, <b>192.168.40.10 a 192.168.40.254</b>.</li></ol>
+  <p><b>VM Cliente</b>: confira com <code>ip a</code> que recebeu 192.168.40.x e que o gateway (<code>ip route</code>) é 192.168.40.1.</p>
+  <p><b>VM Servidor (PC-2)</b>, placa em <b>Bridge</b>. Em <code>sudo nano /etc/network/interfaces</code>:</p>
+  <pre class="table">auto enp0s3
+iface enp0s3 inet static
+    address 192.168.20.2
+    netmask 255.255.255.0
+    gateway 192.168.20.1</pre>
+  <p>Depois <code>sudo ifdown enp0s3 &amp;&amp; sudo ifup enp0s3</code>, <code>ip a</code> e <code>sudo systemctl start apache2</code> (se não estiver instalado, <code>sudo apt install apache2</code>, que precisa de internet). Teste local: <code>curl http://localhost</code>.</p>
+  <p><b>Validação</b>: da VM Cliente, <code>ping 192.168.20.2</code> e a página do Apache no Firefox (<code>http://192.168.20.2</code>).</p>`},
+ {id:"lb-4", t:"Etapa 4 · Regras do pfSense", hot:"Relatório 6",
+  b:`<p>Na WebGUI (da VM Cliente: <code>https://192.168.40.1</code>, admin / pfsense), em <b>Firewall → Rules → LAN</b>, crie com <b>Add (seta para cima)</b>, para ficarem <b>acima</b> de “Default allow LAN to any”:</p>
+  ${tbl(["Regra","Action","Protocol","Source","Destination","Porta"],[["Bloquear o PC-2","Block","ICMP","LAN subnets","Single host: 192.168.20.3","—"],["Bloquear a sub-rede 3","Block","ICMP","LAN subnets","Network: 192.168.30.0/24","—"],["Bloquear HTTP","Block","TCP","LAN subnets","any","HTTP (80)"]])}
+  <p>Marque <b>Log</b>, dê uma Description e clique <b>Save → Apply Changes</b>.</p>
+  <ul><li><b>Validação</b>: da VM Cliente, <code>ping 192.168.20.3</code> e <code>ping 192.168.30.3</code> <b>falham</b>; <code>curl -m4 http://192.168.20.2</code> <b>falha</b>.</li>
+  <li>Os bloqueios aparecem em Status → System Logs → Firewall.</li></ul>
+  <p class="note">As regras valem de cima para baixo: a primeira que casa decide. Bloqueio abaixo do allow não faz nada.</p>`},
+ {id:"lb-5", t:"Etapa 5 · HTTPS no Apache", hot:"Relatório 5",
+  b:`<p>Na <b>VM Servidor</b>, gere o certificado e ative o TLS:</p>
+  <pre class="table">${esc(CMD_TLS)}</pre>
+  <p>Deve aparecer o Apache em <b>LISTEN</b> na porta 443. O HTTP (80) continua bloqueado pelo pfSense, mas o HTTPS (443) passa.</p>
+  <ul><li><b>Validação na VM Cliente</b>: <code>sudo wireshark</code>, capture na interface (enp0s3); em outro terminal, <code>curl -vk https://192.168.20.2</code> (o <code>-k</code> aceita o certificado autoassinado) ou abra no Firefox.</li>
+  <li>Filtro <code>tls &amp;&amp; ip.addr == 192.168.20.2</code>: aparecem o handshake (ClientHello, ServerHello) e <b>Application Data ilegível</b>. É o que o monitor quer ver.</li></ul>`},
+];
+const PV2_LAB = {id:"pv2-lab", t:"Prova do lab", layer:"Roteiro", kind:"guide", topics:LAB_TOPICS, jumps:[], title:"Prova do lab · Atividade Integradora II",
+ lead:`<div class="callout" style="--i:0"><h3>Como usar</h3><ul>
+  <li>É a prova prática (2026/2), transcrita das folhas: topologia, endereços e o passo a passo de cada etapa, com os comandos.</li>
+  <li>Na turma de hoje, a maior parte do que deu para fazer foi o <b>OSPF</b> (etapa 2) e a parte do <b>pfSense</b> (Relatório 6).</li>
+  <li>Os nomes das interfaces (g0/0, s0/0/0) podem mudar no roteador real: confira com <code>show ip interface brief</code> antes de configurar.</li></ul></div>`};
+
+/* ---------- PV2: treino de contas (fragmentação, divisão, VLSM, binário, IPv6) ---------- */
+const PV2_TREINO = {id:"pv2-treino", t:"Treino de contas", layer:"Contas da PV2", kind:"train2"};
+const T2M = [["frag","Fragmentação"],["div","Divisão de rede"],["vlsm","VLSM"],["bin","Binário"],["v6","IPv6"]];
+const t2ri = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const t2pick = a => a[Math.floor(Math.random()*a.length)];
+const t2ip = x => numIp(x).join(".");
+const t2mask = p => t2ip(2**32 - 2**(32-p));
+const t2shuf = a => { const b = a.slice(); for (let i = b.length-1; i > 0; i--) { const j = t2ri(0,i); [b[i],b[j]] = [b[j],b[i]]; } return b; };
+const T2CHK = {
+  num: (v,a) => { const d = String(v || "").replace(/\D/g, ""); return d !== "" && d === String(a); },
+  ip:  (v,a) => normIp(v) === a,
+  pfx: (v,a) => { const s = String(v || "").trim(), m = s.match(/^\/?\s*(\d{1,2})$/); return m ? +m[1] === a : normIp(s) === t2mask(a); },
+  bin: (v,a) => String(v || "").replace(/[\s.]/g, "") === a,
+  txt: (v,a) => String(v || "").trim().toLowerCase() === String(a).toLowerCase(),
+};
+function t2base(p){
+  const f = t2pick([10,172,192,200]);
+  const o = f === 10 ? [10, t2ri(0,255), t2ri(0,255), t2ri(0,255)] : f === 172 ? [172, t2ri(16,31), t2ri(0,255), t2ri(0,255)]
+          : f === 192 ? [192, 168, t2ri(0,255), t2ri(0,255)] : [200, t2ri(1,250), t2ri(0,255), t2ri(0,255)];
+  const v = ipNum(o), s = 2**(32-p);
+  return v - v % s;
+}
+// IPv6: forma completa e a forma mais compactada (zeros à esquerda fora; a maior sequência de zeros vira ::)
+const v6full = g => g.map(x => x.toString(16).padStart(4,"0")).join(":");
+function v6comp(g){
+  let bs = -1, bl = 0;
+  for (let i = 0; i < 8; ) { if (g[i] === 0) { let j = i; while (j < 8 && g[j] === 0) j++; if (j-i > bl) { bs = i; bl = j-i; } i = j; } else i++; }
+  const h = g.map(x => x.toString(16));
+  if (bl < 2) return h.join(":");
+  return h.slice(0,bs).join(":") + "::" + h.slice(bs+bl).join(":");
+}
+function v6gen(){
+  const r = () => t2pick([t2ri(1,0xf), t2ri(0x10,0xff), t2ri(0x100,0xfff), t2ri(0x1000,0xffff)]);
+  if (Math.random() < .25) return [0xfe80,0,0,0,r(),r(),r(),r()];
+  const L = t2ri(2,4), s = t2pick([1,2,3,8-L].filter(x => x >= 1 && x + L <= 8)), g = [];
+  for (let i = 0; i < 8; i++) g.push(i >= s && i < s+L ? 0 : r());
+  g[0] = t2pick([0x2001,0x2001,0x2804,0x2800]);
+  // às vezes um zero solto, longe da sequência principal (não empata com ela)
+  if (Math.random() < .35) { const lone = [1,2,3,4,5,6,7].filter(i => i < s-1 || i > s+L); if (lone.length) g[t2pick(lone)] = 0; }
+  return g;
+}
+
+const T2G = {
+ frag: {
+  gen(){ const hdr = Math.random() < .3 ? 24 : 20, mtu = t2pick([500,576,620,820,1006,1500,1500]), per = Math.floor((mtu-hdr)/8)*8, n = t2ri(2,4);
+         return {hdr, mtu, data: per*(n-1) + t2ri(Math.ceil(per/8), per)}; },
+  build({hdr, mtu, data}){
+    const per = Math.floor((mtu-hdr)/8)*8, fr = [];
+    for (let off = 0; off < data; off += per) fr.push({d: Math.min(per, data-off), o: off/8, m: off + per < data ? 1 : 0});
+    const f = [{k:"n", l:"Número de fragmentos", c:"num", a:fr.length, d:String(fr.length)},
+               {k:"t1", l:"Comprimento total do 1º fragmento", c:"num", a:per+hdr, d:String(per+hdr)}];
+    fr.forEach((x,i) => f.push({k:"d"+i, l:`${i+1}º · bytes de dados`, c:"num", a:x.d, d:String(x.d)},
+                               {k:"o"+i, l:`${i+1}º · deslocamento`, c:"num", a:x.o, d:String(x.o)},
+                               {k:"m"+i, l:`${i+1}º · flag MF (0 ou 1)`, c:"num", a:x.m, d:String(x.m)}));
+    const raw = mtu - hdr;
+    const steps = `<li><b>Dados</b> = ${data+hdr} − ${hdr} = <b>${data}</b> bytes (a fragmentação é feita sobre os dados).</li>
+      <li><b>Máximo por fragmento</b> = MTU − cabeçalho = ${mtu} − ${hdr} = ${raw}${raw === per ? `, que já é múltiplo de 8 (${raw} ÷ 8 = ${raw/8})` : `. Não é múltiplo de 8, então desce até <b>${per}</b>`}. Comprimento total de cada fragmento cheio: ${per} + ${hdr} = ${per+hdr}.</li>
+      <li><b>Divisão</b>: ${fr.map(x => x.d).join(" + ")} = ${data} → <b>${fr.length} fragmentos</b>.</li>
+      <li><b>Deslocamento</b> = bytes que vieram antes ÷ 8: ${fr.map(x => `${x.o*8} ÷ 8 = ${x.o}`).join("; ")}. <b>MF</b> = 1 em todos, menos no último.</li>
+      <li>${tbl(["Fragmento","Dados","Comprimento total","Deslocamento","MF"], fr.map((x,i) => [i+1, x.d, x.d+hdr, x.o, x.m]), "nums")}</li>`;
+    return {prompt:`Um datagrama IPv4 de <b>${data+hdr} bytes</b> (${data} de dados + ${hdr} de cabeçalho${hdr === 24 ? ", HLEN = 6" : ""}) chega a um roteador e deve sair por uma interface com <b>MTU de ${mtu} bytes</b>. Como fica a fragmentação?`, f, steps};
+  }},
+ div: {
+  gen(){ const p0 = t2pick([16,18,20,22,23,24,24,24,25,26]), mb = Math.min(8, 30-p0);
+         const N = t2pick([2,3,4,5,6,8,10,12,16,20,32].filter(n => Math.ceil(Math.log2(n)) <= mb));
+         return {p0, N, net:t2base(p0)}; },
+  build({p0, N, net}){
+    const b = Math.ceil(Math.log2(N)), np = p0 + b, size = 2**(32-np), k = Math.floor(np/8), mo = numIp(2**32 - size)[Math.min(k,3)];
+    const f = [{k:"m", l:"Nova máscara (/n ou decimal)", c:"pfx", a:np, d:`/${np} (${t2mask(np)})`},
+               {k:"t", l:"Endereços por sub-rede", c:"num", a:size, d:fmtInt(size)},
+               {k:"h", l:"Hosts por sub-rede", c:"num", a:size-2, d:fmtInt(size-2)},
+               {k:"r2", l:"Rede da 2ª sub-rede", c:"ip", a:t2ip(net+size), d:t2ip(net+size)},
+               {k:"b2", l:"Broadcast da 2ª sub-rede", c:"ip", a:t2ip(net+2*size-1), d:t2ip(net+2*size-1)},
+               {k:"rl", l:`Rede da última (${2**b}ª) sub-rede`, c:"ip", a:t2ip(net+(2**b-1)*size), d:t2ip(net+(2**b-1)*size)}];
+    const blk = np % 8 ? 256 - mo : null, O = ["1º","2º","3º","4º"];
+    const steps = `<li><b>Bits emprestados</b>: ${N} sub-redes → 2<sup>${b}</sup> = ${2**b}${2**b === N ? "" : ` (a menor potência de 2 que cabe ${N})`} → ${b} bit${b > 1 ? "s" : ""}. Nova máscara: /${p0} + ${b} = <b>/${np}</b> = ${t2mask(np)}.</li>
+      <li><b>Tamanho</b>: 32 − ${np} = ${32-np} bits de host → 2<sup>${32-np}</sup> = <b>${fmtInt(size)}</b> endereços, <b>${fmtInt(size-2)}</b> hosts.</li>
+      <li>${blk ? `A máscara “quebra” no ${O[k]} octeto (${mo}): bloco = 256 − ${mo} = <b>${blk}</b>. As sub-redes andam de ${blk} em ${blk} nesse octeto.` : `/${np} fecha um octeto inteiro: cada sub-rede ocupa um valor do ${O[k-1]} octeto, e elas andam de 1 em 1 nele.`}</li>
+      <li>Sub-redes: ${[0,1,2].filter(i => i < 2**b).map(i => t2ip(net+i*size)).join(", ")}${2**b > 3 ? ", … " + t2ip(net+(2**b-1)*size) : ""}. Broadcast de cada uma = próxima rede − 1: a 2ª vai de ${t2ip(net+size)} a <b>${t2ip(net+2*size-1)}</b>.</li>`;
+    return {prompt:`O bloco <b>${t2ip(net)}/${p0}</b> será dividido em <b>${N} sub-redes</b> de mesmo tamanho.`, f, steps};
+  }},
+ vlsm: {
+  gen(){ const p0 = t2pick([24,24,24,23]), B = 2**(32-p0), pool = (p0 === 23 ? [256,128,64,32,16,8,4] : [128,64,32,16,8,4]);
+         const k = t2ri(3, Math.min(5, pool.length)), sizes = t2shuf(pool).slice(0,k);
+         const names = t2shuf(["Vendas","RH","TI","Financeiro","Produção","Diretoria","Suporte","Compras","Marketing","Pesquisa"]);
+         const req = sizes.map((s,i) => s === 4 ? {n:"Enlace WAN", h:2} : {n:names[i], h:t2ri(s/2-1, s-2)});
+         return {p0, net:t2base(p0), req}; },
+  build({p0, net, req}){
+    const need = h => { let s = 4; while (s - 2 < h) s *= 2; return s; };
+    const ord = req.map((r,i) => ({...r, i, s:need(r.h)})).sort((a,b) => b.s - a.s || a.i - b.i);
+    let at = net; ord.forEach(r => { r.net = at; r.p = 32 - Math.log2(r.s); at += r.s; });
+    const byI = {}; ord.forEach(r => byI[r.i] = r);
+    const f = [];
+    req.forEach((r,i) => { const x = byI[i];
+      f.push({k:"p"+i, l:`${r.n} · máscara`, c:"pfx", a:x.p, d:`/${x.p}`}, {k:"r"+i, l:`${r.n} · endereço de rede`, c:"ip", a:t2ip(x.net), d:t2ip(x.net)}); });
+    const steps = `<li><b>Tamanho de cada rede</b> (hosts + 2, arredondado para potência de 2): ${ord.map(r => `${r.n} ${r.h} + 2 = ${r.h+2} → ${r.s} (/${r.p})`).join("; ")}.</li>
+      <li><b>Da maior para a menor</b>, cada uma começando onde a anterior terminou:</li>
+      <li>${tbl(["Rede","Hosts","Endereços","Rede/máscara","Broadcast"], ord.map(r => [r.n, r.h, r.s, `${t2ip(r.net)}/${r.p}`, t2ip(r.net + r.s - 1)]))}</li>
+      <li>Usados ${ord.reduce((a,r) => a + r.s, 0)} de ${2**(32-p0)} endereços do bloco.</li>`;
+    return {prompt:`Com VLSM, divida o bloco <b>${t2ip(net)}/${p0}</b> para atender: ${req.map(r => `<b>${r.n}</b> ${r.h} hosts`).join(" · ")}. Aloque da maior para a menor rede.`, f, steps};
+  }},
+ bin: {
+  gen(){ return {a: Math.random() < .5 ? t2pick([128,192,224,240,248,252,254,255]) : t2ri(1,254), b: t2ri(1,255), n: t2ri(17,30), m: t2ri(17,30)}; },
+  build({a, b, n, m}){
+    const parts = x => [128,64,32,16,8,4,2,1].filter(w => x & w);
+    const f = [{k:"a", l:`${a} em binário (8 bits)`, c:"bin", a:bin8(a), d:bin8(a)},
+               {k:"b", l:`${bin8(b)} em decimal`, c:"num", a:b, d:String(b)},
+               {k:"n", l:`/${n} em máscara decimal`, c:"ip", a:t2mask(n), d:t2mask(n)},
+               {k:"m", l:`${t2mask(m)} como prefixo`, c:"pfx", a:m, d:`/${m}`}];
+    const steps = `<li><b>${a}</b> = ${parts(a).join(" + ") || "0"} → <code>${bin8(a)}</code> (pesos 128 64 32 16 8 4 2 1).</li>
+      <li><code>${bin8(b)}</code> = ${parts(b).join(" + ")} = <b>${b}</b>.</li>
+      <li>/${n} = ${n} bits 1: <code>${numIp(2**32 - 2**(32-n)).map(bin8).join(".")}</code> = <b>${t2mask(n)}</b>.</li>
+      <li>${t2mask(m)} = <code>${numIp(2**32 - 2**(32-m)).map(bin8).join(".")}</code>: ${m} bits 1 → <b>/${m}</b>.</li>`;
+    return {prompt:"Conversões de binário e de máscara, como as que pegaram gente na prova.", f, steps};
+  }},
+ v6: {
+  gen(){ return {g1: v6gen(), g2: v6gen()}; },
+  build({g1, g2}){
+    const c1 = v6comp(g1), f2 = v6full(g2), c2 = v6comp(g2);
+    const f = [{k:"c", l:"Forma mais compactada do 1º endereço", c:"txt", a:c1, d:c1},
+               {k:"x", l:"Forma completa do 2º endereço (32 dígitos)", c:"txt", a:f2, d:f2}];
+    const steps = `<li><b>Compactar</b> ${v6full(g1)}: tire os zeros à esquerda de cada grupo (${g1.map(x => x.toString(16)).join(":")}) e troque a <b>maior</b> sequência de grupos 0 por <b>::</b>, uma vez só → <b>${c1}</b>.</li>
+      <li><b>Expandir</b> ${c2}: complete cada grupo com zeros à esquerda até 4 dígitos e ponha no lugar do :: quantos grupos 0000 faltarem para dar 8 → <b>${f2}</b>.</li>`;
+    return {prompt:`1º endereço: <code>${v6full(g1)}</code><br>2º endereço: <code>${c2}</code>`, f, steps};
+  }},
+};
+function t2New(mode){ return {mode, p:T2G[mode].gen(), vals:{}, res:null}; }
+function t2HTML(){
+  if (!S.t2 || !T2G[S.t2.mode]) { S.t2 = t2New(S.t2m || "frag"); save(); }
+  return `<div class="sec-head"><div><h2>Treino de contas da PV2</h2><p>Uma conta nova a cada clique, corrigida campo a campo com a resolução</p></div>
+    <div class="sec-ctl"><div class="filters" role="group" aria-label="Tipo de conta">${T2M.map(([k,t]) =>
+      `<button class="chip" type="button" data-t2m="${k}" aria-pressed="${S.t2.mode===k}">${t}</button>`).join("")}</div></div></div>
+  <div data-anim><div class="card" style="--i:0" id="t2card">${t2CardHTML()}</div></div>
+  <p class="note">Fragmentação e divisão de rede foram o forte da PV2 da outra turma (“bastante de deslocamento de fragmento”, duas abertas de divisão de rede). Use Pular se a conta não interessar.</p>`;
+}
+function t2CardHTML(){
+  const q = S.t2, B = T2G[q.mode].build(q.p), res = q.res;
+  const nOk = res ? B.f.filter(f => res[f.k]).length : 0;
+  return `<h3>${T2M.find(m => m[0] === q.mode)[1]}</h3><p class="t2p">${B.prompt}</p>
+  <div class="fields">${B.f.map(f => `<label class="field${res ? (res[f.k] ? " ok" : " bad") : ""}">${f.l}
+    <input data-t2f="${f.k}" value="${esc(q.vals?.[f.k] || "")}" autocomplete="off" spellcheck="false" ${f.c === "num" ? 'inputmode="numeric"' : ""} ${res ? "readonly" : ""}>
+    <span class="ans">${res ? (res[f.k] ? "✓ certo" : "✗ " + esc(f.d)) : ""}</span></label>`).join("")}</div>
+  <div class="acts-row">${res
+    ? `<button class="btn" type="button" id="t2-new">Nova conta →</button><span class="verdict ${nOk === B.f.length ? "ok" : "bad"}">${nOk === B.f.length ? "Tudo certo!" : `${nOk} de ${B.f.length} certos`}</span>`
+    : `<button class="btn" type="button" id="t2-check">Conferir</button><button class="btn ghost" type="button" id="t2-skip">Pular</button>`}</div>
+  ${res ? `<ol class="steps">${B.steps}</ol>` : ""}`;
+}
+function t2Paint(fresh){ const c = $("#t2card"); if (!c) return; c.innerHTML = t2CardHTML(); c.classList.remove("fresh"); if (fresh) { void c.offsetWidth; c.classList.add("fresh"); } }
+function t2Check(){
+  const q = S.t2, B = T2G[q.mode].build(q.p), v = {};
+  document.querySelectorAll("[data-t2f]").forEach(i => v[i.dataset.t2f] = i.value);
+  q.vals = v; q.res = {};
+  B.f.forEach(f => q.res[f.k] = !!T2CHK[f.c](v[f.k], f.a));
+  const all = B.f.every(f => q.res[f.k]);
+  S.train2.n++; if (all) S.train2.ok++;
+  save(); t2Paint(true); renderTabs(); renderStat();
+  NET.burst(all ? "ok" : "bad", $("#t2card"));
+}
+
 /* ---------- estrutura ---------- */
 const OLD_IDS = ["ip","rot","osi","eth","app","tcp"];
 PARTS.forEach((P,i) => { P.id = OLD_IDS[i]; P.kind = "quiz"; P.num = i+1; });
+Object.assign(PV1_GUIA, {topics:TOPICS, jumps:JUMPS, title:"O que caiu na PV1",
+ lead:`<div class="callout" style="--i:0"><h3>Resumo</h3><ul>
+  <li>A <b>primeira página foi só de contas</b>: rede, broadcast, notação, total de endereços e hosts utilizáveis. O resto foi teoria.</li>
+  <li>Várias questões <b>iguais à prova anterior</b> e parecidas com a <b>lista</b>. Caíram umas três figuras e três ou quatro questões de comandos do roteador.</li>
+  <li>Pesou: <b>MQTT</b>, camadas OSI e TCP/IP, socket, TCP × UDP, VLAN, CSMA/CD e o preâmbulo do Ethernet.</li></ul>
+  <blockquote><b>Dica de quem fez:</b> faça a lista, estude a prova anterior e estude MQTT. De resto, o conceito geral (camadas OSI, TCP e UDP) sempre cai.</blockquote></div>`});
+Object.assign(PV1_RESUMO, {t:"Resumo PV1", sections:SUMMARY, pre:"sum-", title:"Resumo da PV1", sub:"Toda a matéria da PV1"});
+PV1_PROVA.jl = "Prova"; PV1_LISTA.jl = "Lista";
 const GROUPS = [
-  {id:"resumo", t:"Resumo", s:"Resumo", tabs:[PV1_RESUMO]},
-  {id:"rotas", t:"Tabela de rotas", s:"Rotas", badge:"novo", tabs:[ROTAS]},
+  {id:"resumo", t:"Resumo", s:"Resumo", tabs:[PV1_RESUMO, PV2_RESUMO]},
+  {id:"rotas", t:"Tabela de rotas", s:"Rotas", tabs:[ROTAS]},
   {id:"assunto", t:"Por assunto", s:"Assuntos", tabs:PARTS},
   {id:"pv1", t:"Prova PV1", s:"PV1", tabs:[PV1_GUIA, PV1_TREINO, PV1_SIM, PV1_PROVA, PV1_LISTA, PV1_REL]},
+  {id:"pv2", t:"Prova PV2", s:"PV2", badge:"novo", tabs:[PV2_GUIA, PV2_TREINO, PV2_SIM, PV2_LISTA, PV2_SUB, PV2_ATIV, PV2_LAB, PV2_LABQ]},
 ];
 const TABS = {};
 GROUPS.forEach(G => G.tabs.forEach(T => { TABS[T.id] = T; T.group = G.id; }));
@@ -1887,7 +2742,8 @@ const QUIZ_TOTAL = Object.values(TABS).reduce((a,T) => a + (T.qs ? T.qs.length :
 
 /* ---------- estado ---------- */
 const KEY = "simulado-redes-v2", OLD_KEY = "simulado-redes-v1";
-let S = { group:"pv1", tab:{assunto:"ip", pv1:"pv1-guia"}, mode:"estudo", ans:{}, checked:{}, filter:"todas", study:{}, train:{ok:0,n:0}, tq:null, calc:"", rt:{ok:0,n:0}, rq:null, rtFree:"" };
+let S = { group:"pv2", tab:{assunto:"ip", pv1:"pv1-guia", pv2:"pv2-guia"}, mode:"estudo", ans:{}, checked:{}, filter:"todas", study:{}, train:{ok:0,n:0}, tq:null, calc:"", rt:{ok:0,n:0}, rq:null, rtFree:"",
+          train2:{ok:0,n:0}, t2:null, t2m:"frag", txt:{}, shown:{} };
 (function load(){
   try { const v = JSON.parse(localStorage.getItem(KEY)); if (v) { S = Object.assign(S, v); return; } } catch(e){}
   try { // migra o progresso da versão anterior (partes numeradas 0–5)
@@ -1899,8 +2755,9 @@ let S = { group:"pv1", tab:{assunto:"ip", pv1:"pv1-guia"}, mode:"estudo", ans:{}
   } catch(e){}
 })();
 GROUPS.forEach(G => { if (!TABS[S.tab[G.id]] || TABS[S.tab[G.id]].group !== G.id) S.tab[G.id] = G.tabs[0].id; });
-S.rt ||= {ok:0, n:0};
-if (!GROUPS.some(G => G.id === S.group)) S.group = "pv1";
+S.rt ||= {ok:0, n:0}; S.train2 ||= {ok:0, n:0}; S.txt ||= {}; S.shown ||= {};
+if (!S.v2) { S.v2 = 1; S.group = "pv2"; }  // quem já usava o site cai na PV2 na primeira visita depois da atualização
+if (!GROUPS.some(G => G.id === S.group)) S.group = "pv2";
 (function fromHash(){ const h = decodeURIComponent(location.hash.slice(1)); if (TABS[h]) { S.group = TABS[h].group; S.tab[S.group] = h; } })();
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
 
@@ -1938,18 +2795,18 @@ function tabStats(T){
     return {s, parts:[[s.ok/s.n,"ok"],[s.bad/s.n,"bad"],[s.pend/s.n,"warn"]], prog: s.done ? `${s.ok}/${s.n} acertos` : `${s.ans}/${s.n} respondidas`};
   }
   if (T.kind === "summary") {
-    const d = SUMMARY.filter(x => S.study["sum-"+x.id]).length;
-    return {d, parts:[[d/SUMMARY.length,"acc"]], prog:`${d}/${SUMMARY.length} lidas`};
+    const n = T.sections.length, d = T.sections.filter(x => S.study[T.pre+x.id]).length;
+    return {d, n, parts:[[d/n,"acc"]], prog:`${d}/${n} lidas`};
   }
   if (T.kind === "guide") {
-    const d = TOPICS.filter(t => S.study[t.id]).length;
-    return {d, parts:[[d/TOPICS.length,"acc"]], prog:`${d}/${TOPICS.length} estudados`};
+    const n = T.topics.length, d = T.topics.filter(t => S.study[t.id]).length;
+    return {d, n, parts:[[d/n,"acc"]], prog:`${d}/${n} ${T.id === "pv2-lab" ? "etapas" : "estudados"}`};
   }
   if (T.kind === "routes") {
     const {ok, n} = S.rt;
     return {ok, n, parts: n ? [[ok/n,"ok"],[(n-ok)/n,"bad"]] : [], prog: n ? `${ok}/${n} acertos` : "tabelas aleatórias"};
   }
-  const {ok, n} = S.train;
+  const {ok, n} = T.kind === "train2" ? S.train2 : S.train;
   return {ok, n, parts: n ? [[ok/n,"ok"],[(n-ok)/n,"bad"]] : [], prog: n ? `${ok}/${n} acertos` : "contas aleatórias"};
 }
 
@@ -1969,9 +2826,9 @@ function renderStat(){
     sub = `${s.ans} de ${s.n} respondidas` + (T.grade && s.done ? ` · nota ${fmt(s.ok*T.grade)}` : "") + (s.pend ? ` · ${s.pend} a corrigir` : "");
     pct = s.done ? Math.round(100*s.ok/s.done) + "%" : "–";
   } else if (T.kind === "summary") {
-    main = `<b>${st.d}</b>/${SUMMARY.length}<span class="w"> seções</span>`; sub = "marcadas como lidas"; pct = Math.round(100*st.d/SUMMARY.length) + "%";
+    main = `<b>${st.d}</b>/${st.n}<span class="w"> seções</span>`; sub = "marcadas como lidas"; pct = Math.round(100*st.d/st.n) + "%";
   } else if (T.kind === "guide") {
-    main = `<b>${st.d}</b>/${TOPICS.length}<span class="w"> tópicos</span>`; sub = "marcados como estudados"; pct = Math.round(100*st.d/TOPICS.length) + "%";
+    main = `<b>${st.d}</b>/${st.n}<span class="w"> tópicos</span>`; sub = "marcados como estudados"; pct = Math.round(100*st.d/st.n) + "%";
   } else if (T.kind === "routes") {
     main = `<b>${st.ok}</b>/${st.n}<span class="w"> acertos</span>`; sub = "tabelas analisadas"; pct = st.n ? Math.round(100*st.ok/st.n) + "%" : "–";
   } else {
@@ -2002,10 +2859,12 @@ function render(anim = true){
   renderNav(); renderStat(); renderMain(anim);
   try { history.replaceState(null, "", "#" + cur().id); } catch(e){}
   $(".tab[aria-selected=true]")?.scrollIntoView({block:"nearest", inline:"nearest"});
+  $(".grp[aria-pressed=true]")?.scrollIntoView({block:"nearest", inline:"nearest"});
 }
 function renderMain(anim = true){
   const T = cur(), m = $("#main");
-  m.innerHTML = T.kind === "routes" ? rotasHTML() : T.kind === "summary" ? summaryHTML() : T.kind === "guide" ? guideHTML() : T.kind === "train" ? trainHTML() : quizHTML(T);
+  m.innerHTML = T.kind === "routes" ? rotasHTML() : T.kind === "summary" ? summaryHTML(T) : T.kind === "guide" ? guideHTML(T) : T.kind === "train" ? trainHTML()
+    : T.kind === "train2" ? t2HTML() : quizHTML(T);
   if (anim) m.querySelectorAll("[data-anim]").forEach(el => el.classList.add("enter"));
   if (T.kind === "train") calcRender();
   if (T.kind === "routes") rtFreeRender();
@@ -2039,15 +2898,21 @@ function cardHTML(T, i, n = 0, src = ""){
   const Q = T.qs[i], k = T.id+"-"+i, chosen = S.ans[k], s = status(T,i), rev = revealed(T,i) && chosen !== undefined;
   const locked = studyMode() ? chosen !== undefined : !!S.checked[T.id];
   const cls = rev ? s : (chosen !== undefined ? "pending" : "");
-  const tags = (src ? `<span class="src">${src}</span>` : "") + (Q.tag ? `<span class="hot${Q.tag==="parecida" ? " alt" : ""}">${Q.tag==="igual" ? "Caiu igual na PV1" : "Caiu parecida na PV1"}</span>` : "")
-             + (Q.flag ? `<span class="flag">${Q.flag}</span>` : "");
+  const pv = T.group === "pv2" ? "PV2" : "PV1", open = Q.open != null, shown = open && !!S.shown[k];
+  const tags = (src ? `<span class="src">${src}</span>` : "") + (Q.tag ? `<span class="hot${Q.tag==="parecida" ? " alt" : ""}">${Q.tag==="igual" ? "Caiu igual na "+pv : "Caiu parecida na "+pv}</span>` : "")
+             + (open ? `<span class="src">Aberta</span>` : "") + (Q.flag ? `<span class="flag">${Q.flag}</span>` : "");
   let h = `<article class="q ${cls} ${locked ? "locked" : ""}" id="q-${k}" data-s="${s}" style="--i:${Math.min(n,12)}">
     <div class="q-top"><span class="num">${String(i+1).padStart(2,"0")}</span><div>
     <p class="stem">${esc(Q.q)}</p><div class="tags">${tags}</div>${Q.note ? `<p class="qnote">${Q.note}</p>` : ""}</div></div>
     ${Q.fig ? `<figure class="fig">${Q.fig}</figure>` : ""}
     ${Q.code ? `<pre class="table">${esc(TABLES[Q.code])}</pre>` : ""}
-    ${Q.pre ? `<pre class="table">${esc(Q.pre)}</pre>` : ""}
-    <div class="opts" role="radiogroup" aria-label="Alternativas da questão ${i+1}">`;
+    ${Q.pre ? `<pre class="table">${esc(Q.pre)}</pre>` : ""}`;
+  if (open) {
+    h += `<div class="openq"><textarea class="open-in" data-ot="${k}" rows="4" placeholder="Escreva sua resposta aqui (fica salva só neste navegador)…" aria-label="Sua resposta">${esc(S.txt[k] || "")}</textarea>
+      ${shown ? `<div class="model"><strong>Gabarito</strong>${Q.open}</div><p class="self">Compare e marque:</p>` : `<button class="btn ghost" type="button" data-show="${k}">Ver gabarito e corrigir</button>`}</div>`;
+    if (!shown) return h + `</article>`;
+  }
+  h += `<div class="opts" role="radiogroup" aria-label="Alternativas da questão ${i+1}">`;
   Q.o.forEach((o,j) => {
     let c = "opt", ic = "";
     if (chosen === j) c += " sel";
@@ -2075,7 +2940,7 @@ function footHTML(T){
       <p><strong>Apagar as respostas de “${T.t}”?</strong> As outras abas não mudam.</p>
       <div class="acts"><button class="c-cancel" type="button" data-cancel>Cancelar</button><button class="c-ok" type="button" id="do-reset">Apagar</button></div>
     </div>
-    <p class="note">Selo amarelo: redação ambígua ou que depende de como o professor encara o assunto; a explicação diz qual é a resposta mais provável.${T.group==="pv1" ? " Selo rosa: caiu igual ou parecida na PV1, segundo quem fez a prova." : ""}</p>`;
+    <p class="note">Selo amarelo: redação ambígua ou que depende de como o professor encara o assunto; a explicação diz qual é a resposta mais provável.${T.group==="pv1" ? " Selo rosa: caiu igual ou parecida na PV1, segundo quem fez a prova." : T.group==="pv2" ? " Selo rosa: caiu igual ou parecida na PV2 da outra turma, segundo quem fez. Questões abertas: escreva, veja o gabarito e marque você mesmo se acertou." : ""}</p>`;
   return h;
 }
 
@@ -2095,6 +2960,14 @@ function answer(k, i, v){
   renderTabs(); renderStat(); updateFab();
 }
 
+function showModel(k){
+  S.shown[k] = true; save();
+  const j = k.lastIndexOf("-"), T = TABS[k.slice(0,j)], i = +k.slice(j+1), tmp = document.createElement("div");
+  tmp.innerHTML = cardHTML(T, i, 0, cur().kind === "routes" ? rtSrc(T, i) : "");
+  const nu = tmp.firstElementChild; nu.classList.add("settled");
+  document.getElementById("q-"+k).replaceWith(nu);
+  nu.querySelector(".model")?.scrollIntoView({block:"nearest", behavior: reduced() ? "auto" : "smooth"});
+}
 function updateFab(){
   const has = (cur().kind === "quiz" || cur().kind === "routes") && document.querySelector('.q[data-s="none"]');
   $("#fab").classList.toggle("off", !has);
@@ -2108,48 +2981,45 @@ function nextUnanswered(){
 }
 
 /* ---------- guia "o que caiu" ---------- */
-function guideHTML(){
-  const d = TOPICS.filter(t => S.study[t.id]).length;
-  return `<div class="sec-head"><div><h2>O que caiu na PV1</h2><p id="gd-count">Relato de quem acabou de fazer a prova · ${d}/${TOPICS.length} tópicos estudados</p></div></div>
-  <div data-anim>
-    <div class="callout" style="--i:0"><h3>Resumo</h3><ul>
-      <li>A <b>primeira página foi só de contas</b>: rede, broadcast, notação, total de endereços e hosts utilizáveis. O resto foi teoria.</li>
-      <li>Várias questões <b>iguais à prova anterior</b> e parecidas com a <b>lista</b>. Caíram umas três figuras e três ou quatro questões de comandos do roteador.</li>
-      <li>Pesou: <b>MQTT</b>, camadas OSI e TCP/IP, socket, TCP × UDP, VLAN, CSMA/CD e o preâmbulo do Ethernet.</li></ul>
-      <blockquote><b>Dica de quem fez:</b> faça a lista, estude a prova anterior e estude MQTT. De resto, o conceito geral (camadas OSI, TCP e UDP) sempre cai.</blockquote></div>
-    <div class="callout" style="--i:1"><h3>Questões que caíram</h3><div class="jumps">${JUMPS.map(([l,arr]) =>
-      `<div><div class="jl">${l}</div><div class="row">${arr.map(([t,n,alt]) => `<button class="jump${alt ? " alt" : ""}" type="button" data-jump="${t}:${n}">${t==="pv1-prova" ? "Prova" : "Lista"} ${n}</button>`).join("")}</div></div>`).join("")}</div></div>
+const guideCount = T => { const d = T.topics.filter(t => S.study[t.id]).length;
+  return T.id === "pv2-lab" ? `Roteiro da prova prática · ${d}/${T.topics.length} etapas revisadas` : `Relato de quem acabou de fazer a prova · ${d}/${T.topics.length} tópicos estudados`; };
+const sumCount = T => `${T.sub}, em ${T.sections.length} seções · ${T.sections.filter(x => S.study[T.pre+x.id]).length}/${T.sections.length} lidas`;
+function guideHTML(T){
+  const lab = T.id === "pv2-lab";
+  return `<div class="sec-head"><div><h2>${T.title}</h2><p id="gd-count">${guideCount(T)}</p></div></div>
+  <div data-anim>${T.lead || ""}
+    ${T.jumps.length ? `<div class="callout" style="--i:1"><h3>${T.group === "pv2" ? "Para treinar o que caiu" : "Questões que caíram"}</h3><div class="jumps">${T.jumps.map(([l,arr]) =>
+      `<div><div class="jl">${l}</div><div class="row">${arr.map(([t,n,alt]) => `<button class="jump${alt ? " alt" : ""}" type="button" data-jump="${t}:${n}">${TABS[t].jl || "Questão"} ${n}</button>`).join("")}</div></div>`).join("")}</div></div>` : ""}
   </div>
-  <div class="topics" data-anim>${TOPICS.map((t,j) => `<section class="topic${S.study[t.id] ? " done" : ""}" style="--i:${j}" id="tp-${t.id}">
+  <div class="topics" data-anim>${T.topics.map((t,j) => `<section class="topic${S.study[t.id] ? " done" : ""}" style="--i:${j}" id="tp-${t.id}">
     <div class="topic-h"><div><h3>${t.t}</h3>${t.hot ? `<span class="hot">${t.hot}</span>` : ""}</div>
-    <button class="studied" type="button" data-study="${t.id}" aria-pressed="${!!S.study[t.id]}"><span class="box">${CHECK}</span>Estudei</button></div>
+    <button class="studied" type="button" data-study="${t.id}" aria-pressed="${!!S.study[t.id]}"><span class="box">${CHECK}</span>${lab ? "Revisei" : "Estudei"}</button></div>
     ${t.b}${t.go ? `<button class="btn ghost go" type="button" data-go="${t.go[0]}">${t.go[1]}</button>` : ""}</section>`).join("")}</div>
-  <p class="note">O relato é de memória, de quem saiu da prova agora. Use como guia do que priorizar, não como gabarito.</p>`;
+  <p class="note">${lab ? "Roteiro montado a partir das folhas da prova e dos relatórios 5 e 6. Os comandos seguem os relatórios; confira os nomes das interfaces no equipamento." : "O relato é de memória, de quem saiu da prova agora. Use como guia do que priorizar, não como gabarito."}</p>`;
 }
 function toggleStudy(id){
   S.study[id] = !S.study[id]; save();
   const b = document.querySelector(`[data-study="${id}"]`);
   b.setAttribute("aria-pressed", S.study[id]);
   document.getElementById("tp-"+id)?.classList.toggle("done", S.study[id]);
-  const d = TOPICS.filter(t => S.study[t.id]).length, gd = $("#gd-count");
-  if (gd) gd.textContent = `Relato de quem acabou de fazer a prova · ${d}/${TOPICS.length} tópicos estudados`;
-  const sd = SUMMARY.filter(x => S.study["sum-"+x.id]).length, sc = $("#sm-count");
-  if (sc) sc.textContent = `Toda a matéria da PV1, em ${SUMMARY.length} seções · ${sd}/${SUMMARY.length} lidas`;
-  document.querySelector(`[data-sec="${id.slice(4)}"]`)?.classList.toggle("read", !!S.study[id]);
+  const T = cur(), gd = $("#gd-count"), sc = $("#sm-count");
+  if (gd && T.kind === "guide") gd.textContent = guideCount(T);
+  if (sc && T.kind === "summary") sc.textContent = sumCount(T);
+  document.querySelector(`[data-sec="${id}"]`)?.classList.toggle("read", !!S.study[id]);
   renderTabs(); renderStat();
 }
 
 /* ---------- resumo ---------- */
-function summaryHTML(){
-  const d = SUMMARY.filter(x => S.study["sum-"+x.id]).length;
-  return `<div class="sec-head"><div><h2>Resumo da matéria</h2><p id="sm-count">Toda a matéria da PV1, em ${SUMMARY.length} seções · ${d}/${SUMMARY.length} lidas</p></div></div>
-  <div data-anim><nav class="sum-nav" style="--i:0" aria-label="Seções do resumo">${SUMMARY.map((x,j) =>
-    `<button class="sum-chip${S.study["sum-"+x.id] ? " read" : ""}" type="button" data-sec="${x.id}"><i>${j+1}</i>${x.t}</button>`).join("")}</nav></div>
-  <div class="topics" data-anim>${SUMMARY.map((x,j) => `<section class="topic sum${S.study["sum-"+x.id] ? " done" : ""}" style="--i:${Math.min(j+1,8)}" id="tp-sum-${x.id}">
+function summaryHTML(T){
+  const P = T.pre;
+  return `<div class="sec-head"><div><h2>${T.title}</h2><p id="sm-count">${sumCount(T)}</p></div></div>
+  <div data-anim><nav class="sum-nav" style="--i:0" aria-label="Seções do resumo">${T.sections.map((x,j) =>
+    `<button class="sum-chip${S.study[P+x.id] ? " read" : ""}" type="button" data-sec="${P}${x.id}"><i>${j+1}</i>${x.t}</button>`).join("")}</nav></div>
+  <div class="topics" data-anim>${T.sections.map((x,j) => `<section class="topic sum${S.study[P+x.id] ? " done" : ""}" style="--i:${Math.min(j+1,8)}" id="tp-${P}${x.id}">
     <div class="topic-h"><div><h3><span class="sn">${j+1}</span>${x.t}</h3>${x.hot ? `<span class="hot">${x.hot}</span>` : ""}</div>
-    <button class="studied" type="button" data-study="sum-${x.id}" aria-pressed="${!!S.study["sum-"+x.id]}"><span class="box">${CHECK}</span>Li</button></div>
+    <button class="studied" type="button" data-study="${P}${x.id}" aria-pressed="${!!S.study[P+x.id]}"><span class="box">${CHECK}</span>Li</button></div>
     ${x.b}</section>`).join("")}</div>
-  <p class="note">Resumo montado a partir das provas, da lista, dos relatórios e do relato da PV1.</p>`;
+  <p class="note">${T.group === "resumo" && P === "sum2-" ? "Resumo montado a partir das aulas 07 a 10, da lista da PV2 e do relato de quem fez a prova." : "Resumo montado a partir das provas, da lista, dos relatórios e do relato da PV1."}</p>`;
 }
 
 /* ---------- treino de contas ---------- */
@@ -2262,11 +3132,14 @@ document.addEventListener("input", e => {
   if (t.id === "calc") { S.calc = t.value; save(); calcRender(); }
   else if (t.id === "rt-free") { S.rtFree = t.value; save(); rtFreeRender(); }
   else if (t.dataset && t.dataset.tf && S.tq) { (S.tq.vals ||= {})[t.dataset.tf] = t.value; save(); }
+  else if (t.dataset && t.dataset.t2f && S.t2) { (S.t2.vals ||= {})[t.dataset.t2f] = t.value; save(); }
+  else if (t.dataset && t.dataset.ot) { S.txt[t.dataset.ot] = t.value; save(); }
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && !$("#reset-modal").hidden) { closeReset(); return; }
   if (e.key === "Escape" && confirming) { confirming = null; const c = $("#confirm-part"); if (c) c.hidden = true; }
   if (e.key === "Enter" && e.target.dataset && e.target.dataset.tf && S.tq && !S.tq.res) { e.preventDefault(); checkTQ(); }
+  if (e.key === "Enter" && e.target.dataset && e.target.dataset.t2f && S.t2 && !S.t2.res) { e.preventDefault(); t2Check(); }
 });
 document.addEventListener("click", e => {
   const g = e.target.closest("[data-g]");
@@ -2282,8 +3155,11 @@ document.addEventListener("click", e => {
   }
   const f = e.target.closest("[data-f]"); if (f) { S.filter = f.dataset.f; save(); renderMain(); return; }
   const sc = e.target.closest("[data-sec]");
-  if (sc) { const el = document.getElementById("tp-sum-"+sc.dataset.sec); if (el) { window.scrollTo({top: el.getBoundingClientRect().top + scrollY - headerH() - 14, behavior: reduced() ? "auto" : "smooth"}); flash(el); } return; }
+  if (sc) { const el = document.getElementById("tp-"+sc.dataset.sec); if (el) { window.scrollTo({top: el.getBoundingClientRect().top + scrollY - headerH() - 14, behavior: reduced() ? "auto" : "smooth"}); flash(el); } return; }
   const st = e.target.closest("[data-study]"); if (st) { toggleStudy(st.dataset.study); return; }
+  const sh = e.target.closest("[data-show]"); if (sh) { showModel(sh.dataset.show); return; }
+  const tm = e.target.closest("[data-t2m]");
+  if (tm) { S.t2m = tm.dataset.t2m; if (S.t2?.mode !== S.t2m) S.t2 = t2New(S.t2m); save(); const y = scrollY; renderMain(false); window.scrollTo(0,y); return; }
   if (e.target.closest("[data-cancel]")) { confirming = null; const c = $("#confirm-part"); if (c) c.hidden = true; return; }
   const id = e.target.closest("button")?.id;
   if (id === "m-estudo" || id === "m-prova") { S.mode = id.slice(2); save(); const y = scrollY; render(false); window.scrollTo(0,y); return; }
@@ -2302,10 +3178,12 @@ document.addEventListener("click", e => {
     if (confirming) { c.scrollIntoView({block:"nearest"}); $("#do-reset").focus(); } return;
   }
   if (id === "do-reset") {
-    const T = cur(); confirming = null; T.qs.forEach((_,i) => delete S.ans[T.id+"-"+i]); delete S.checked[T.id]; S.filter = "todas";
+    const T = cur(); confirming = null; T.qs.forEach((_,i) => { const k = T.id+"-"+i; delete S.ans[k]; delete S.shown[k]; delete S.txt[k]; }); delete S.checked[T.id]; S.filter = "todas";
     save(); render(); window.scrollTo(0,0); return;
   }
   if (id === "t-check") { checkTQ(); return; }
+  if (id === "t2-check") { t2Check(); return; }
+  if (id === "t2-new" || id === "t2-skip") { S.t2 = t2New(S.t2.mode); save(); t2Paint(false); $("#t2card input")?.focus(); return; }
   if (id === "rt-new" || id === "rt-again") {
     if (id === "rt-new") S.rq = genRT(); else { let d; do { d = genDest(S.rq); } while (d === S.rq.dest); S.rq.dest = d; S.rq.ans = null; }
     save(); const c = $("#rtcard"); c.innerHTML = rtCardHTML(); c.classList.remove("just-ok","just-bad");

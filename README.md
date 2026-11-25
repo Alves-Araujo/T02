@@ -14,10 +14,11 @@
   </a>
 </p>
 
-> **Do bit ao HTTP, em 252 questões e um resumo.**
+> **Do bit ao IPv6, em 410 questões e dois resumos.**
 
 Simulado de estudo para **Redes de Dados I** (T02/T202 · Inatel), montado a partir
-das questões das provas, da lista de exercícios e do relato de quem fez a PV1. Cada
+das questões das provas, das listas de exercícios, das atividades do Teams e do relato
+de quem fez a PV1 e a PV2. Cada
 questão tem o gabarito e um comentário explicando por que a resposta é aquela, e
 por que as outras não são.
 
@@ -26,11 +27,13 @@ JavaScript puro, servido pelo GitHub Pages.
 
 ## O que tem dentro
 
-O site tem quatro seções no topo: **Resumo**, **Tabela de rotas**, **Por assunto** e **Prova PV1**, que abre por padrão.
+O site tem cinco seções no topo: **Resumo**, **Tabela de rotas**, **Por assunto**, **Prova PV1** e **Prova PV2**, que abre por padrão.
 
 ### Resumo
 
-Toda a matéria em 10 seções: modelos OSI e TCP/IP, endereçamento IPv4 (tabela de máscaras e o passo a passo de rede/broadcast), gateway, roteamento, comandos do roteador e do switch, Ethernet, VLAN, TCP e UDP, camada de aplicação e dicas para a hora da prova. Tem índice clicável e um botão “Li” em cada seção.
+Duas abas. **Resumo PV1**: toda a matéria da PV1 em 10 seções: modelos OSI e TCP/IP, endereçamento IPv4 (tabela de máscaras e o passo a passo de rede/broadcast), gateway, roteamento, comandos do roteador e do switch, Ethernet, VLAN, TCP e UDP, camada de aplicação e dicas para a hora da prova. Tem índice clicável e um botão “Li” em cada seção.
+
+**Resumo PV2**: sub-redes, VLSM, binário, cabeçalho IPv4, fragmentação (com a tabela de deslocamentos), ICMP, IPv6 (abreviação, prefixos, IPv4 × IPv6), transição v4/v6, cibersegurança e dicas para a prova.
 
 ### Tabela de rotas
 
@@ -49,7 +52,22 @@ Embaixo do treino ficam os **24 exercícios de tabela de rotas** que já existem
 | **Lista PV1** | As 91 questões da lista, com o gabarito oficial e um comentário em cada. |
 | **Relatório 5** | 11 questões sobre o laboratório: router-on-a-stick, `encapsulation dot1q`, OSPF com wildcard, `passive-interface` e rota estática. |
 
-As figuras (topologias e o cabeçalho de camada 4) são desenhadas em SVG dentro do
+### Prova PV2
+
+| Aba | O que tem |
+| --- | --- |
+| **O que caiu** | O relato de quem fez a PV2 da outra turma, em 11 tópicos: formato da prova (4 abertas, V/F, fechadas), cabeçalho IPv4, deslocamento de fragmento, divisão de rede, binário, ICMP/ping, IPv6, transição, cibersegurança, tabela de rotas e a prova do lab. Com atalhos para as questões parecidas. |
+| **Treino de contas** | Cinco tipos de conta gerados na hora: fragmentação (nº de fragmentos, dados, deslocamento e MF), divisão em N sub-redes, VLSM, binário/máscaras e abreviação de IPv6. Corrige campo a campo e mostra a resolução. |
+| **Simulado PV2** | 40 questões novas no formato relatado (2,5 pontos cada): começa pelo cabeçalho IPv4, fragmentação, sub-redes, IPv6, transição, ICMP, 3 de tabela de rotas, V/F de cibersegurança e as 4 abertas. |
+| **Lista PV2** | As 37 questões da lista de PV2 (passadas), com o gabarito oficial e um comentário em cada. |
+| **Lista de sub-redes** | Os 10 exercícios da lista de sub-redes da aula 07, resolvidos (a lista não tem gabarito), mais a Atividade 7 da aula. |
+| **Atividades 9 e 10** | As atividades do Teams de Protocolos IP (20) e Cibersegurança (15). |
+| **Prova do lab** | Roteiro da Atividade Integradora II: topologia, endereços e os comandos de cada etapa (OSPF, pfSense, Apache com TLS). |
+| **Questões do lab** | 17 questões sobre os relatórios do laboratório (VMs, redes do VirtualBox, Docker, MQTT, TLS, pfSense, OSPF). |
+
+As **questões abertas** têm uma caixa para escrever a resposta e o botão **Ver gabarito e corrigir**: depois de comparar, você marca se acertou, e isso entra no placar.
+
+As figuras (topologias e os cabeçalhos IPv4 e de camada 4) são desenhadas em SVG dentro do
 próprio HTML e acompanham o tema claro/escuro.
 
 ### Por assunto
@@ -64,7 +82,7 @@ próprio HTML e acompanham o tema claro/escuro.
 | 6 | TCP e UDP | 4 | 10 | 10 pts cada |
 | | **Total** | | **70** | |
 
-As duas seções somam **252 questões**.
+Com a PV2, o site soma **410 questões**.
 
 As questões de roteamento trazem a **tabela de rotas no formato do roteador Cisco**
 (`show ip route`), uma com rota padrão e outra sem, para comparar o que acontece
@@ -122,8 +140,12 @@ O site é estático, então basta apontar o GitHub Pages para a raiz do reposit�
 ## Onde mexer nas questões
 
 Tudo fica no `<script>` do `index.html`: as partes por assunto no array `PARTS`, e
-as abas da PV1 em `PV1_SIM`, `PV1_PROVA`, `PV1_LISTA` e `PV1_REL`. O guia está em
-`TOPICS` e `JUMPS`. Cada aba é um objeto com as questões dentro:
+as abas da PV1 em `PV1_SIM`, `PV1_PROVA`, `PV1_LISTA` e `PV1_REL`, e as da PV2 em
+`PV2_SIM`, `PV2_LISTA`, `PV2_SUB`, `PV2_ATIV` (que junta `A9_QS` e `A10_QS`) e
+`PV2_LABQ`. Os guias estão em `TOPICS`/`JUMPS` (PV1), `TOPICS2`/`JUMPS2` (PV2) e
+`LAB_TOPICS` (prova do lab); os resumos em `SUMMARY` e `SUMMARY2`. O treino de contas
+da PV2 fica em `T2G` (um gerador por tipo de conta). Cada aba é um objeto com as
+questões dentro:
 
 ```js
 { t:"Roteamento", layer:"Camada 3", pts:10, qs:[
@@ -141,6 +163,9 @@ as abas da PV1 em `PV1_SIM`, `PV1_PROVA`, `PV1_LISTA` e `PV1_REL`. O guia está 
 - `code` mostra uma tabela de rotas antes das alternativas: `"TD"` é a tabela com
   rota padrão e `"SEM"` a mesma tabela sem ela. As duas ficam em `TABLES`.
 - Questões verdadeiro/falso são só múltipla escolha com `o:["Verdade","Falso"]`.
+- Questão aberta: `open:"gabarito em HTML"`, com `o:OPEN_O, a:0, e:OPEN_E`. Ela
+  mostra a caixa de resposta e só exibe o gabarito e as opções “Acertei/Errei”
+  depois do clique em **Ver gabarito e corrigir**.
 
 ## Limites conhecidos
 
@@ -149,8 +174,11 @@ as abas da PV1 em `PV1_SIM`, `PV1_PROVA`, `PV1_LISTA` e `PV1_REL`. O guia está 
   erradas. Nesse caso, troque a chave `KEY` (`simulado-redes-v2` → `v3`) para
   zerar o progresso salvo. O progresso da versão antiga (`v1`) é migrado
   automaticamente na primeira visita.
-- **O relato da PV1 é de memória** — de quem saiu da prova e foi lembrando em
-  áudios. Serve para priorizar o estudo, não como gabarito.
+- **Os relatos da PV1 e da PV2 são de memória**, de quem saiu da prova e foi
+  lembrando em áudios e mensagens. Servem para priorizar o estudo, não como gabarito.
+- **A lista de sub-redes não tem gabarito oficial**: as respostas foram calculadas.
+  No exercício 6 (“até 32 hosts”), a resposta é /26, porque 32 hosts não cabem numa
+  /27; a questão está marcada.
 - **Uma questão veio de foto cortada** — na parte 1, a opção "Camada 4" da questão
   sobre IPv4 foi deduzida. Ela está marcada no site.
 
