@@ -8,12 +8,6 @@
   <img src="https://img.shields.io/badge/CSS3-0D1117?style=for-the-badge&logo=css&logoColor=1572B6" alt="CSS3" />
 </p>
 
-<p align="center">
-  <a href="https://alves-araujo.github.io/T02/">
-    <img src="https://img.shields.io/badge/%E2%86%92_Acessar_o_site-ff3ee0?style=for-the-badge&labelColor=0D1117" alt="Acessar o site" />
-  </a>
-</p>
-
 > **Do bit ao IPv6, em 410 questões e dois resumos.**
 
 Simulado de estudo para **Redes de Dados I** (T02/T202 · Inatel), montado a partir
@@ -23,7 +17,7 @@ questão tem o gabarito e um comentário explicando por que a resposta é aquela
 por que as outras não são.
 
 Sem back-end, sem login e sem build: é **um único `index.html`**, com HTML, CSS e
-JavaScript puro, servido pelo GitHub Pages.
+JavaScript puro. Para usar, veja [Rodar localmente](#rodar-localmente).
 
 ## O que tem dentro
 
