@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/CSS3-0D1117?style=for-the-badge&logo=css&logoColor=1572B6" alt="CSS3" />
 </p>
 
-> **Do bit ao IPv6, em 410 questões e dois resumos.**
+> **Do bit ao IPv6, em 531 questões e dois resumos.**
 
 Simulado de estudo para **Redes de Dados I** (T02/T202 · Inatel), montado a partir
 das questões das provas, das listas de exercícios, das atividades do Teams e do relato
@@ -51,8 +51,12 @@ Embaixo do treino ficam os **24 exercícios de tabela de rotas** que já existem
 | Aba | O que tem |
 | --- | --- |
 | **O que caiu** | O relato de quem fez a PV2 da outra turma, em 11 tópicos: formato da prova (4 abertas, V/F, fechadas), cabeçalho IPv4, deslocamento de fragmento, divisão de rede, binário, ICMP/ping, IPv6, transição, cibersegurança, tabela de rotas e a prova do lab. Com atalhos para as questões parecidas. |
-| **Treino de contas** | Cinco tipos de conta gerados na hora: fragmentação (nº de fragmentos, dados, deslocamento e MF), divisão em N sub-redes, VLSM, binário/máscaras e abreviação de IPv6. Corrige campo a campo e mostra a resolução. |
-| **Simulado PV2** | 40 questões novas no formato relatado (2,5 pontos cada): começa pelo cabeçalho IPv4, fragmentação, sub-redes, IPv6, transição, ICMP, 3 de tabela de rotas, V/F de cibersegurança e as 4 abertas. |
+| **Treino de contas** | Seis tipos de conta gerados na hora: fragmentação (nº de fragmentos, dados, deslocamento e MF), divisão em N sub-redes (com a tabela de todas na resolução), VLSM, rede do host (dado IP e máscara, achar rede, broadcast e hosts), binário/máscaras e abreviação de IPv6. Corrige campo a campo e mostra a resolução. |
+| **Simulado B** | 34 questões no formato da prova de quarta (25/11), contada em áudio por quem fez: cabeçalho, MTU, IPv6, rede do host, sub-rede de sub-rede, 127.0.0.1, V/F de cibersegurança e as 4 abertas (TTL, deslocamento, 8 sub-redes, VLSM), com o valor de cada uma (total 100). |
+| **Simulado C · abertas** | 20 questões abertas em 5 “provas” no formato que se repetiu na terça e na quarta: 2 de teoria sobre o datagrama IPv4 e o ICMP (5 pontos cada), 1 divisão em sub-redes iguais (10) e 1 VLSM por departamentos (20). Gabarito comentado em cada uma. |
+| **Simulado A** | 40 questões novas no formato relatado na terça (24/11) (2,5 pontos cada): começa pelo cabeçalho IPv4, fragmentação, sub-redes, IPv6, transição, ICMP, 3 de tabela de rotas, V/F de cibersegurança e as 4 abertas. |
+| **PV2 2024** | A PV2 da turma T202-B de 2024 (28/11/24), transcrita das fotos: 27 questões, quase todas V/F, com o gabarito da correção do professor. |
+| **NP3 2024** | A NP3 (recuperação) de 2024 (12/12/24): 40 questões do semestre inteiro, cada uma com o selo da matéria (PV1 ou PV2). |
 | **Lista PV2** | As 37 questões da lista de PV2 (passadas), com o gabarito oficial e um comentário em cada. |
 | **Lista de sub-redes** | Os 10 exercícios da lista de sub-redes da aula 07, resolvidos (a lista não tem gabarito), mais a Atividade 7 da aula. |
 | **Atividades 9 e 10** | As atividades do Teams de Protocolos IP (20) e Cibersegurança (15). |
@@ -76,7 +80,7 @@ próprio HTML e acompanham o tema claro/escuro.
 | 6 | TCP e UDP | 4 | 10 | 10 pts cada |
 | | **Total** | | **70** | |
 
-Com a PV2, o site soma **410 questões**.
+Com a PV2, o site soma **531 questões**.
 
 As questões de roteamento trazem a **tabela de rotas no formato do roteador Cisco**
 (`show ip route`), uma com rota padrão e outra sem, para comparar o que acontece
