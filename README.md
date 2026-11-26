@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/CSS3-0D1117?style=for-the-badge&logo=css&logoColor=1572B6" alt="CSS3" />
 </p>
 
-> **Do bit ao IPv6, em 531 questões e dois resumos.**
+> **Do bit ao IPv6, em 561 questões e dois resumos.**
 
 Simulado de estudo para **Redes de Dados I** (T02/T202 · Inatel), montado a partir
 das questões das provas, das listas de exercícios, das atividades do Teams e do relato
@@ -61,7 +61,7 @@ Embaixo do treino ficam os **24 exercícios de tabela de rotas** que já existem
 | **Lista de sub-redes** | Os 10 exercícios da lista de sub-redes da aula 07, resolvidos (a lista não tem gabarito), mais a Atividade 7 da aula. |
 | **Atividades 9 e 10** | As atividades do Teams de Protocolos IP (20) e Cibersegurança (15). |
 | **Prova do lab** | Roteiro da Atividade Integradora II: topologia, endereços e os comandos de cada etapa (OSPF, pfSense, Apache com TLS). |
-| **Questões do lab** | 17 questões sobre os relatórios do laboratório (VMs, redes do VirtualBox, Docker, MQTT, TLS, pfSense, OSPF). |
+| **Questões do lab** | 47 questões sobre os relatórios do laboratório (VMs, redes do VirtualBox, Docker, MQTT, TLS, pfSense, OSPF), sendo 30 de comandos: `show ip`/`show ipv6` (`int brief`, `route`, `ospf neighbor`), modos do IOS, OSPFv3 do Relatório 7 e os comandos do PC e do Linux das VMs. |
 
 As **questões abertas** têm uma caixa para escrever a resposta e o botão **Ver gabarito e corrigir**: depois de comparar, você marca se acertou, e isso entra no placar.
 
@@ -80,7 +80,7 @@ próprio HTML e acompanham o tema claro/escuro.
 | 6 | TCP e UDP | 4 | 10 | 10 pts cada |
 | | **Total** | | **70** | |
 
-Com a PV2, o site soma **531 questões**.
+Com a PV2, o site soma **561 questões**.
 
 As questões de roteamento trazem a **tabela de rotas no formato do roteador Cisco**
 (`show ip route`), uma com rota padrão e outra sem, para comparar o que acontece
